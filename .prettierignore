@@ -1,0 +1,8 @@
+pnpm-lock.yaml
+dist
+coverage
+.angular
+design_handoff_flight_radar
+SPEC.md
+CLAUDE.md
+data
