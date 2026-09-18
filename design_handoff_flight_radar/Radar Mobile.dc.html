@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/nocturne-9da5e963-4135-4981-836c-ba39074fd8c1/styles.css">
+<script src="_ds/nocturne-9da5e963-4135-4981-836c-ba39074fd8c1/_ds_bundle.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+<style>
+  :root {
+    --glass-blur: 22px;
+    --ink: 233,233,237; --hi: 255,255,255; --acc: 145,132,217;
+    --sheet-top: rgba(35,37,50,.8); --sheet-bot: rgba(22,24,38,.93);
+    --scrim-0: rgba(22,24,38,.2); --scrim-1: rgba(22,24,38,.9);
+    --top-fade: rgba(15,17,28,.85);
+    --ground-a: radial-gradient(120% 80% at 30% 10%, #1b2033, #10121d 70%);
+    --ground-b: radial-gradient(120% 80% at 70% 0%, #1d2236, #101220 70%);
+    --ground-c: radial-gradient(120% 70% at 20% 0%, #1d2236, #101220 70%);
+    --knob: var(--color-accent-100);
+  }
+  body { margin: 0; background: #0f111c; color: var(--color-text); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  a { color: var(--color-accent-300); text-decoration: none; }
+  a:hover { color: var(--color-accent-200); }
+  @keyframes noct-pulse { 0%,100% { opacity: .35; transform: scale(1); } 50% { opacity: 1; transform: scale(1.25); } }
+</style>
+</helmet>
+
+<section style="padding: 40px 40px 0; display: flex; flex-direction: column; gap: 28px">
+  <div style="display: flex; flex-direction: column; gap: 10px; max-width: 720px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <span style="font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--color-accent-400)">Turn 2</span>
+      <span style="height: 1px; flex: 1; background: linear-gradient(90deg, transparent, rgba(var(--ink),.22) 48px, rgba(var(--ink),.22) calc(100% - 48px), transparent)"></span>
+    </div>
+    <h1 style="margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 30px; letter-spacing: -.01em">Desktop and light theme</h1>
+    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-neutral-400); max-width: 62ch; text-wrap: pretty">At 1440×900 the same parts move: the tab bar becomes a left rail, the bottom sheet becomes a fixed right panel, and the extra width pays for a feed strip and a position log. The light theme is the same markup with the token layer swapped — ground, ink, glass tints and accent steps all come from variables, so nothing is re-authored per theme.</p>
+  </div>
+  <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+
+    <div id="2a" style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--color-accent-700); color: var(--color-accent-300)">2a</span>
+        <span style="font-size: 13px; color: var(--color-neutral-400)">Desktop · dark</span>
+      </div>
+      <div style=" position: relative; width: 1440px; height: 900px; border-radius: var(--radius-lg); overflow: hidden; background: var(--ground-a); box-shadow: var(--shadow-lg); display: flex; font-family: var(--font-body); color: var(--color-text)">
+
+        <div style="position: relative; z-index: 2; width: 236px; flex: 0 0 236px; padding: 22px 16px; display: flex; flex-direction: column; gap: 26px; background: linear-gradient(180deg, var(--sheet-top), var(--sheet-bot)); backdrop-filter: blur(calc(var(--glass-blur) * 1.3)) saturate(150%); -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.3)) saturate(150%); border-right: 1px solid rgba(var(--ink),.12)">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 0 6px">
+            <i class="ph-fill ph-radioactive" style="font-size: 22px; color: var(--color-accent-400)"></i>
+            <span style="font-family: var(--font-heading); font-size: 18px; font-weight: 500; letter-spacing: -.01em">Radar</span>
+            <span style="margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-neutral-400)"><span style="width: 6px; height: 6px; border-radius: 999px; background: var(--color-accent-400); animation: noct-pulse 2.4s infinite"></span>live</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 3px">
+            <span style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; font-size: 14px; color: var(--color-accent-200); background: rgba(var(--acc),.16); border: 1px solid var(--color-accent-700)"><i class="ph-fill ph-globe-hemisphere-west" style="font-size: 19px"></i>Map</span>
+            <span style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; font-size: 14px; color: var(--color-neutral-300)"><i class="ph ph-magnifying-glass" style="font-size: 19px"></i>Search</span>
+            <span style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; font-size: 14px; color: var(--color-neutral-300)"><i class="ph ph-bookmark-simple" style="font-size: 19px"></i>Following<span style="margin-left: auto; font-size: 11px; color: var(--color-neutral-400)">3</span></span>
+            <span style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; font-size: 14px; color: var(--color-neutral-300)"><i class="ph ph-bell" style="font-size: 19px"></i>Alerts<span style="margin-left: auto; font-size: 11px; color: var(--color-accent-300)">1</span></span>
+            <span style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; font-size: 14px; color: var(--color-neutral-300)"><i class="ph ph-sliders-horizontal" style="font-size: 19px"></i>Filters</span>
+          </div>
+          <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1)">
+            <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Feed</span>
+            <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: var(--color-neutral-300)">Flights</span><span style="font-variant-numeric: tabular-nums">5 012</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: var(--color-neutral-300)">Receivers</span><span style="font-variant-numeric: tabular-nums">1 284</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: var(--color-neutral-300)">WS latency</span><span style="font-variant-numeric: tabular-nums">42 ms</span></div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; padding: 0 6px 4px">
+            <span style="width: 28px; height: 28px; border-radius: 999px; background: linear-gradient(140deg, var(--color-accent-600), var(--color-accent-800)); display: grid; place-items: center; font-size: 11px; font-weight: 600; color: var(--color-accent-100)">RS</span>
+            <span style="font-size: 13px; color: var(--color-neutral-300)">Roman S.</span>
+            <i class="ph ph-caret-up-down" style="margin-left: auto; font-size: 15px; color: var(--color-neutral-400)"></i>
+          </div>
+        </div>
+
+        <div style="position: relative; flex: 1">
+          <div ref="{{ mapE }}" style="position: absolute; inset: 0"></div>
+          <svg viewBox="0 0 1204 900" style="position: absolute; inset: 0; width: 100%; height: 100%">
+            <path d="M 210 700 C 380 600, 470 470, 556 350" fill="none" stroke="var(--color-accent-500)" stroke-width="1.8" stroke-dasharray="6 7" opacity=".75"></path>
+            <path d="M 556 350 C 610 250, 660 210, 742 176" fill="none" stroke="var(--color-accent-500)" stroke-width="1.8" opacity=".28"></path>
+            <circle cx="210" cy="700" r="4" fill="var(--color-accent-400)"></circle>
+            <circle cx="742" cy="176" r="4" fill="none" stroke="var(--color-accent-400)" stroke-width="1.5"></circle>
+          </svg>
+          <div style="position: absolute; left: 556px; top: 350px; transform: translate(-50%,-50%)">
+            <div style="position: absolute; inset: -26px; border-radius: 999px; background: radial-gradient(circle, rgba(var(--acc),.38), transparent 70%)"></div>
+            <i class="ph-fill ph-airplane-in-flight" style="position: relative; display: block; font-size: 28px; color: var(--color-accent-300); transform: rotate(-28deg); filter: drop-shadow(0 0 8px rgba(var(--acc),.7))"></i>
+          </div>
+          <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 320px; top: 250px; font-size: 18px; color: rgba(var(--ink),.6); transform: rotate(64deg)"></i>
+          <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 700px; top: 470px; font-size: 18px; color: rgba(var(--ink),.55); transform: rotate(-104deg)"></i>
+          <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 430px; top: 540px; font-size: 16px; color: rgba(var(--ink),.45); transform: rotate(18deg)"></i>
+          <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 250px; top: 430px; font-size: 16px; color: rgba(var(--ink),.4); transform: rotate(122deg)"></i>
+          <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 620px; top: 660px; font-size: 16px; color: rgba(var(--ink),.4); transform: rotate(-46deg)"></i>
+
+          <div style="position: absolute; left: 22px; top: 22px; display: flex; gap: 10px; align-items: center">
+            <div style="display: flex; align-items: center; gap: 11px; width: 380px; padding: 12px 14px; border-radius: 18px; background: linear-gradient(160deg, rgba(var(--ink),.12), rgba(var(--ink),.05)); backdrop-filter: blur(var(--glass-blur)) saturate(150%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%); border: 1px solid rgba(var(--ink),.15); box-shadow: inset 0 1px 0 rgba(var(--hi),.13), 0 10px 28px rgba(0,0,0,.35)">
+              <i class="ph ph-magnifying-glass" style="font-size: 18px; color: var(--color-neutral-300)"></i>
+              <span style="flex: 1; font-size: 14px; color: var(--color-neutral-400)">Flight, airport or route</span>
+              <span style="font-size: 11px; padding: 3px 7px; border-radius: 8px; color: var(--color-neutral-400); border: 1px solid rgba(var(--ink),.14)">⌘K</span>
+            </div>
+            <span style="display: flex; align-items: center; gap: 6px; padding: 9px 13px; border-radius: 999px; font-size: 12px; color: var(--color-accent-200); background: rgba(var(--acc),.16); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--color-accent-700)"><i class="ph ph-sliders-horizontal" style="font-size: 14px"></i>Filters · 2</span>
+            <span style="padding: 9px 13px; border-radius: 999px; font-size: 12px; color: var(--color-neutral-300); background: rgba(var(--ink),.08); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.12)">Above FL200</span>
+          </div>
+
+          <div style="position: absolute; right: 386px; top: 22px; display: flex; flex-direction: column; gap: 8px">
+            <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-stack-simple"></i></span>
+            <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-crosshair"></i></span>
+            <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-plus"></i></span>
+            <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-minus"></i></span>
+          </div>
+
+          <div style="position: absolute; left: 22px; bottom: 22px; display: flex; align-items: center; gap: 22px; padding: 13px 18px; border-radius: 18px; background: linear-gradient(160deg, rgba(var(--ink),.11), rgba(var(--ink),.05)); backdrop-filter: blur(var(--glass-blur)) saturate(150%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12), 0 10px 28px rgba(0,0,0,.35)">
+            <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">In view</span><span style="font-family: var(--font-heading); font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums">612</span></div>
+            <span style="width: 1px; height: 30px; background: rgba(var(--ink),.14)"></span>
+            <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Frame</span><span style="font-family: var(--font-heading); font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums">11 ms</span></div>
+            <span style="width: 1px; height: 30px; background: rgba(var(--ink),.14)"></span>
+            <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Stream</span><span style="font-family: var(--font-heading); font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums">18 KB/s</span></div>
+          </div>
+
+          <div style="position: absolute; right: 22px; top: 22px; bottom: 22px; width: 348px; border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 18px; background: linear-gradient(170deg, rgba(var(--ink),.13), rgba(var(--ink),.05)); backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(160%); -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(160%); border: 1px solid rgba(var(--ink),.16); box-shadow: inset 0 1px 0 rgba(var(--hi),.13), 0 18px 46px rgba(0,0,0,.45)">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <span style="font-family: var(--font-heading); font-size: 24px; font-weight: 500; letter-spacing: -.01em">KL1024</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400)">KLM · B737-800 · PH-BXA</span>
+              </div>
+              <span style="padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; color: var(--color-accent-200); background: rgba(var(--acc),.16); border: 1px solid var(--color-accent-700)">En route</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="display: flex; align-items: baseline; justify-content: space-between">
+                <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: var(--font-heading); font-size: 19px; font-weight: 500">AMS</span><span style="font-size: 12px; color: var(--color-neutral-400)">10:05 · Gate D42</span></div>
+                <div style="display: flex; flex-direction: column; gap: 2px; align-items: flex-end"><span style="font-family: var(--font-heading); font-size: 19px; font-weight: 500">LHR</span><span style="font-size: 12px; color: var(--color-neutral-400)">10:52 · Term 4</span></div>
+              </div>
+              <div style="position: relative; height: 3px; border-radius: 999px; background: rgba(var(--ink),.14)">
+                <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 62%; border-radius: 999px; background: linear-gradient(90deg, var(--color-accent-500), var(--color-accent-400))"></div>
+                <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 62%; top: 50%; transform: translate(-50%,-50%) rotate(90deg); font-size: 15px; color: var(--color-accent-300); filter: drop-shadow(0 0 6px rgba(var(--acc),.8))"></i>
+              </div>
+              <span style="font-size: 12px; color: var(--color-neutral-400)">18 min remaining · 214 km to go</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+              <div style="padding: 13px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Altitude</span><span style="font-family: var(--font-heading); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums">34 000 <span style="font-size: 12px; color: var(--color-neutral-400)">ft</span></span></div>
+              <div style="padding: 13px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Speed</span><span style="font-family: var(--font-heading); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums">448 <span style="font-size: 12px; color: var(--color-neutral-400)">kt</span></span></div>
+              <div style="padding: 13px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Track</span><span style="font-family: var(--font-heading); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums">241°</span></div>
+              <div style="padding: 13px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Vertical</span><span style="font-family: var(--font-heading); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums">−640 <span style="font-size: 12px; color: var(--color-neutral-400)">fpm</span></span></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Altitude profile</span>
+              <svg viewBox="0 0 300 64" style="width: 100%; height: 64px">
+                <path d="M 0 62 L 26 42 L 62 18 L 186 12 L 222 20 L 266 44 L 300 58" fill="none" stroke="var(--color-accent-400)" stroke-width="1.6"></path>
+                <circle cx="222" cy="20" r="3.2" fill="var(--color-accent-300)"></circle>
+              </svg>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Recent positions</span>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-neutral-300); font-variant-numeric: tabular-nums; padding: 7px 0; border-top: 1px solid rgba(var(--ink),.08)"><span>10:38:04</span><span>51.71 N · 1.02 E</span><span>FL341</span></div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-neutral-300); font-variant-numeric: tabular-nums; padding: 7px 0; border-top: 1px solid rgba(var(--ink),.08)"><span>10:37:49</span><span>51.76 N · 1.14 E</span><span>FL344</span></div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-neutral-300); font-variant-numeric: tabular-nums; padding: 7px 0; border-top: 1px solid rgba(var(--ink),.08)"><span>10:37:34</span><span>51.82 N · 1.27 E</span><span>FL348</span></div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: auto">
+              <span style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px; border-radius: 16px; font-size: 14px; font-weight: 500; color: var(--color-accent-200); border: 1px solid var(--color-accent-500); background: rgba(var(--acc),.12)"><i class="ph ph-bookmark-simple" style="font-size: 17px"></i>Follow</span>
+              <span style="width: 44px; height: 44px; border-radius: 16px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.08); border: 1px solid rgba(var(--ink),.12)"><i class="ph ph-bell"></i></span>
+              <span style="width: 44px; height: 44px; border-radius: 16px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.08); border: 1px solid rgba(var(--ink),.12)"><i class="ph ph-share-network"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="2b" style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--color-accent-700); color: var(--color-accent-300)">2b</span>
+        <span style="font-size: 13px; color: var(--color-neutral-400)">Desktop · light</span>
+      </div>
+      <div data-theme="light" style="--ink: 26,28,38; --acc: 121,108,191; --hi: 255,255,255; --sheet-top: rgba(252,252,253,.84); --sheet-bot: rgba(238,239,245,.95); --scrim-0: rgba(244,244,248,.2); --scrim-1: rgba(243,244,249,.93); --top-fade: rgba(247,248,251,.88); --ground-a: radial-gradient(120% 80% at 30% 10%, #f4f5f9, #e3e5ee 70%); --ground-b: radial-gradient(120% 80% at 70% 0%, #f4f5f9, #e3e5ee 70%); --ground-c: radial-gradient(120% 70% at 20% 0%, #f5f6fa, #e5e7ef 70%); --color-text: #1a1c26; --color-neutral-200: #33363f; --color-neutral-300: #454954; --color-neutral-400: #5a5e6b; --color-accent-100: #2b2741; --color-accent-200: #4a4176; --color-accent-300: #5d5294; --color-accent-400: #6f63ad; --color-accent-500: #796cbf; --color-accent-600: #cfc9f9; --color-accent-700: #c6bef6; --color-accent-800: #ded9fc; --knob: #fcfcfd; --shadow-lg: 0 0 0 1px #c9ccd8, 0 18px 44px rgba(0,0,0,.18); position: relative; width: 1440px; height: 900px; border-radius: var(--radius-lg); overflow: hidden; background: var(--ground-a); box-shadow: var(--shadow-lg); display: flex; font-family: var(--font-body); color: var(--color-text)">
+
+        <div style="position: relative; z-index: 2; width: 236px; flex: 0 0 236px; padding: 22px 16px; display: flex; flex-direction: column; gap: 26px; background: linear-gradient(180deg, var(--sheet-top), var(--sheet-bot)); backdrop-filter: blur(calc(var(--glass-blur) * 1.3)) saturate(150%); -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.3)) saturate(150%); border-right: 1px solid rgba(var(--ink),.12)">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 0 6px">
+            <i class="ph-fill ph-radioactive" style="font-size: 22px; color: var(--color-accent-400)"></i>
+            <span style="font-family: var(--font-heading); font-size: 18px; font-weight: 500; letter-spacing: -.01em">Radar</span>
+            <span style="margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-neutral-400)"><span style="width: 6px; height: 6px; border-radius: 999px; background: var(--color-accent-400); animation: noct-pulse 2.4s infinite"></span>live</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 3px">
+            <span style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; font-size: 14px; color: var(--color-accent-200); background: rgba(var(--acc),.16); border: 1px solid var(--color-accent-700)"><i class="ph-fill ph-globe-hemisphere-west" style="font-size: 19px"></i>Map</span>
+            <span style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; font-size: 14px; color: var(--color-neutral-300)"><i class="ph ph-magnifying-glass" style="font-size: 19px"></i>Search</span>
+            <span style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; font-size: 14px; color: var(--color-neutral-300)"><i class="ph ph-bookmark-simple" style="font-size: 19px"></i>Following<span style="margin-left: auto; font-size: 11px; color: var(--color-neutral-400)">3</span></span>
+            <span style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; font-size: 14px; color: var(--color-neutral-300)"><i class="ph ph-bell" style="font-size: 19px"></i>Alerts<span style="margin-left: auto; font-size: 11px; color: var(--color-accent-300)">1</span></span>
+            <span style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; font-size: 14px; color: var(--color-neutral-300)"><i class="ph ph-sliders-horizontal" style="font-size: 19px"></i>Filters</span>
+          </div>
+          <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1)">
+            <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Feed</span>
+            <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: var(--color-neutral-300)">Flights</span><span style="font-variant-numeric: tabular-nums">5 012</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: var(--color-neutral-300)">Receivers</span><span style="font-variant-numeric: tabular-nums">1 284</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: var(--color-neutral-300)">WS latency</span><span style="font-variant-numeric: tabular-nums">42 ms</span></div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; padding: 0 6px 4px">
+            <span style="width: 28px; height: 28px; border-radius: 999px; background: linear-gradient(140deg, var(--color-accent-600), var(--color-accent-800)); display: grid; place-items: center; font-size: 11px; font-weight: 600; color: var(--color-accent-100)">RS</span>
+            <span style="font-size: 13px; color: var(--color-neutral-300)">Roman S.</span>
+            <i class="ph ph-caret-up-down" style="margin-left: auto; font-size: 15px; color: var(--color-neutral-400)"></i>
+          </div>
+        </div>
+
+        <div style="position: relative; flex: 1">
+          <div ref="{{ mapF }}" style="position: absolute; inset: 0"></div>
+          <svg viewBox="0 0 1204 900" style="position: absolute; inset: 0; width: 100%; height: 100%">
+            <path d="M 210 700 C 380 600, 470 470, 556 350" fill="none" stroke="var(--color-accent-500)" stroke-width="1.8" stroke-dasharray="6 7" opacity=".75"></path>
+            <path d="M 556 350 C 610 250, 660 210, 742 176" fill="none" stroke="var(--color-accent-500)" stroke-width="1.8" opacity=".28"></path>
+            <circle cx="210" cy="700" r="4" fill="var(--color-accent-400)"></circle>
+            <circle cx="742" cy="176" r="4" fill="none" stroke="var(--color-accent-400)" stroke-width="1.5"></circle>
+          </svg>
+          <div style="position: absolute; left: 556px; top: 350px; transform: translate(-50%,-50%)">
+            <div style="position: absolute; inset: -26px; border-radius: 999px; background: radial-gradient(circle, rgba(var(--acc),.38), transparent 70%)"></div>
+            <i class="ph-fill ph-airplane-in-flight" style="position: relative; display: block; font-size: 28px; color: var(--color-accent-300); transform: rotate(-28deg); filter: drop-shadow(0 0 8px rgba(var(--acc),.7))"></i>
+          </div>
+          <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 320px; top: 250px; font-size: 18px; color: rgba(var(--ink),.6); transform: rotate(64deg)"></i>
+          <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 700px; top: 470px; font-size: 18px; color: rgba(var(--ink),.55); transform: rotate(-104deg)"></i>
+          <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 430px; top: 540px; font-size: 16px; color: rgba(var(--ink),.45); transform: rotate(18deg)"></i>
+          <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 250px; top: 430px; font-size: 16px; color: rgba(var(--ink),.4); transform: rotate(122deg)"></i>
+          <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 620px; top: 660px; font-size: 16px; color: rgba(var(--ink),.4); transform: rotate(-46deg)"></i>
+
+          <div style="position: absolute; left: 22px; top: 22px; display: flex; gap: 10px; align-items: center">
+            <div style="display: flex; align-items: center; gap: 11px; width: 380px; padding: 12px 14px; border-radius: 18px; background: linear-gradient(160deg, rgba(var(--ink),.12), rgba(var(--ink),.05)); backdrop-filter: blur(var(--glass-blur)) saturate(150%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%); border: 1px solid rgba(var(--ink),.15); box-shadow: inset 0 1px 0 rgba(var(--hi),.13), 0 10px 28px rgba(0,0,0,.35)">
+              <i class="ph ph-magnifying-glass" style="font-size: 18px; color: var(--color-neutral-300)"></i>
+              <span style="flex: 1; font-size: 14px; color: var(--color-neutral-400)">Flight, airport or route</span>
+              <span style="font-size: 11px; padding: 3px 7px; border-radius: 8px; color: var(--color-neutral-400); border: 1px solid rgba(var(--ink),.14)">⌘K</span>
+            </div>
+            <span style="display: flex; align-items: center; gap: 6px; padding: 9px 13px; border-radius: 999px; font-size: 12px; color: var(--color-accent-200); background: rgba(var(--acc),.16); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--color-accent-700)"><i class="ph ph-sliders-horizontal" style="font-size: 14px"></i>Filters · 2</span>
+            <span style="padding: 9px 13px; border-radius: 999px; font-size: 12px; color: var(--color-neutral-300); background: rgba(var(--ink),.08); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.12)">Above FL200</span>
+          </div>
+
+          <div style="position: absolute; right: 386px; top: 22px; display: flex; flex-direction: column; gap: 8px">
+            <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-stack-simple"></i></span>
+            <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-crosshair"></i></span>
+            <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-plus"></i></span>
+            <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-minus"></i></span>
+          </div>
+
+          <div style="position: absolute; left: 22px; bottom: 22px; display: flex; align-items: center; gap: 22px; padding: 13px 18px; border-radius: 18px; background: linear-gradient(160deg, rgba(var(--ink),.11), rgba(var(--ink),.05)); backdrop-filter: blur(var(--glass-blur)) saturate(150%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12), 0 10px 28px rgba(0,0,0,.35)">
+            <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">In view</span><span style="font-family: var(--font-heading); font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums">612</span></div>
+            <span style="width: 1px; height: 30px; background: rgba(var(--ink),.14)"></span>
+            <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Frame</span><span style="font-family: var(--font-heading); font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums">11 ms</span></div>
+            <span style="width: 1px; height: 30px; background: rgba(var(--ink),.14)"></span>
+            <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Stream</span><span style="font-family: var(--font-heading); font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums">18 KB/s</span></div>
+          </div>
+
+          <div style="position: absolute; right: 22px; top: 22px; bottom: 22px; width: 348px; border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 18px; background: linear-gradient(170deg, rgba(var(--ink),.13), rgba(var(--ink),.05)); backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(160%); -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(160%); border: 1px solid rgba(var(--ink),.16); box-shadow: inset 0 1px 0 rgba(var(--hi),.13), 0 18px 46px rgba(0,0,0,.45)">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <span style="font-family: var(--font-heading); font-size: 24px; font-weight: 500; letter-spacing: -.01em">KL1024</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400)">KLM · B737-800 · PH-BXA</span>
+              </div>
+              <span style="padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; color: var(--color-accent-200); background: rgba(var(--acc),.16); border: 1px solid var(--color-accent-700)">En route</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="display: flex; align-items: baseline; justify-content: space-between">
+                <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: var(--font-heading); font-size: 19px; font-weight: 500">AMS</span><span style="font-size: 12px; color: var(--color-neutral-400)">10:05 · Gate D42</span></div>
+                <div style="display: flex; flex-direction: column; gap: 2px; align-items: flex-end"><span style="font-family: var(--font-heading); font-size: 19px; font-weight: 500">LHR</span><span style="font-size: 12px; color: var(--color-neutral-400)">10:52 · Term 4</span></div>
+              </div>
+              <div style="position: relative; height: 3px; border-radius: 999px; background: rgba(var(--ink),.14)">
+                <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 62%; border-radius: 999px; background: linear-gradient(90deg, var(--color-accent-500), var(--color-accent-400))"></div>
+                <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 62%; top: 50%; transform: translate(-50%,-50%) rotate(90deg); font-size: 15px; color: var(--color-accent-300); filter: drop-shadow(0 0 6px rgba(var(--acc),.8))"></i>
+              </div>
+              <span style="font-size: 12px; color: var(--color-neutral-400)">18 min remaining · 214 km to go</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+              <div style="padding: 13px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Altitude</span><span style="font-family: var(--font-heading); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums">34 000 <span style="font-size: 12px; color: var(--color-neutral-400)">ft</span></span></div>
+              <div style="padding: 13px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Speed</span><span style="font-family: var(--font-heading); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums">448 <span style="font-size: 12px; color: var(--color-neutral-400)">kt</span></span></div>
+              <div style="padding: 13px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Track</span><span style="font-family: var(--font-heading); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums">241°</span></div>
+              <div style="padding: 13px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px"><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Vertical</span><span style="font-family: var(--font-heading); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums">−640 <span style="font-size: 12px; color: var(--color-neutral-400)">fpm</span></span></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Altitude profile</span>
+              <svg viewBox="0 0 300 64" style="width: 100%; height: 64px">
+                <path d="M 0 62 L 26 42 L 62 18 L 186 12 L 222 20 L 266 44 L 300 58" fill="none" stroke="var(--color-accent-400)" stroke-width="1.6"></path>
+                <circle cx="222" cy="20" r="3.2" fill="var(--color-accent-300)"></circle>
+              </svg>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Recent positions</span>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-neutral-300); font-variant-numeric: tabular-nums; padding: 7px 0; border-top: 1px solid rgba(var(--ink),.08)"><span>10:38:04</span><span>51.71 N · 1.02 E</span><span>FL341</span></div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-neutral-300); font-variant-numeric: tabular-nums; padding: 7px 0; border-top: 1px solid rgba(var(--ink),.08)"><span>10:37:49</span><span>51.76 N · 1.14 E</span><span>FL344</span></div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-neutral-300); font-variant-numeric: tabular-nums; padding: 7px 0; border-top: 1px solid rgba(var(--ink),.08)"><span>10:37:34</span><span>51.82 N · 1.27 E</span><span>FL348</span></div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: auto">
+              <span style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px; border-radius: 16px; font-size: 14px; font-weight: 500; color: var(--color-accent-200); border: 1px solid var(--color-accent-500); background: rgba(var(--acc),.12)"><i class="ph ph-bookmark-simple" style="font-size: 17px"></i>Follow</span>
+              <span style="width: 44px; height: 44px; border-radius: 16px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.08); border: 1px solid rgba(var(--ink),.12)"><i class="ph ph-bell"></i></span>
+              <span style="width: 44px; height: 44px; border-radius: 16px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.08); border: 1px solid rgba(var(--ink),.12)"><i class="ph ph-share-network"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<div id="2c" style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--color-accent-700); color: var(--color-accent-300)">2c</span>
+        <span style="font-size: 13px; color: var(--color-neutral-400)">Light theme · mobile</span>
+      </div>
+      <div data-theme="light" style="--ink: 26,28,38; --acc: 121,108,191; --hi: 255,255,255; --sheet-top: rgba(252,252,253,.84); --sheet-bot: rgba(238,239,245,.95); --scrim-0: rgba(244,244,248,.2); --scrim-1: rgba(243,244,249,.93); --top-fade: rgba(247,248,251,.88); --ground-a: radial-gradient(120% 80% at 30% 10%, #f4f5f9, #e3e5ee 70%); --ground-b: radial-gradient(120% 80% at 70% 0%, #f4f5f9, #e3e5ee 70%); --ground-c: radial-gradient(120% 70% at 20% 0%, #f5f6fa, #e5e7ef 70%); --color-text: #1a1c26; --color-neutral-200: #33363f; --color-neutral-300: #454954; --color-neutral-400: #5a5e6b; --color-accent-100: #2b2741; --color-accent-200: #4a4176; --color-accent-300: #5d5294; --color-accent-400: #6f63ad; --color-accent-500: #796cbf; --color-accent-600: #cfc9f9; --color-accent-700: #c6bef6; --color-accent-800: #ded9fc; --knob: #fcfcfd; --shadow-lg: 0 0 0 1px #c9ccd8, 0 18px 44px rgba(0,0,0,.18); color: var(--color-text); position: relative; width: 390px; height: 844px; border-radius: 42px; overflow: hidden; background: var(--ground-a); box-shadow: var(--shadow-lg)">
+        <div ref="{{ mapD }}" style="position: absolute; inset: 0"></div>
+        <svg viewBox="0 0 390 844" style="position: absolute; inset: 0; width: 100%; height: 100%">
+          <path d="M 42 690 C 130 600, 190 470, 236 336" fill="none" stroke="var(--color-accent-500)" stroke-width="1.6" stroke-dasharray="5 6" opacity=".75"></path>
+          <path d="M 236 336 C 268 244, 300 206, 352 176" fill="none" stroke="var(--color-accent-500)" stroke-width="1.6" opacity=".28"></path>
+          <circle cx="42" cy="690" r="3.5" fill="var(--color-accent-400)"></circle>
+          <circle cx="352" cy="176" r="3.5" fill="none" stroke="var(--color-accent-400)" stroke-width="1.4"></circle>
+        </svg>
+
+        <div style="position: absolute; left: 236px; top: 336px; transform: translate(-50%,-50%)">
+          <div style="position: absolute; inset: -22px; border-radius: 999px; background: radial-gradient(circle, rgba(var(--acc),.38), transparent 70%)"></div>
+          <i class="ph-fill ph-airplane-in-flight" style="position: relative; font-size: 26px; color: var(--color-accent-200); transform: rotate(-28deg); display: block; filter: drop-shadow(0 0 8px rgba(var(--acc),.7))"></i>
+        </div>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 96px; top: 226px; font-size: 17px; color: rgba(var(--ink),.62); transform: rotate(64deg)"></i>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 302px; top: 288px; font-size: 17px; color: rgba(var(--ink),.62); transform: rotate(-104deg)"></i>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 148px; top: 452px; font-size: 17px; color: rgba(var(--ink),.5); transform: rotate(18deg)"></i>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 314px; top: 470px; font-size: 15px; color: rgba(var(--ink),.42); transform: rotate(-56deg)"></i>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 74px; top: 356px; font-size: 15px; color: rgba(var(--ink),.42); transform: rotate(122deg)"></i>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 218px; top: 172px; font-size: 15px; color: rgba(var(--ink),.38); transform: rotate(-10deg)"></i>
+
+        <div style="position: absolute; left: 0; right: 0; top: 0; height: 132px; background: linear-gradient(180deg, var(--top-fade), transparent); pointer-events: none"></div>
+
+        <div style="position: absolute; left: 0; right: 0; top: 0; padding: 14px 22px 0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; letter-spacing: .01em">
+          <span>9:41</span>
+          <span style="display: flex; gap: 6px; align-items: center; font-size: 14px"><i class="ph-fill ph-cell-signal-full"></i><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-battery-vertical-high" style="transform: rotate(90deg)"></i></span>
+        </div>
+
+        <div style="position: absolute; left: 14px; right: 14px; top: 56px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 11px; padding: 12px 14px; border-radius: 20px; background: linear-gradient(160deg, rgba(var(--ink),.12), rgba(var(--ink),.05)); backdrop-filter: blur(var(--glass-blur)) saturate(150%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%); border: 1px solid rgba(var(--ink),.15); box-shadow: inset 0 1px 0 rgba(var(--hi),.13), 0 10px 28px rgba(0,0,0,.45)">
+            <i class="ph ph-magnifying-glass" style="font-size: 18px; color: var(--color-neutral-300)"></i>
+            <span style="flex: 1; font-size: 14px; color: var(--color-neutral-400)">Flight, airport or route</span>
+            <span style="width: 26px; height: 26px; border-radius: 999px; background: linear-gradient(140deg, var(--color-accent-600), var(--color-accent-800)); display: grid; place-items: center; font-size: 11px; font-weight: 600; color: var(--color-accent-100)">RS</span>
+          </div>
+          <div style="display: flex; gap: 8px">
+            <span style="display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--color-accent-200); background: rgba(var(--acc),.16); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--color-accent-700)"><i class="ph ph-sliders-horizontal" style="font-size: 14px"></i>Filters</span>
+            <span style="padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--color-neutral-300); background: rgba(var(--ink),.08); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.12)">Above FL200</span>
+            <span style="padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--color-neutral-300); background: rgba(var(--ink),.08); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.12)">KLM</span>
+          </div>
+        </div>
+
+        <div style="position: absolute; right: 14px; top: 176px; display: flex; flex-direction: column; gap: 8px">
+          <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-stack-simple"></i></span>
+          <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-crosshair"></i></span>
+        </div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; border-radius: 30px 30px 42px 42px; padding: 10px 0 0; background: linear-gradient(180deg, var(--sheet-top), var(--sheet-bot)); backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(160%); -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(160%); border-top: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.1), 0 -20px 50px rgba(0,0,0,.5)">
+          <div style="width: 38px; height: 4px; border-radius: 999px; background: rgba(var(--ink),.26); margin: 0 auto 14px"></div>
+          <div style="padding: 0 18px 14px; display: flex; align-items: baseline; justify-content: space-between">
+            <span style="font-family: var(--font-heading); font-size: 17px; font-weight: 500">Nearby</span>
+            <span style="display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--color-neutral-400)"><span style="width: 6px; height: 6px; border-radius: 999px; background: var(--color-accent-400); animation: noct-pulse 2.4s infinite"></span>42 live</span>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 18px; background: linear-gradient(90deg, rgba(var(--acc),.14), transparent 70%); border-top: 1px solid rgba(var(--ink),.08)">
+              <i class="ph-fill ph-airplane-in-flight" style="font-size: 18px; color: var(--color-accent-300); transform: rotate(-28deg)"></i>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+                <span style="font-size: 14px; font-weight: 600">KL1024 · AMS → LHR</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400)">B737-800 · PH-BXA</span>
+              </div>
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px">
+                <span style="font-size: 13px; font-variant-numeric: tabular-nums">FL340</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400); font-variant-numeric: tabular-nums">448 kt</span>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-top: 1px solid rgba(var(--ink),.08)">
+              <i class="ph-fill ph-airplane-in-flight" style="font-size: 18px; color: var(--color-neutral-300); transform: rotate(64deg)"></i>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+                <span style="font-size: 14px; font-weight: 600">BA918 · DUS → LHR</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400)">A320neo · G-TTNA</span>
+              </div>
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px">
+                <span style="font-size: 13px; font-variant-numeric: tabular-nums">FL280</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400); font-variant-numeric: tabular-nums">402 kt</span>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-top: 1px solid rgba(var(--ink),.08)">
+              <i class="ph-fill ph-airplane-in-flight" style="font-size: 18px; color: var(--color-neutral-300); transform: rotate(18deg)"></i>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+                <span style="font-size: 14px; font-weight: 600">LX456 · ZRH → MAN</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400)">A220-300 · HB-JCA</span>
+              </div>
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px">
+                <span style="font-size: 13px; font-variant-numeric: tabular-nums">FL360</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400); font-variant-numeric: tabular-nums">462 kt</span>
+              </div>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); padding: 10px 6px 26px; border-top: 1px solid rgba(var(--ink),.08); margin-top: 4px">
+            <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-accent-300)"><i class="ph-fill ph-globe-hemisphere-west" style="font-size: 22px"></i>Map</span>
+            <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-neutral-400)"><i class="ph ph-magnifying-glass" style="font-size: 22px"></i>Search</span>
+            <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-neutral-400)"><i class="ph ph-bookmark-simple" style="font-size: 22px"></i>Following</span>
+            <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-neutral-400)"><i class="ph ph-user" style="font-size: 22px"></i>Me</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </div>
+</section>
+
+<section style="padding: 40px 40px 72px; display: flex; flex-direction: column; gap: 28px">
+  <div style="display: flex; flex-direction: column; gap: 10px; max-width: 720px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <span style="font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--color-accent-400)">Turn 1</span>
+      <span style="height: 1px; flex: 1; background: linear-gradient(90deg, transparent, rgba(var(--ink),.22) 48px, rgba(var(--ink),.22) calc(100% - 48px), transparent)"></span>
+    </div>
+    <h1 style="margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 30px; letter-spacing: -.01em">Live flight radar — mobile first</h1>
+    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-neutral-400); max-width: 60ch; text-wrap: pretty">Four screens at 390×844. Map layer is real Natural Earth geometry; everything above it is glass — translucent layers with blur, a lit top edge and ambient depth. Utility-scale discipline throughout: one spacing ramp, one radius ramp, one accent.</p>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+
+    <div id="1a" style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--color-accent-700); color: var(--color-accent-300)">1a</span>
+        <span style="font-size: 13px; color: var(--color-neutral-400)">Live map · nearby</span>
+      </div>
+      <div style="position: relative; width: 390px; height: 844px; border-radius: 42px; overflow: hidden; background: var(--ground-a); box-shadow: var(--shadow-lg)">
+        <div ref="{{ mapA }}" style="position: absolute; inset: 0"></div>
+        <svg viewBox="0 0 390 844" style="position: absolute; inset: 0; width: 100%; height: 100%">
+          <path d="M 42 690 C 130 600, 190 470, 236 336" fill="none" stroke="var(--color-accent-500)" stroke-width="1.6" stroke-dasharray="5 6" opacity=".75"></path>
+          <path d="M 236 336 C 268 244, 300 206, 352 176" fill="none" stroke="var(--color-accent-500)" stroke-width="1.6" opacity=".28"></path>
+          <circle cx="42" cy="690" r="3.5" fill="var(--color-accent-400)"></circle>
+          <circle cx="352" cy="176" r="3.5" fill="none" stroke="var(--color-accent-400)" stroke-width="1.4"></circle>
+        </svg>
+
+        <div style="position: absolute; left: 236px; top: 336px; transform: translate(-50%,-50%)">
+          <div style="position: absolute; inset: -22px; border-radius: 999px; background: radial-gradient(circle, rgba(var(--acc),.38), transparent 70%)"></div>
+          <i class="ph-fill ph-airplane-in-flight" style="position: relative; font-size: 26px; color: var(--color-accent-200); transform: rotate(-28deg); display: block; filter: drop-shadow(0 0 8px rgba(var(--acc),.7))"></i>
+        </div>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 96px; top: 226px; font-size: 17px; color: rgba(var(--ink),.62); transform: rotate(64deg)"></i>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 302px; top: 288px; font-size: 17px; color: rgba(var(--ink),.62); transform: rotate(-104deg)"></i>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 148px; top: 452px; font-size: 17px; color: rgba(var(--ink),.5); transform: rotate(18deg)"></i>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 314px; top: 470px; font-size: 15px; color: rgba(var(--ink),.42); transform: rotate(-56deg)"></i>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 74px; top: 356px; font-size: 15px; color: rgba(var(--ink),.42); transform: rotate(122deg)"></i>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 218px; top: 172px; font-size: 15px; color: rgba(var(--ink),.38); transform: rotate(-10deg)"></i>
+
+        <div style="position: absolute; left: 0; right: 0; top: 0; height: 132px; background: linear-gradient(180deg, var(--top-fade), transparent); pointer-events: none"></div>
+
+        <div style="position: absolute; left: 0; right: 0; top: 0; padding: 14px 22px 0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; letter-spacing: .01em">
+          <span>9:41</span>
+          <span style="display: flex; gap: 6px; align-items: center; font-size: 14px"><i class="ph-fill ph-cell-signal-full"></i><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-battery-vertical-high" style="transform: rotate(90deg)"></i></span>
+        </div>
+
+        <div style="position: absolute; left: 14px; right: 14px; top: 56px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 11px; padding: 12px 14px; border-radius: 20px; background: linear-gradient(160deg, rgba(var(--ink),.12), rgba(var(--ink),.05)); backdrop-filter: blur(var(--glass-blur)) saturate(150%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%); border: 1px solid rgba(var(--ink),.15); box-shadow: inset 0 1px 0 rgba(var(--hi),.13), 0 10px 28px rgba(0,0,0,.45)">
+            <i class="ph ph-magnifying-glass" style="font-size: 18px; color: var(--color-neutral-300)"></i>
+            <span style="flex: 1; font-size: 14px; color: var(--color-neutral-400)">Flight, airport or route</span>
+            <span style="width: 26px; height: 26px; border-radius: 999px; background: linear-gradient(140deg, var(--color-accent-600), var(--color-accent-800)); display: grid; place-items: center; font-size: 11px; font-weight: 600; color: var(--color-accent-100)">RS</span>
+          </div>
+          <div style="display: flex; gap: 8px">
+            <span style="display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--color-accent-200); background: rgba(var(--acc),.16); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--color-accent-700)"><i class="ph ph-sliders-horizontal" style="font-size: 14px"></i>Filters</span>
+            <span style="padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--color-neutral-300); background: rgba(var(--ink),.08); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.12)">Above FL200</span>
+            <span style="padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--color-neutral-300); background: rgba(var(--ink),.08); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.12)">KLM</span>
+          </div>
+        </div>
+
+        <div style="position: absolute; right: 14px; top: 176px; display: flex; flex-direction: column; gap: 8px">
+          <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-stack-simple"></i></span>
+          <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-crosshair"></i></span>
+        </div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; border-radius: 30px 30px 42px 42px; padding: 10px 0 0; background: linear-gradient(180deg, var(--sheet-top), var(--sheet-bot)); backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(160%); -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(160%); border-top: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.1), 0 -20px 50px rgba(0,0,0,.5)">
+          <div style="width: 38px; height: 4px; border-radius: 999px; background: rgba(var(--ink),.26); margin: 0 auto 14px"></div>
+          <div style="padding: 0 18px 14px; display: flex; align-items: baseline; justify-content: space-between">
+            <span style="font-family: var(--font-heading); font-size: 17px; font-weight: 500">Nearby</span>
+            <span style="display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--color-neutral-400)"><span style="width: 6px; height: 6px; border-radius: 999px; background: var(--color-accent-400); animation: noct-pulse 2.4s infinite"></span>42 live</span>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 18px; background: linear-gradient(90deg, rgba(var(--acc),.14), transparent 70%); border-top: 1px solid rgba(var(--ink),.08)">
+              <i class="ph-fill ph-airplane-in-flight" style="font-size: 18px; color: var(--color-accent-300); transform: rotate(-28deg)"></i>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+                <span style="font-size: 14px; font-weight: 600">KL1024 · AMS → LHR</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400)">B737-800 · PH-BXA</span>
+              </div>
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px">
+                <span style="font-size: 13px; font-variant-numeric: tabular-nums">FL340</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400); font-variant-numeric: tabular-nums">448 kt</span>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-top: 1px solid rgba(var(--ink),.08)">
+              <i class="ph-fill ph-airplane-in-flight" style="font-size: 18px; color: var(--color-neutral-300); transform: rotate(64deg)"></i>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+                <span style="font-size: 14px; font-weight: 600">BA918 · DUS → LHR</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400)">A320neo · G-TTNA</span>
+              </div>
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px">
+                <span style="font-size: 13px; font-variant-numeric: tabular-nums">FL280</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400); font-variant-numeric: tabular-nums">402 kt</span>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-top: 1px solid rgba(var(--ink),.08)">
+              <i class="ph-fill ph-airplane-in-flight" style="font-size: 18px; color: var(--color-neutral-300); transform: rotate(18deg)"></i>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+                <span style="font-size: 14px; font-weight: 600">LX456 · ZRH → MAN</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400)">A220-300 · HB-JCA</span>
+              </div>
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px">
+                <span style="font-size: 13px; font-variant-numeric: tabular-nums">FL360</span>
+                <span style="font-size: 12px; color: var(--color-neutral-400); font-variant-numeric: tabular-nums">462 kt</span>
+              </div>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); padding: 10px 6px 26px; border-top: 1px solid rgba(var(--ink),.08); margin-top: 4px">
+            <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-accent-300)"><i class="ph-fill ph-globe-hemisphere-west" style="font-size: 22px"></i>Map</span>
+            <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-neutral-400)"><i class="ph ph-magnifying-glass" style="font-size: 22px"></i>Search</span>
+            <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-neutral-400)"><i class="ph ph-bookmark-simple" style="font-size: 22px"></i>Following</span>
+            <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-neutral-400)"><i class="ph ph-user" style="font-size: 22px"></i>Me</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="1b" style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--color-accent-700); color: var(--color-accent-300)">1b</span>
+        <span style="font-size: 13px; color: var(--color-neutral-400)">Flight detail</span>
+      </div>
+      <div style="position: relative; width: 390px; height: 844px; border-radius: 42px; overflow: hidden; background: var(--ground-a); box-shadow: var(--shadow-lg)">
+        <div ref="{{ mapB }}" style="position: absolute; inset: 0; opacity: .55"></div>
+        <svg viewBox="0 0 390 844" style="position: absolute; inset: 0; width: 100%; height: 100%">
+          <path d="M 42 330 C 130 260, 190 200, 244 156" fill="none" stroke="var(--color-accent-500)" stroke-width="1.6" stroke-dasharray="5 6" opacity=".7"></path>
+        </svg>
+        <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 244px; top: 156px; font-size: 24px; color: var(--color-accent-200); transform: translate(-50%,-50%) rotate(-38deg); filter: drop-shadow(0 0 8px rgba(var(--acc),.7))"></i>
+
+        <div style="position: absolute; left: 0; right: 0; top: 0; padding: 14px 22px 0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600">
+          <span>9:41</span>
+          <span style="display: flex; gap: 6px; align-items: center; font-size: 14px"><i class="ph-fill ph-cell-signal-full"></i><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-battery-vertical-high" style="transform: rotate(90deg)"></i></span>
+        </div>
+        <div style="position: absolute; left: 14px; top: 56px; display: flex; gap: 8px">
+          <span style="width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid rgba(var(--ink),.14); box-shadow: inset 0 1px 0 rgba(var(--hi),.12)"><i class="ph ph-arrow-left"></i></span>
+        </div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 620px; border-radius: 30px 30px 42px 42px; padding: 10px 0 0; background: linear-gradient(180deg, var(--sheet-top), var(--sheet-bot)); backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(160%); -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(160%); border-top: 1px solid rgba(var(--ink),.16); box-shadow: inset 0 1px 0 rgba(var(--hi),.1), 0 -24px 60px rgba(0,0,0,.55); display: flex; flex-direction: column">
+          <div style="width: 38px; height: 4px; border-radius: 999px; background: rgba(var(--ink),.26); margin: 0 auto 16px"></div>
+          <div style="padding: 0 18px; display: flex; flex-direction: column; gap: 18px; flex: 1">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <span style="font-family: var(--font-heading); font-size: 26px; font-weight: 500; letter-spacing: -.01em">KL1024</span>
+                <span style="font-size: 13px; color: var(--color-neutral-400)">KLM Royal Dutch Airlines · B737-800</span>
+              </div>
+              <span style="padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; color: var(--color-accent-200); background: rgba(var(--acc),.16); border: 1px solid var(--color-accent-700)">En route</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="display: flex; align-items: baseline; justify-content: space-between">
+                <div style="display: flex; flex-direction: column; gap: 2px">
+                  <span style="font-family: var(--font-heading); font-size: 20px; font-weight: 500">AMS</span>
+                  <span style="font-size: 12px; color: var(--color-neutral-400)">10:05 · Gate D42</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 2px; align-items: flex-end">
+                  <span style="font-family: var(--font-heading); font-size: 20px; font-weight: 500">LHR</span>
+                  <span style="font-size: 12px; color: var(--color-neutral-400)">10:52 · Term 4</span>
+                </div>
+              </div>
+              <div style="position: relative; height: 3px; border-radius: 999px; background: rgba(var(--ink),.14)">
+                <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 62%; border-radius: 999px; background: linear-gradient(90deg, var(--color-accent-700), var(--color-accent-400))"></div>
+                <i class="ph-fill ph-airplane-in-flight" style="position: absolute; left: 62%; top: 50%; transform: translate(-50%,-50%) rotate(90deg); font-size: 15px; color: var(--color-accent-200); filter: drop-shadow(0 0 6px rgba(var(--acc),.8))"></i>
+              </div>
+              <span style="font-size: 12px; color: var(--color-neutral-400)">18 min remaining · 214 km to go</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+              <div style="padding: 14px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px">
+                <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Altitude</span>
+                <span style="font-family: var(--font-heading); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums">34 000 <span style="font-size: 12px; color: var(--color-neutral-400)">ft</span></span>
+              </div>
+              <div style="padding: 14px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px">
+                <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Ground speed</span>
+                <span style="font-family: var(--font-heading); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums">448 <span style="font-size: 12px; color: var(--color-neutral-400)">kt</span></span>
+              </div>
+              <div style="padding: 14px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px">
+                <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Track</span>
+                <span style="font-family: var(--font-heading); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums">241°</span>
+              </div>
+              <div style="padding: 14px; border-radius: 16px; background: rgba(var(--ink),.06); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 5px">
+                <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Vertical</span>
+                <span style="font-family: var(--font-heading); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums">−640 <span style="font-size: 12px; color: var(--color-neutral-400)">fpm</span></span>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Altitude profile</span>
+              <svg viewBox="0 0 340 68" style="width: 100%; height: 68px">
+                <defs>
+                  <linearGradient id="noct-alt" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--color-accent-500)" stop-opacity=".45"></stop>
+                    <stop offset="100%" stop-color="var(--color-accent-500)" stop-opacity="0"></stop>
+                  </linearGradient>
+                </defs>
+                <path d="M 0 66 L 30 44 L 70 20 L 210 14 L 250 22 L 300 46 L 340 62 L 340 68 L 0 68 Z" fill="url(#noct-alt)"></path>
+                <path d="M 0 66 L 30 44 L 70 20 L 210 14 L 250 22 L 300 46 L 340 62" fill="none" stroke="var(--color-accent-400)" stroke-width="1.6"></path>
+                <circle cx="250" cy="22" r="3.2" fill="var(--color-accent-200)"></circle>
+              </svg>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: auto; padding-bottom: 30px">
+              <span style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; height: 46px; border-radius: 16px; font-size: 14px; font-weight: 500; color: var(--color-accent-200); border: 1px solid var(--color-accent-500); background: rgba(var(--acc),.12)"><i class="ph ph-bookmark-simple" style="font-size: 17px"></i>Follow</span>
+              <span style="width: 46px; height: 46px; border-radius: 16px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.08); border: 1px solid rgba(var(--ink),.12)"><i class="ph ph-bell"></i></span>
+              <span style="width: 46px; height: 46px; border-radius: 16px; display: grid; place-items: center; font-size: 18px; color: var(--color-neutral-200); background: rgba(var(--ink),.08); border: 1px solid rgba(var(--ink),.12)"><i class="ph ph-share-network"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="1c" style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--color-accent-700); color: var(--color-accent-300)">1c</span>
+        <span style="font-size: 13px; color: var(--color-neutral-400)">Search &amp; filters</span>
+      </div>
+      <div style="position: relative; width: 390px; height: 844px; border-radius: 42px; overflow: hidden; background: var(--ground-b); box-shadow: var(--shadow-lg); display: flex; flex-direction: column">
+        <div ref="{{ mapC }}" style="position: absolute; inset: 0; opacity: .22"></div>
+        <div style="position: relative; padding: 14px 22px 0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600">
+          <span>9:41</span>
+          <span style="display: flex; gap: 6px; align-items: center; font-size: 14px"><i class="ph-fill ph-cell-signal-full"></i><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-battery-vertical-high" style="transform: rotate(90deg)"></i></span>
+        </div>
+
+        <div style="position: relative; padding: 22px 18px 0; display: flex; flex-direction: column; gap: 16px; flex: 1; overflow: hidden">
+          <div style="display: flex; align-items: center; gap: 11px; padding: 13px 14px; border-radius: 20px; background: rgba(var(--ink),.1); backdrop-filter: blur(var(--glass-blur)) saturate(150%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%); border: 1px solid var(--color-accent-500); box-shadow: inset 0 1px 0 rgba(var(--hi),.12), 0 0 0 4px rgba(var(--acc),.14)">
+            <i class="ph ph-magnifying-glass" style="font-size: 18px; color: var(--color-accent-300)"></i>
+            <span style="flex: 1; font-size: 14px">AMS<span style="opacity: .5"> → LHR</span></span>
+            <i class="ph ph-x-circle" style="font-size: 18px; color: var(--color-neutral-400)"></i>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; border-radius: 14px; background: rgba(var(--ink),.07); border: 1px solid rgba(var(--ink),.1)">
+            <span style="text-align: center; padding: 8px 0; border-radius: 11px; font-size: 13px; font-weight: 500; color: var(--color-accent-100); background: rgba(var(--acc),.28); box-shadow: inset 0 1px 0 rgba(var(--hi),.14)">Flights</span>
+            <span style="text-align: center; padding: 8px 0; border-radius: 11px; font-size: 13px; color: var(--color-neutral-400)">Airports</span>
+            <span style="text-align: center; padding: 8px 0; border-radius: 11px; font-size: 13px; color: var(--color-neutral-400)">Airlines</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Altitude band</span>
+            <div style="position: relative; height: 3px; border-radius: 999px; background: rgba(var(--ink),.14); margin: 8px 0">
+              <div style="position: absolute; left: 18%; right: 26%; top: 0; bottom: 0; border-radius: 999px; background: var(--color-accent-500)"></div>
+              <span style="position: absolute; left: 18%; top: 50%; transform: translate(-50%,-50%); width: 18px; height: 18px; border-radius: 999px; background: var(--color-accent-200); box-shadow: 0 0 0 4px rgba(var(--acc),.22)"></span>
+              <span style="position: absolute; left: 74%; top: 50%; transform: translate(-50%,-50%); width: 18px; height: 18px; border-radius: 999px; background: var(--color-accent-200); box-shadow: 0 0 0 4px rgba(var(--acc),.22)"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-neutral-400); font-variant-numeric: tabular-nums"><span>FL080</span><span>FL410</span></div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400)">Operators</span>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px">
+              <span style="padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--color-accent-200); background: rgba(var(--acc),.16); border: 1px solid var(--color-accent-700)">KLM</span>
+              <span style="padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--color-accent-200); background: rgba(var(--acc),.16); border: 1px solid var(--color-accent-700)">British Airways</span>
+              <span style="padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--color-neutral-300); background: rgba(var(--ink),.07); border: 1px solid rgba(var(--ink),.12)">Lufthansa</span>
+              <span style="padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--color-neutral-300); background: rgba(var(--ink),.07); border: 1px solid rgba(var(--ink),.12)">Swiss</span>
+              <span style="padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--color-neutral-300); background: rgba(var(--ink),.07); border: 1px solid rgba(var(--ink),.12)">Cargo only</span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-400); padding-bottom: 6px">Recent</span>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid rgba(var(--ink),.08)">
+              <i class="ph ph-clock-counter-clockwise" style="font-size: 17px; color: var(--color-neutral-400)"></i>
+              <span style="flex: 1; font-size: 14px">EHAM · Amsterdam Schiphol</span>
+              <i class="ph ph-arrow-up-right" style="font-size: 15px; color: var(--color-neutral-400)"></i>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid rgba(var(--ink),.08)">
+              <i class="ph ph-clock-counter-clockwise" style="font-size: 17px; color: var(--color-neutral-400)"></i>
+              <span style="flex: 1; font-size: 14px">KL1024</span>
+              <i class="ph ph-arrow-up-right" style="font-size: 15px; color: var(--color-neutral-400)"></i>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid rgba(var(--ink),.08)">
+              <i class="ph ph-clock-counter-clockwise" style="font-size: 17px; color: var(--color-neutral-400)"></i>
+              <span style="flex: 1; font-size: 14px">Squawk 7700</span>
+              <i class="ph ph-arrow-up-right" style="font-size: 15px; color: var(--color-neutral-400)"></i>
+            </div>
+          </div>
+        </div>
+
+        <div style="position: relative; padding: 14px 18px 30px; display: flex; gap: 10px; background: linear-gradient(180deg, var(--scrim-0), var(--scrim-1)); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border-top: 1px solid rgba(var(--ink),.1)">
+          <span style="flex: 1; display: grid; place-items: center; height: 46px; border-radius: 16px; font-size: 14px; color: var(--color-neutral-300); background: rgba(var(--ink),.07); border: 1px solid rgba(var(--ink),.12)">Reset</span>
+          <span style="flex: 2; display: grid; place-items: center; height: 46px; border-radius: 16px; font-size: 14px; font-weight: 500; color: var(--color-accent-200); background: rgba(var(--acc),.14); border: 1px solid var(--color-accent-500)">Show 128 flights</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="1d" style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--color-accent-700); color: var(--color-accent-300)">1d</span>
+        <span style="font-size: 13px; color: var(--color-neutral-400)">Following</span>
+      </div>
+      <div style="position: relative; width: 390px; height: 844px; border-radius: 42px; overflow: hidden; background: var(--ground-c); box-shadow: var(--shadow-lg); display: flex; flex-direction: column">
+        <div style="padding: 14px 22px 0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600">
+          <span>9:41</span>
+          <span style="display: flex; gap: 6px; align-items: center; font-size: 14px"><i class="ph-fill ph-cell-signal-full"></i><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-battery-vertical-high" style="transform: rotate(90deg)"></i></span>
+        </div>
+        <div style="padding: 26px 18px 14px; display: flex; align-items: flex-end; justify-content: space-between">
+          <h2 style="margin: 0; font-family: var(--font-heading); font-size: 28px; font-weight: 500; letter-spacing: -.01em">Following</h2>
+          <span style="font-size: 12px; color: var(--color-neutral-400)">3 flights · 1 alert</span>
+        </div>
+
+        <div style="flex: 1; padding: 0 18px; display: flex; flex-direction: column; gap: 12px; overflow: hidden">
+          <div style="padding: 16px; border-radius: 20px; background: linear-gradient(160deg, rgba(var(--acc),.16), rgba(var(--ink),.04)); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--color-accent-700); box-shadow: inset 0 1px 0 rgba(var(--hi),.12), 0 10px 26px rgba(0,0,0,.4); display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <span style="font-family: var(--font-heading); font-size: 18px; font-weight: 500">KL1024</span>
+              <span style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--color-accent-200)"><span style="width: 6px; height: 6px; border-radius: 999px; background: var(--color-accent-300); animation: noct-pulse 2.4s infinite"></span>Descending</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--color-neutral-300)">
+              <span>AMS 10:05</span>
+              <span style="flex: 1; height: 1px; background: linear-gradient(90deg, var(--color-accent-500) 62%, rgba(var(--ink),.16) 62%)"></span>
+              <span>LHR 10:52</span>
+            </div>
+            <span style="font-size: 12px; color: var(--color-neutral-400)">Lands in 18 min · on time</span>
+          </div>
+
+          <div style="padding: 16px; border-radius: 20px; background: rgba(var(--ink),.055); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <span style="font-family: var(--font-heading); font-size: 18px; font-weight: 500">LH2041</span>
+              <span style="font-size: 11px; font-weight: 600; color: var(--color-neutral-300); padding: 4px 9px; border-radius: 999px; background: rgba(var(--ink),.08); border: 1px solid rgba(var(--ink),.12)">Boarding</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--color-neutral-300)">
+              <span>MUC 12:40</span>
+              <span style="flex: 1; height: 1px; background: rgba(var(--ink),.16)"></span>
+              <span>BCN 14:55</span>
+            </div>
+            <span style="font-size: 12px; color: var(--color-neutral-400)">Gate H38 · delayed 15 min</span>
+          </div>
+
+          <div style="padding: 16px; border-radius: 20px; background: rgba(var(--ink),.055); border: 1px solid rgba(var(--ink),.1); display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <span style="font-family: var(--font-heading); font-size: 18px; font-weight: 500">FR8812</span>
+              <span style="font-size: 11px; font-weight: 600; color: var(--color-neutral-300); padding: 4px 9px; border-radius: 999px; background: rgba(var(--ink),.08); border: 1px solid rgba(var(--ink),.12)">Landed</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--color-neutral-300)">
+              <span>KRK 07:10</span>
+              <span style="flex: 1; height: 1px; background: rgba(var(--ink),.16)"></span>
+              <span>STN 09:05</span>
+            </div>
+            <span style="font-size: 12px; color: var(--color-neutral-400)">Arrived 12 min early</span>
+          </div>
+
+          <div style="margin-top: 6px; padding: 16px; border-radius: 20px; border: 1px dashed rgba(var(--ink),.16); display: flex; align-items: center; gap: 12px">
+            <i class="ph ph-bell-ringing" style="font-size: 20px; color: var(--color-accent-300)"></i>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+              <span style="font-size: 13px; font-weight: 500">Alerts on takeoff &amp; landing</span>
+              <span style="font-size: 12px; color: var(--color-neutral-400)">For every followed flight</span>
+            </div>
+            <span style="width: 42px; height: 25px; border-radius: 999px; background: rgba(var(--acc),.34); border: 1px solid var(--color-accent-600); position: relative"><span style="position: absolute; right: 2px; top: 2px; width: 19px; height: 19px; border-radius: 999px; background: var(--knob)"></span></span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); padding: 12px 6px 30px; background: linear-gradient(180deg, var(--scrim-0), var(--scrim-1)); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border-top: 1px solid rgba(var(--ink),.1)">
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-neutral-400)"><i class="ph ph-globe-hemisphere-west" style="font-size: 22px"></i>Map</span>
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-neutral-400)"><i class="ph ph-magnifying-glass" style="font-size: 22px"></i>Search</span>
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-accent-300)"><i class="ph-fill ph-bookmark-simple" style="font-size: 22px"></i>Following</span>
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; color: var(--color-neutral-400)"><i class="ph ph-user" style="font-size: 22px"></i>Me</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;glassBlur&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:22,&quot;min&quot;:6,&quot;max&quot;:40,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Glass&quot;}}">
+class Component extends DCLogic {
+  containers = {};
+
+  componentDidMount() { this.applyVars(); this.waitForLibs(0); }
+  componentDidUpdate() { this.applyVars(); }
+
+  applyVars() {
+    const root = document.documentElement.style;
+    root.setProperty('--glass-blur', (this.props.glassBlur ?? 22) + 'px');
+  }
+
+  waitForLibs(tries) {
+    if (window.d3 && window.topojson) return this.load();
+    if (tries > 60) return;
+    setTimeout(() => this.waitForLibs(tries + 1), 150);
+  }
+
+  async load() {
+    const topo = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json').then(r => r.json());
+    this.land = window.topojson.feature(topo, topo.objects.countries);
+    this.drawAll();
+  }
+
+  setRef(key) {
+    return el => { this.containers[key] = el; if (el && this.land) this.draw(el, key); };
+  }
+
+  drawAll() { Object.keys(this.containers).forEach(k => this.containers[k] && this.draw(this.containers[k], k)); }
+
+  /** Mercator view of NW Europe; center/scale chosen so AMS–LHR fills the frame. */
+  draw(el, key) {
+    const d3 = window.d3, w = 390, h = 844;
+    const wide = key === 'e' || key === 'f';
+    const cfg = { a: { center: [3.2, 51.4], scale: 2200 }, b: { center: [1.8, 52.6], scale: 3000 }, c: { center: [4.9, 51.0], scale: 1500 }, d: { center: [3.2, 51.4], scale: 2200 }, e: { center: [3.2, 51.4], scale: 2400 }, f: { center: [3.2, 51.4], scale: 2400 } }[key];
+    const light = key === 'd' || key === 'f';
+    const W = wide ? 1204 : w, H = wide ? 900 : h;
+    el.innerHTML = '';
+    const svg = d3.create('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', '100%');
+    const proj = d3.geoMercator().center(cfg.center).scale(cfg.scale).translate([W / 2, H * 0.42]);
+    const path = d3.geoPath(proj);
+    svg.append('path').datum(d3.geoGraticule().step([2, 2])()).attr('d', path)
+      .attr('fill', 'none').attr('stroke', light ? 'rgba(26,28,38,0.07)' : 'rgba(233,233,237,0.05)').attr('stroke-width', 0.6);
+    svg.append('g').selectAll('path').data(this.land.features).join('path').attr('d', path)
+      .attr('fill', light ? '#e9ebf2' : '#1f2333')
+      .attr('stroke', light ? 'rgba(26,28,38,0.18)' : 'rgba(233,233,237,0.16)').attr('stroke-width', 0.7);
+    el.appendChild(svg.node());
+  }
+
+  renderVals() {
+    return { mapA: this.setRef('a'), mapB: this.setRef('b'), mapC: this.setRef('c'), mapD: this.setRef('d'), mapE: this.setRef('e'), mapF: this.setRef('f') };
+  }
+}
+
+</script>
+</body>
+</html>
