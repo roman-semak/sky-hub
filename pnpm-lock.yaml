@@ -64,7 +64,7 @@ importers:
         version: link:../../packages/adsb-types
       '@skytrace/geo':
         specifier: workspace:*
-        version: link:../../packages/geo
+        version: link:../../packages/protocol
       fastify:
         specifier: ^5.12.5
         version: 5.12.5
@@ -93,6 +93,15 @@ importers:
 
   packages/geo:
     dependencies:
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
+
+  packages/protocol:
+    dependencies:
+      '@skytrace/adsb-types':
+        specifier: workspace:*
+        version: link:../adsb-types
       zod:
         specifier: ^4.6.5
         version: 4.6.5
