@@ -64,7 +64,7 @@ importers:
         version: link:../../packages/adsb-types
       '@skytrace/geo':
         specifier: workspace:*
-        version: link:../../packages/protocol
+        version: link:../../packages/geo
       fastify:
         specifier: ^5.12.5
         version: 5.12.5
