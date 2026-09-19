@@ -1,6 +1,7 @@
 import type { Aircraft } from '@skytrace/adsb-types';
+import { encodeRecord, toRecord, type EncodedRecord } from '@skytrace/protocol';
 
-export interface StoredAircraft {
+export interface StoredAircraft extends EncodedRecord {
   readonly ac: Aircraft;
   /** Global revision at the time of the last accepted update. */
   readonly rev: number;
@@ -47,7 +48,15 @@ export class StateStore {
   upsert(ac: Aircraft): boolean {
     const prev = this.map.get(ac.hex);
     if (prev !== undefined && !shouldReplace(prev.ac, ac)) return false;
-    this.map.set(ac.hex, { ac: mergeStatic(prev?.ac, ac), rev: ++this.revision });
+    const merged = mergeStatic(prev?.ac, ac);
+    // Encoding here, as responses arrive, keeps it off the fan-out hot path;
+    // `age` is relative to the fix and patched per frame.
+    this.map.set(ac.hex, {
+      ac: merged,
+      rev: ++this.revision,
+      posTime: merged.posTime,
+      bytes: encodeRecord(toRecord(merged, merged.posTime)),
+    });
     return true;
   }
 

@@ -11,9 +11,11 @@ import type { StoredAircraft } from './state-store.js';
 export class SpatialIndex {
   private readonly tree: Flatbush | null;
   private readonly items: StoredAircraft[];
+  private readonly byHex: Map<string, StoredAircraft>;
 
   private constructor(items: StoredAircraft[]) {
     this.items = items;
+    this.byHex = new Map(items.map((i) => [i.ac.hex, i]));
     if (items.length === 0) {
       this.tree = null;
       return;
@@ -26,6 +28,11 @@ export class SpatialIndex {
 
   static build(source: Iterable<StoredAircraft>): SpatialIndex {
     return new SpatialIndex([...source]);
+  }
+
+  /** Snapshot entry for one aircraft, consistent with {@link query}. */
+  get(hex: string): StoredAircraft | undefined {
+    return this.byHex.get(hex);
   }
 
   get size(): number {

@@ -9,3 +9,4 @@ export {
   type ParseResult,
 } from './parse-adsb-response.js';
 export { FilterSpecSchema, type FilterSpec } from './filter-spec.js';
+export { matchesFilter, isEmptyFilter, type CountryResolver } from './matches-filter.js';

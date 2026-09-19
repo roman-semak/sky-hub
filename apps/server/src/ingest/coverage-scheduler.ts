@@ -35,6 +35,7 @@ interface Slot {
   dynamic: boolean;
   demanded: boolean;
   lastFetched: number;
+  fetched: boolean;
   inFlight: boolean;
 }
 
@@ -49,14 +50,23 @@ interface Slot {
 export class CoverageScheduler {
   private readonly slots = new Map<string, Slot>();
 
-  constructor(grid: readonly CoverageCircle[]) {
+  /**
+   * @param startedAt unix ms; never-fetched circles count their staleness from
+   *   here. Starting at 0 would make them look decades stale and starve the
+   *   demand weighting until the whole grid had been fetched once.
+   */
+  constructor(
+    grid: readonly CoverageCircle[],
+    private readonly startedAt = 0,
+  ) {
     for (const circle of grid) {
       this.slots.set(circle.id, {
         circle,
         fallback: false,
         dynamic: false,
         demanded: false,
-        lastFetched: 0,
+        lastFetched: startedAt,
+        fetched: false,
         inFlight: false,
       });
     }
@@ -89,7 +99,8 @@ export class CoverageScheduler {
           fallback: true,
           dynamic: true,
           demanded: true,
-          lastFetched: 0,
+          lastFetched: this.startedAt,
+          fetched: false,
           inFlight: false,
         });
     }
@@ -123,7 +134,10 @@ export class CoverageScheduler {
     if (slot === undefined) return;
     slot.inFlight = false;
     // On failure keep the old timestamp so the circle stays at the front.
-    if (success) slot.lastFetched = now;
+    if (success) {
+      slot.lastFetched = now;
+      slot.fetched = true;
+    }
   }
 
   snapshot(now: number): SchedulerSnapshot {
@@ -133,7 +147,7 @@ export class CoverageScheduler {
     let dynamic = 0;
     for (const slot of this.slots.values()) {
       if (slot.dynamic) dynamic++;
-      const age = slot.lastFetched === 0 ? null : now - slot.lastFetched;
+      const age = slot.fetched ? now - slot.lastFetched : null;
       if (age !== null && !slot.dynamic) ages.push(age);
       if (slot.demanded) {
         demanded++;

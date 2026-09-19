@@ -9,6 +9,7 @@ import { OpenSkyProvider } from './ingest/opensky-provider.js';
 import type { Provider } from './ingest/provider.js';
 import { ProviderPool } from './ingest/provider-pool.js';
 import { StateStore } from './state/state-store.js';
+import { StreamHub } from './stream/stream-hub.js';
 
 const config = loadConfig();
 const logger = pino({
@@ -24,10 +25,16 @@ if (config.OPENSKY_ENABLED) providers.push(new OpenSkyProvider());
 
 const store = new StateStore();
 const pool = new ProviderPool(providers);
-const scheduler = new CoverageScheduler(worldCoverageGrid());
+const scheduler = new CoverageScheduler(worldCoverageGrid(), Date.now());
 const worker = new IngestWorker(pool, scheduler, store, logger, {
   ...DEFAULT_INGEST_OPTIONS,
   evictAfterMs: config.EVICT_AFTER_SEC * 1000,
+});
+const hub = new StreamHub(logger, (viewports) => {
+  scheduler.setDemand(viewports);
+});
+worker.onIndex((index, removed) => {
+  hub.publish(index, removed);
 });
 const app = await buildApp({
   logger,
@@ -35,6 +42,7 @@ const app = await buildApp({
   worker,
   pool,
   scheduler,
+  hub,
   corsOrigin: config.CORS_ORIGIN,
 });
 
@@ -48,11 +56,13 @@ worker.onIndex((index) => {
 });
 
 if (config.INGEST_ENABLED) worker.start();
+hub.start();
 await app.listen({ port: config.PORT, host: config.HOST });
 
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
   process.once(signal, () => {
     logger.info({ signal }, 'shutting down');
+    hub.stop();
     void worker
       .stop()
       .then(() => app.close())
