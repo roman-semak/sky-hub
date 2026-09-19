@@ -24,6 +24,21 @@ describe('parseAdsbResponse', () => {
     expect(result.ok).toBe(false);
   });
 
+  it('accepts the adsb.fi envelope with `aircraft` and seconds', () => {
+    const result = parseAdsbResponse({
+      now: 1789754976.5,
+      aircraft: [{ hex: 'abcdef', lat: 1, lon: 2, seen_pos: 1 }],
+      resultCount: 1,
+    });
+    if (!result.ok) throw new Error(result.error);
+    expect(result.value.now).toBe(1789754976500);
+    expect(result.value.aircraft[0]?.posTime).toBe(1789754975500);
+  });
+
+  it('rejects an envelope without an aircraft list', () => {
+    expect(parseAdsbResponse({ now: 1 }).ok).toBe(false);
+  });
+
   it('rejects non-object bodies', () => {
     expect(parseAdsbResponse(null).ok).toBe(false);
     expect(parseAdsbResponse('<html>').ok).toBe(false);

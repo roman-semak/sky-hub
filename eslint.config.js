@@ -46,6 +46,10 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
+      // Mocks implement async interfaces without awaiting anything.
+      '@typescript-eslint/require-await': 'off',
+      // Tests deliberately throw non-Error values to cover defensive branches.
+      '@typescript-eslint/only-throw-error': 'off',
     },
   },
   prettier,
