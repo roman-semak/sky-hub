@@ -1,0 +1,13 @@
+{
+  "name": "@skytrace/scripts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "zod": "^4.6.5"
+  }
+}
