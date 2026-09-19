@@ -61,6 +61,15 @@ describe('CoverageScheduler', () => {
     expect(Math.abs(dyn?.circle.lon ?? 0)).toBeGreaterThan(179);
   });
 
+  it('lets demand win over never-fetched circles right after start', () => {
+    const s = new CoverageScheduler(grid, 1_000_000);
+    s.setDemand([[7, 49, 10, 51]]);
+    expect(s.next(1_000_100, false)?.circle.id).toBe('fra');
+    s.complete('fra', 1_000_200, true);
+    // Two seconds later the watched circle is still preferred over cold ones.
+    expect(s.next(1_002_200, false)?.circle.id).toBe('fra');
+  });
+
   it('reports staleness', () => {
     const s = new CoverageScheduler(grid);
     expect(s.snapshot(0)).toMatchObject({ medianAgeMs: null, maxDemandedAgeMs: null });
