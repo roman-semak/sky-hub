@@ -138,9 +138,6 @@ importers:
       '@skytrace/geo':
         specifier: workspace:*
         version: link:../../packages/geo
-      '@skytrace/protocol':
-        specifier: workspace:*
-        version: link:../../packages/protocol
       idb-keyval:
         specifier: ^6.3.0
         version: 6.3.0
@@ -172,6 +169,9 @@ importers:
       '@size-limit/file':
         specifier: ^14.0.0
         version: 14.0.0(size-limit@14.0.0)
+      '@skytrace/protocol':
+        specifier: workspace:*
+        version: link:../../packages/protocol
       '@types/node':
         specifier: ^22.20.3
         version: 22.20.3

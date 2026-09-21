@@ -17,6 +17,8 @@ export class UrlStateService {
       if (this.timer !== null) clearTimeout(this.timer);
       // Panning fires continuously; coalesce so history is not flooded.
       this.timer = setTimeout(() => {
+        // Only the map screen owns these params; other routes keep their own URL.
+        if (this.router.url.split('?')[0] !== '/') return;
         void this.router.navigate([], { queryParams: params, replaceUrl: true });
       }, 250);
     });

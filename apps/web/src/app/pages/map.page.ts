@@ -9,7 +9,9 @@ import { HoverTooltipComponent } from '../map/overlays/hover-tooltip.component';
 import { MapControlsComponent } from '../map/overlays/map-controls.component';
 import { NearbyListComponent } from '../map/overlays/nearby-list.component';
 import { SearchBarComponent } from '../map/overlays/search-bar.component';
+import { FilterStore } from '../core/filters/filter.store';
 import { BottomSheetComponent } from '../ui/bottom-sheet.component';
+import { IconComponent } from '../ui/icon/icon.component';
 import { ConnectionBannerComponent } from '../ui/connection-banner.component';
 
 /** The live map screen: map plus floating glass overlays (design 1a / 2a). */
@@ -22,6 +24,7 @@ import { ConnectionBannerComponent } from '../ui/connection-banner.component';
     FeedStripComponent,
     FlightPanelComponent,
     HoverTooltipComponent,
+    IconComponent,
     MapControlsComponent,
     MapViewComponent,
     NearbyListComponent,
@@ -34,6 +37,25 @@ import { ConnectionBannerComponent } from '../ui/connection-banner.component';
 
       <div class="top-left">
         <st-search-bar [showHint]="true" (submitted)="search($event)" />
+        <div class="chips">
+          <button
+            type="button"
+            class="chip is-active"
+            (click)="filters.open.set(true)"
+            data-testid="open-filters"
+          >
+            <st-icon name="sliders-horizontal" />
+            Filters{{ filters.activeCount() > 0 ? ' · ' + filters.activeCount() : '' }}
+          </button>
+          <button
+            type="button"
+            class="chip"
+            [attr.aria-pressed]="aboveFl200()"
+            (click)="toggleAboveFl200()"
+          >
+            Above FL200
+          </button>
+        </div>
         <st-connection-banner />
       </div>
 
@@ -73,15 +95,29 @@ export class MapPage {
   }
 
   protected zoom(delta: number): void {
-    const c = this.store.center();
-    this.store.center.set({ ...c, zoom: Math.min(18, Math.max(1, c.zoom + delta)) });
+    this.store.zoomBy(delta);
   }
 
   protected locate(): void {
     navigator.geolocation.getCurrentPosition((pos) => {
-      this.store.center.set({ lat: pos.coords.latitude, lon: pos.coords.longitude, zoom: 9 });
+      this.store.flyTo(pos.coords.latitude, pos.coords.longitude, 9);
     });
   }
 
   protected readonly connection = this.client.connection;
+  protected readonly filters = inject(FilterStore);
+  protected readonly aboveFl200 = computed(
+    () => (this.filters.applied().altitude?.[0] ?? 0) >= 20_000,
+  );
+
+  /** Quick chip from the design: toggles the altitude floor without opening the panel. */
+  protected toggleAboveFl200(): void {
+    const f = this.filters.applied();
+    if (this.aboveFl200()) {
+      const { altitude: _drop, ...rest } = f;
+      this.filters.apply(rest);
+    } else {
+      this.filters.apply({ ...f, altitude: [20_000, 60_000] });
+    }
+  }
 }

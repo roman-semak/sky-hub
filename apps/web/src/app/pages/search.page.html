@@ -1,0 +1,60 @@
+<section class="page" aria-labelledby="search-title">
+  <h1 id="search-title" class="visually-hidden">Search</h1>
+  <div class="field glass">
+    <st-icon name="magnifying-glass" class="lead" />
+    <input
+      #field
+      type="search"
+      placeholder="Flight, registration, airport or airline"
+      aria-label="Search"
+      data-testid="search-input"
+      (input)="onInput($event)"
+    />
+    @if (query() !== '') {
+    <button type="button" class="clear" (click)="clear()" aria-label="Clear search">
+      <st-icon name="x-circle" />
+    </button>
+    }
+  </div>
+
+  <div class="segmented" role="tablist" aria-label="Search in">
+    @for (k of kinds; track k.id) {
+    <button type="button" role="tab" [attr.aria-selected]="kind() === k.id" (click)="setKind(k.id)">
+      {{ k.label }}
+    </button>
+    }
+  </div>
+
+  @if (query().trim().length >= 2) {
+  <ul class="results" aria-live="polite" [attr.aria-busy]="loading()">
+    @for (row of rows(); track row.key) {
+    <li>
+      <button type="button" (click)="open(row)" data-testid="search-result">
+        <span class="main">
+          <span class="title">{{ row.title }}</span>
+          <span class="sub">{{ row.sub }}</span>
+        </span>
+        <st-icon name="arrow-up-right" class="go" />
+      </button>
+    </li>
+    } @empty { @if (!loading()) {
+    <li class="empty">Nothing matches “{{ query() }}”.</li>
+    } }
+  </ul>
+  } @else if (recent().length > 0) {
+  <div class="recent">
+    <span class="eyebrow">Recent</span>
+    <ul class="results">
+      @for (r of recent(); track r.label) {
+      <li>
+        <button type="button" (click)="reuse(r.query, r.kind)">
+          <st-icon name="clock-counter-clockwise" class="lead" />
+          <span class="main"><span class="title">{{ r.label }}</span></span>
+          <st-icon name="arrow-up-right" class="go" />
+        </button>
+      </li>
+      }
+    </ul>
+  </div>
+  }
+</section>

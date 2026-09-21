@@ -20,6 +20,17 @@
   width: 100%;
 }
 
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: none;
+}
+
+.chips .chip {
+  min-height: 34px;
+}
+
 .controls {
   position: absolute;
   right: 14px;
@@ -87,5 +98,14 @@
     flex-direction: row;
     align-items: center;
     width: auto;
+  }
+
+  .top-left st-search-bar {
+    width: auto;
+    flex: none;
+  }
+
+  .chips {
+    flex-wrap: nowrap;
   }
 }

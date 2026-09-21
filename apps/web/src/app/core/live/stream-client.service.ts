@@ -62,6 +62,8 @@ export class StreamClient {
   private readonly watched = new Set<string>();
   private bytesWindow = 0;
   private stopped = false;
+  private previewSeq = 0;
+  private readonly previews = new Map<number, (count: number) => void>();
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -117,6 +119,26 @@ export class StreamClient {
   setFilter(f: FilterSpec): void {
     this.filter = f;
     this.send({ t: 'filter', f });
+  }
+
+  /**
+   * Asks the server how many aircraft in the viewport a filter would show.
+   * Resolves to 0 when disconnected or when no answer arrives within 3 s.
+   */
+  preview(f: FilterSpec): Promise<number> {
+    const id = ++this.previewSeq;
+    if (this.socket?.readyState !== OPEN) return Promise.resolve(0);
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        this.previews.delete(id);
+        resolve(0);
+      }, 3000);
+      this.previews.set(id, (count) => {
+        clearTimeout(timer);
+        resolve(count);
+      });
+      this.send({ t: 'preview', f, id });
+    });
   }
 
   watch(hex: string): void {
@@ -196,6 +218,12 @@ export class StreamClient {
       case 'stats':
         this.rttMs.set(msg.rttMs);
         break;
+      case 'preview': {
+        const done = this.previews.get(msg.id);
+        this.previews.delete(msg.id);
+        done?.(msg.count);
+        break;
+      }
       case 'error':
         break;
     }
