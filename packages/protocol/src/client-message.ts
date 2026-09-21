@@ -16,6 +16,8 @@ export const ClientMessageSchema = z.discriminatedUnion('t', [
   z.object({ t: z.literal('unwatch'), hex }),
   z.object({ t: z.literal('filter'), f: FilterSpecSchema }),
   z.object({ t: z.literal('pong'), ts: z.number() }),
+  /** Count what a filter would show in the current viewport, without applying it. */
+  z.object({ t: z.literal('preview'), f: FilterSpecSchema, id: z.number().int().nonnegative() }),
 ]);
 
 export type ClientMessage = z.infer<typeof ClientMessageSchema>;

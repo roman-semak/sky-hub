@@ -106,6 +106,27 @@ describe('StreamHub', () => {
     expect(sock.text.some((m) => m.t === 'error' && m.message.includes('too many'))).toBe(true);
   });
 
+  it('answers filter previews', () => {
+    const { w, hub } = setup();
+    hub.publish(w.rebuild().index, []);
+    const sock = new FakeSocket();
+    const h = hub.connect(sock);
+    h.onMessage(JSON.stringify({ t: 'preview', f: {}, id: 7 }));
+    expect(sock.text.at(-1)).toEqual({ t: 'preview', id: 7, count: 0 });
+    h.onMessage(sub);
+    h.onMessage(JSON.stringify({ t: 'preview', f: { militaryOnly: true }, id: 8 }));
+    expect(sock.text.at(-1)).toEqual({ t: 'preview', id: 8, count: 0 });
+    h.onMessage(JSON.stringify({ t: 'preview', f: {}, id: 9 }));
+    expect(sock.text.at(-1)).toEqual({ t: 'preview', id: 9, count: 1 });
+  });
+
+  it('answers previews with zero before the first index', () => {
+    const { hub } = setup();
+    const sock = new FakeSocket();
+    hub.connect(sock).onMessage(JSON.stringify({ t: 'preview', f: {}, id: 1 }));
+    expect(sock.text.at(-1)).toEqual({ t: 'preview', id: 1, count: 0 });
+  });
+
   it('rejects invalid messages and disconnects floods', () => {
     const { hub } = setup();
     const sock = new FakeSocket();

@@ -30,6 +30,10 @@
 - [x] 2026-09-21 · Playwright: 5000 бортів — CPU p95 2.8 мс, 60 fps на M1 Pro (Metal) · `feat/3-map`
 - [x] 2026-09-21 · Playwright підключено (пункт фази 0) · `feat/3-map`
 
+- [x] 2026-09-21 · Статичні датасети: аеропорти, авіакомпанії, типи ПС, ICAO24 → країна; `pnpm data:refresh` · `feat/4-static-data`
+- [x] 2026-09-21 · Route lookup: adsb.lol routeset → adsbdb.com, кеш 6 год · `feat/4-static-data`
+- [x] 2026-09-21 · Сервер: `/api/route`, `/api/track` (in-memory + RDP), `/api/airport`, пошук аеропортів/авіакомпаній, фільтр за країною, `preview`-лічильник · `feat/4-static-data`
+
 ### Журнал
 
 - 2026-09-21 · Initial bundle 100 КБ gzip (ліміт 250). Мапа живих даних Франкфурта/Лондона перевірена скріншотами desktop/mobile, dark/light.
@@ -48,6 +52,7 @@
 - ADR-002: airplanes.live і adsb.one відхиляють анонімних клієнтів → за замовчуванням adsb.fi + adsb.lol з AIMD-пейсингом.
 - ADR-004: деталі формату, яких немає в SPEC (null-сентинели, non-ICAO біт, емердженсі-байт, кадри 0x03/0x04).
 - ADR-005: MapLibre/deck.gl у лейзі-чанку, воркер MapLibre як ассет, GPU-рампа кольору.
+- ADR-006: routeset adsb.lol мовчить → ланцюг з adsbdb.com; реєстраційна база Mictronics не потрібна.
 - ADR-003: ~1.1 запиту/с замість потрібних 20 → планувальник за попитом (viewport-кола 30× пріоритетніші), виселення 180 с.
 
 ### Заблоковано

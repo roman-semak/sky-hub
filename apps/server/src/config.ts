@@ -26,6 +26,7 @@ const EnvSchema = z.object({
   OPENSKY_ENABLED: bool.default(true),
   INGEST_ENABLED: bool.default(true),
   EVICT_AFTER_SEC: z.coerce.number().positive().default(180),
+  STATIC_DATA_PATH: z.string().default('../../data/static/datasets.json.zst'),
   HISTORY_DIR: z.string().default('data/history'),
   HISTORY_RETENTION_HOURS: z.coerce.number().positive().default(72),
   CORS_ORIGIN: z.string().default('*'),

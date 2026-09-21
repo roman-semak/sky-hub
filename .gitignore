@@ -10,7 +10,9 @@ coverage/
 .DS_Store
 data/*
 !data/.gitkeep
-!data/**/*.zst
+!data/static/
+data/static/*
+!data/static/*.zst
 playwright-report/
 test-results/
 .vercel
