@@ -2,6 +2,7 @@ import { DestroyRef, inject, Injectable, InjectionToken, signal } from '@angular
 import type { FilterSpec } from '@skytrace/adsb-types';
 import type { BBox } from '@skytrace/geo';
 import { decodeFrame, type ClientMessage, type ServerMessage } from '@skytrace/protocol';
+import { apiOrigin, streamUrl } from '../config/api-origin';
 import { backoffDelay } from './backoff';
 import { LiveRegistry } from './live-registry';
 import { SyntheticFeed } from './synthetic-feed';
@@ -27,10 +28,7 @@ export const SOCKET_FACTORY = new InjectionToken<(url: string) => SocketLike>('S
 
 export const STREAM_URL = new InjectionToken<string>('STREAM_URL', {
   providedIn: 'root',
-  factory: () => {
-    const { protocol, host } = globalThis.location;
-    return `${protocol === 'https:' ? 'wss' : 'ws'}://${host}/stream`;
-  },
+  factory: () => streamUrl(apiOrigin(), globalThis.location),
 });
 
 const OPEN = 1;

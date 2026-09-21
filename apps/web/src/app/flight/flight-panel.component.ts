@@ -10,7 +10,12 @@ import {
 import { RouterLink } from '@angular/router';
 import type { FlightRoute, TrackPoint } from '../core/api/api-types';
 import { FlightDataService, type Loadable } from '../core/flight/flight-data.service';
-import { flightPhase, flightProgress, phaseLabel } from '../core/flight/flight-progress';
+import {
+  flightPhase,
+  flightProgress,
+  phaseLabel,
+  routePlausible,
+} from '../core/flight/flight-progress';
 import { FollowStore } from '../core/follow/follow.store';
 import {
   formatAltitude,
@@ -100,8 +105,11 @@ export class FlightPanelComponent {
     const r = ac.record;
     const meta = this.meta();
     const route = this.route();
+    const plausible =
+      route?.state === 'ready' &&
+      routePlausible(route.value, r.lat, r.lon, r.track, r.baroRate, r.onGround);
     const progress =
-      route?.state === 'ready'
+      route?.state === 'ready' && plausible
         ? flightProgress(route.value, r.lat, r.lon, r.onGround ? null : r.gs)
         : null;
     const ageSec = Math.round((Date.now() - ac.fixTime) / 1000);
@@ -118,6 +126,7 @@ export class FlightPanelComponent {
           ? $localize`:@@flight.emergency:Emergency · ${r.emergency}:kind:`
           : phaseLabel(flightPhase(r.onGround, r.baroRate, r.alt)),
       progress,
+      routeUnverified: route?.state === 'ready' && !plausible,
       tiles: [
         { label: $localize`:@@flight.altitude:Altitude`, value: formatAltitude(r.alt, r.onGround) },
         { label: $localize`:@@flight.groundSpeed:Ground speed`, value: formatSpeed(r.gs) },

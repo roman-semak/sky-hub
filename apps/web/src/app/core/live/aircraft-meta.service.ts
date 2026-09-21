@@ -1,6 +1,7 @@
 import { inject, Injectable, InjectionToken, signal, type Signal } from '@angular/core';
 import type { EnrichedAircraft } from '../api/api-types';
 import { del, get, set } from 'idb-keyval';
+import { apiOrigin, apiUrl } from '../config/api-origin';
 
 /** Static fields the position stream deliberately omits (SPEC § 4.2). */
 export interface AircraftMeta {
@@ -17,7 +18,12 @@ export interface AircraftMeta {
 /** Injected so tests can stub the network. */
 export const FETCH_FN = new InjectionToken<typeof fetch>('FETCH_FN', {
   providedIn: 'root',
-  factory: () => globalThis.fetch.bind(globalThis),
+  factory: () => {
+    const origin = apiOrigin();
+    // Callers use relative `/api/…` paths; route them to the API origin.
+    return (input: RequestInfo | URL, init?: RequestInit) =>
+      globalThis.fetch(typeof input === 'string' ? apiUrl(input, origin) : input, init);
+  },
 });
 
 // v2: enriched with airline / type / country.

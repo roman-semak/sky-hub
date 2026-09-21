@@ -75,7 +75,7 @@
     </unit>
     <unit id="phase.ground">
       <notes>
-        <note category="location">src/app/core/flight/flight-progress.ts:46</note>
+        <note category="location">src/app/core/flight/flight-progress.ts:69</note>
       </notes>
       <segment>
         <source>On ground</source>
@@ -83,7 +83,7 @@
     </unit>
     <unit id="phase.climbing">
       <notes>
-        <note category="location">src/app/core/flight/flight-progress.ts:48</note>
+        <note category="location">src/app/core/flight/flight-progress.ts:71</note>
       </notes>
       <segment>
         <source>Climbing</source>
@@ -91,7 +91,7 @@
     </unit>
     <unit id="phase.descending">
       <notes>
-        <note category="location">src/app/core/flight/flight-progress.ts:50</note>
+        <note category="location">src/app/core/flight/flight-progress.ts:73</note>
       </notes>
       <segment>
         <source>Descending</source>
@@ -99,7 +99,7 @@
     </unit>
     <unit id="phase.cruising">
       <notes>
-        <note category="location">src/app/core/flight/flight-progress.ts:52</note>
+        <note category="location">src/app/core/flight/flight-progress.ts:75</note>
       </notes>
       <segment>
         <source>Cruising</source>
@@ -107,7 +107,7 @@
     </unit>
     <unit id="phase.enroute">
       <notes>
-        <note category="location">src/app/core/flight/flight-progress.ts:54</note>
+        <note category="location">src/app/core/flight/flight-progress.ts:77</note>
       </notes>
       <segment>
         <source>En route</source>
@@ -338,9 +338,17 @@
         <source>Flight detail</source>
       </segment>
     </unit>
+    <unit id="flight.routeUnverified">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:37,39</note>
+      </notes>
+      <segment>
+        <source>Published route for this callsign does not match the aircraft&apos;s movement — possibly the return leg.</source>
+      </segment>
+    </unit>
     <unit id="flight.routeProgress">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:40,41</note>
+        <note category="location">src/app/flight/flight-panel.component.html:46,47</note>
       </notes>
       <segment>
         <source>Route progress</source>
@@ -348,7 +356,7 @@
     </unit>
     <unit id="flight.minRemaining">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:55,56</note>
+        <note category="location">src/app/flight/flight-panel.component.html:61,62</note>
       </notes>
       <segment>
         <source><ph id="0" equiv="INTERPOLATION" disp="{{ p.etaMin }}"/> min remaining</source>
@@ -356,7 +364,7 @@
     </unit>
     <unit id="flight.kmToGo">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:60,61</note>
+        <note category="location">src/app/flight/flight-panel.component.html:66,67</note>
       </notes>
       <segment>
         <source><ph id="0" equiv="INTERPOLATION" disp="{{ p.remainingKm }}"/> km to go · scheduled route</source>
@@ -364,7 +372,7 @@
     </unit>
     <unit id="flight.noRoute">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:72,76</note>
+        <note category="location">src/app/flight/flight-panel.component.html:78,82</note>
       </notes>
       <segment>
         <source>No published route for this callsign.</source>
@@ -372,7 +380,7 @@
     </unit>
     <unit id="flight.profile">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:86,87</note>
+        <note category="location">src/app/flight/flight-panel.component.html:92,93</note>
       </notes>
       <segment>
         <source>Altitude profile</source>
@@ -380,7 +388,7 @@
     </unit>
     <unit id="flight.recent">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:92,93</note>
+        <note category="location">src/app/flight/flight-panel.component.html:98,99</note>
       </notes>
       <segment>
         <source>Recent positions</source>
@@ -388,7 +396,7 @@
     </unit>
     <unit id="flight.raw">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:104,106</note>
+        <note category="location">src/app/flight/flight-panel.component.html:110,112</note>
       </notes>
       <segment>
         <source>Raw fields</source>
@@ -396,7 +404,7 @@
     </unit>
     <unit id="flight.following">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:124,125</note>
+        <note category="location">src/app/flight/flight-panel.component.html:130,131</note>
       </notes>
       <segment>
         <source>Following</source>
@@ -404,7 +412,7 @@
     </unit>
     <unit id="flight.follow">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:126,128</note>
+        <note category="location">src/app/flight/flight-panel.component.html:132,134</note>
       </notes>
       <segment>
         <source>Follow</source>
@@ -412,8 +420,8 @@
     </unit>
     <unit id="flight.history">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:132,133</note>
-        <note category="location">src/app/flight/flight-panel.component.html:134,135</note>
+        <note category="location">src/app/flight/flight-panel.component.html:138,139</note>
+        <note category="location">src/app/flight/flight-panel.component.html:140,141</note>
       </notes>
       <segment>
         <source>Flight history</source>
@@ -421,8 +429,8 @@
     </unit>
     <unit id="flight.photos">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:144,145</note>
-        <note category="location">src/app/flight/flight-panel.component.html:146,147</note>
+        <note category="location">src/app/flight/flight-panel.component.html:150,151</note>
+        <note category="location">src/app/flight/flight-panel.component.html:152,153</note>
       </notes>
       <segment>
         <source>Photos on planespotters.net</source>
@@ -430,7 +438,7 @@
     </unit>
     <unit id="common.close">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:160,161</note>
+        <note category="location">src/app/flight/flight-panel.component.html:166,167</note>
       </notes>
       <segment>
         <source>Close</source>
@@ -438,7 +446,7 @@
     </unit>
     <unit id="flight.linkCopied">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:57</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:62</note>
       </notes>
       <segment>
         <source>Link copied</source>
@@ -446,7 +454,7 @@
     </unit>
     <unit id="flight.share">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:57</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:62</note>
       </notes>
       <segment>
         <source>Share</source>
@@ -454,7 +462,7 @@
     </unit>
     <unit id="flight.emergency">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:118</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:126</note>
       </notes>
       <segment>
         <source>Emergency · <ph id="0" equiv="kind" disp="r.emergency"/></source>
@@ -462,7 +470,7 @@
     </unit>
     <unit id="flight.altitude">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:122</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:131</note>
       </notes>
       <segment>
         <source>Altitude</source>
@@ -470,7 +478,7 @@
     </unit>
     <unit id="flight.groundSpeed">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:123</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:132</note>
       </notes>
       <segment>
         <source>Ground speed</source>
@@ -478,7 +486,7 @@
     </unit>
     <unit id="flight.track">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:124</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:133</note>
       </notes>
       <segment>
         <source>Track</source>
@@ -486,7 +494,7 @@
     </unit>
     <unit id="flight.vertical">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:125</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:134</note>
       </notes>
       <segment>
         <source>Vertical</source>
@@ -494,7 +502,7 @@
     </unit>
     <unit id="flight.registration">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:129</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:138</note>
       </notes>
       <segment>
         <source>Registration</source>
@@ -502,7 +510,7 @@
     </unit>
     <unit id="flight.country">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:130</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:139</note>
       </notes>
       <segment>
         <source>Country</source>
@@ -510,7 +518,7 @@
     </unit>
     <unit id="flight.squawk">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:131</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:140</note>
       </notes>
       <segment>
         <source>Squawk</source>
@@ -518,7 +526,7 @@
     </unit>
     <unit id="flight.category">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:132</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:141</note>
       </notes>
       <segment>
         <source>Category</source>
@@ -526,7 +534,7 @@
     </unit>
     <unit id="flight.source">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:133</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:142</note>
       </notes>
       <segment>
         <source>Source</source>
@@ -534,7 +542,7 @@
     </unit>
     <unit id="flight.position">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:134</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:143</note>
       </notes>
       <segment>
         <source>Position</source>
@@ -542,7 +550,7 @@
     </unit>
     <unit id="flight.lastFix">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:136</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:145</note>
       </notes>
       <segment>
         <source>Last fix</source>
@@ -550,7 +558,7 @@
     </unit>
     <unit id="flight.secondsAgo">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:137</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:146</note>
       </notes>
       <segment>
         <source><ph id="0" equiv="seconds" disp="ageSec"/> s ago</source>

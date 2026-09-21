@@ -1,0 +1,49 @@
+name: Deploy
+
+# Auto-deploy from main (SPEC phase 7). Each job is skipped until its secrets
+# exist, so forks and the repo before account setup stay green.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  api:
+    name: API → Fly.io
+    runs-on: ubuntu-latest
+    if: ${{ vars.FLY_APP != '' }}
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only --app "${{ vars.FLY_APP }}"
+
+  web:
+    name: Web → Cloudflare Pages
+    runs-on: ubuntu-latest
+    if: ${{ vars.CLOUDFLARE_PROJECT != '' }}
+    needs: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build --filter=@skytrace/web
+      # Point the static site at the API origin (ADR-010).
+      - run: |
+          for f in $(find apps/web/dist/web/browser -name index.html); do
+            sed -i -E 's|<meta name="skytrace-api" content(="")?>|<meta name="skytrace-api" content="${{ vars.API_ORIGIN }}">|' "$f"
+          done
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/web/dist/web/browser --project-name=${{ vars.CLOUDFLARE_PROJECT }} --branch=main
