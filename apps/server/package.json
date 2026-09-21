@@ -27,6 +27,8 @@
     "@skytrace/static-data": "workspace:*",
     "fastify": "^5.12.5",
     "flatbush": "^4.6.2",
+    "hyparquet": "^1.31.1",
+    "hyparquet-writer": "^0.16.9",
     "pino": "^10.3.1",
     "zod": "^4.6.5"
   }

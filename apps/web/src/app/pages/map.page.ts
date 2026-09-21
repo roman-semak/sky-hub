@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import type { BBox } from '@skytrace/geo';
 import { FlightPanelComponent } from '../flight/flight-panel.component';
 import { StreamClient } from '../core/live/stream-client.service';
 import { MapUiStore } from '../core/state/map-ui.store';
@@ -10,6 +11,8 @@ import { MapControlsComponent } from '../map/overlays/map-controls.component';
 import { NearbyListComponent } from '../map/overlays/nearby-list.component';
 import { SearchBarComponent } from '../map/overlays/search-bar.component';
 import { FilterStore } from '../core/filters/filter.store';
+import { PlaybackBarComponent } from '../playback/playback-bar.component';
+import { PlaybackService } from '../playback/playback.service';
 import { BottomSheetComponent } from '../ui/bottom-sheet.component';
 import { IconComponent } from '../ui/icon/icon.component';
 import { ConnectionBannerComponent } from '../ui/connection-banner.component';
@@ -28,6 +31,7 @@ import { ConnectionBannerComponent } from '../ui/connection-banner.component';
     MapControlsComponent,
     MapViewComponent,
     NearbyListComponent,
+    PlaybackBarComponent,
     SearchBarComponent,
   ],
   template: `
@@ -60,12 +64,18 @@ import { ConnectionBannerComponent } from '../ui/connection-banner.component';
       </div>
 
       <div class="controls">
-        <st-map-controls (zoom)="zoom($event)" (locate)="locate()" />
+        <st-map-controls (zoom)="zoom($event)" (locate)="locate()" (history)="openPlayback()" />
       </div>
 
-      <div class="feed">
-        <st-feed-strip />
-      </div>
+      @if (playback.active()) {
+        <div class="playback">
+          <st-playback-bar />
+        </div>
+      } @else {
+        <div class="feed">
+          <st-feed-strip />
+        </div>
+      }
 
       @if (selected() !== null) {
         <aside class="detail glass-strong">
@@ -106,6 +116,20 @@ export class MapPage {
 
   protected readonly connection = this.client.connection;
   protected readonly filters = inject(FilterStore);
+  protected readonly playback = inject(PlaybackService);
+
+  protected openPlayback(): void {
+    // Before the map reports its bounds, approximate them from centre and zoom.
+    const c = this.store.center();
+    const half = Math.min(90, 180 / 2 ** c.zoom);
+    const fallback: BBox = [
+      Math.max(-180, c.lon - half * 1.6),
+      Math.max(-90, c.lat - half),
+      Math.min(180, c.lon + half * 1.6),
+      Math.min(90, c.lat + half),
+    ];
+    void this.playback.open(this.store.bbox() ?? fallback);
+  }
   protected readonly aboveFl200 = computed(
     () => (this.filters.applied().altitude?.[0] ?? 0) >= 20_000,
   );

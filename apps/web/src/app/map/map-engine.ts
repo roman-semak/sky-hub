@@ -31,9 +31,17 @@ export interface FrameStats {
   readonly drawn: number;
 }
 
+/** What the render loop draws: live data, or playback on a virtual clock. */
+export interface FrameSource {
+  readonly registry: LiveRegistry;
+  /** "Now" for dead reckoning, unix ms. */
+  readonly now: number;
+}
+
 export interface MapEngineOptions {
   readonly container: HTMLElement;
-  readonly registry: LiveRegistry;
+  /** Called once per animation frame; lets the host switch live ↔ playback. */
+  readonly frameSource: () => FrameSource;
   readonly center: { lat: number; lon: number; zoom: number };
   readonly theme: MapTheme;
   readonly onViewport: (v: Viewport) => void;
@@ -49,6 +57,7 @@ export interface MapEngine {
   setSelected(hex: string | null): void;
   setDimmed(dimmed: boolean): void;
   setTrail(points: readonly (readonly [number, number])[]): void;
+  setHoverTrail(points: readonly (readonly [number, number])[]): void;
   flyTo(lat: number, lon: number, zoom?: number): void;
   zoomBy(delta: number): void;
   destroy(): void;
@@ -95,6 +104,8 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
   let hovered: string | null = null;
   let dimmed = false;
   let trail: readonly (readonly [number, number])[] = [];
+  let hoverTrail: readonly (readonly [number, number])[] = [];
+  let lastRegistry: LiveRegistry | null = null;
   let lastVersion = -1;
   let iconVersion = 0;
   let clusters: readonly Cluster[] = [];
@@ -145,6 +156,18 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
           getColor: [233, 233, 237, 230],
           fontFamily: 'Inter Variable, Inter, system-ui, sans-serif',
           fontWeight: 600,
+        }),
+      );
+    }
+    if (hoverTrail.length > 1) {
+      layers.push(
+        new PathLayer<{ path: [number, number][] }>({
+          id: 'hover-trail',
+          data: [{ path: hoverTrail.map(([lon, lat]) => [lon, lat] as [number, number]) }],
+          getPath: (d) => d.path,
+          getColor: [233, 233, 237, 90],
+          getWidth: 1.5,
+          widthUnits: 'pixels',
         }),
       );
     }
@@ -218,13 +241,15 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
   const frame = (): void => {
     raf = requestAnimationFrame(frame);
     const t0 = performance.now();
-    const reg = opts.registry;
-    if (reg.version !== lastVersion) {
+    const source = opts.frameSource();
+    const reg = source.registry;
+    if (reg !== lastRegistry || reg.version !== lastVersion) {
+      lastRegistry = reg;
       lastVersion = reg.version;
       iconVersion++;
       clusters = reg.clusters;
     }
-    buffer.fill(reg.aircraft, Date.now(), selected, dimmed);
+    buffer.fill(reg.aircraft, source.now, selected, dimmed);
     overlay.setProps({ layers: buildLayers() });
     samples.push(performance.now() - t0);
     frames++;
@@ -251,6 +276,9 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
     },
     setTrail(points) {
       trail = points;
+    },
+    setHoverTrail(points) {
+      hoverTrail = points;
     },
     flyTo(lat, lon, zoom) {
       const reduced = globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;

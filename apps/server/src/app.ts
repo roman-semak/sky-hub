@@ -4,14 +4,13 @@ import Fastify, { type FastifyBaseLogger, type FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { computeLiveStats, type LiveStats } from './api/live-stats.js';
 import { searchAircraft } from './api/search.js';
-import type { TrackHistory } from './history/track-history.js';
+import type { HistoryService } from './history/history-service.js';
 import { RouteService } from './routes/route-service.js';
 import type { CoverageScheduler } from './ingest/coverage-scheduler.js';
 import type { IngestWorker } from './ingest/ingest-worker.js';
 import type { ProviderPool } from './ingest/provider-pool.js';
 import type { StateStore } from './state/state-store.js';
 import { countryOfIcao24, type StaticIndex } from '@skytrace/static-data';
-import { simplifyRdp } from '@skytrace/geo';
 import type { StreamHub } from './stream/stream-hub.js';
 
 export interface AppDeps {
@@ -23,7 +22,10 @@ export interface AppDeps {
   readonly hub: StreamHub;
   readonly staticIndex: StaticIndex | null;
   readonly routes: RouteService;
-  readonly history: TrackHistory;
+  readonly history: HistoryService;
+  /** How far back `/api/flights` looks, ms. */
+  readonly retentionMs: number;
+  readonly historyStats?: () => object;
   readonly corsOrigin: string;
   /** Max concurrent WebSocket connections per IP. */
   readonly maxConnectionsPerIp?: number;
@@ -40,10 +42,28 @@ const TrackQuery = z.object({
   from: z.coerce.number().optional(),
   to: z.coerce.number().optional(),
 });
+const PlaybackQuery = z.object({
+  bbox: z
+    .string()
+    .transform((s) => s.split(',').map(Number))
+    .pipe(
+      z.tuple([
+        z.number().min(-180).max(180),
+        z.number().min(-90).max(90),
+        z.number().min(-180).max(180),
+        z.number().min(-90).max(90),
+      ]),
+    ),
+  from: z.coerce.number(),
+  to: z.coerce.number(),
+  spacing: z.coerce.number().int().min(5_000).max(300_000).default(20_000),
+});
+const HOUR_MS = 3_600_000;
+/** Playback windows are capped so one request cannot scan the whole archive. */
+const MAX_PLAYBACK_MS = 2 * HOUR_MS;
 const CallsignParams = z.object({ callsign: z.string().min(2).max(8) });
 const CodeParams = z.object({ code: z.string().regex(/^[A-Za-z0-9]{3,4}$/) });
-/** SPEC § 6.2 simplification tolerance, degrees. */
-const RDP_EPSILON = 0.0005;
+
 const STATS_TTL_MS = 10_000;
 
 export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
@@ -142,15 +162,38 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     return route;
   });
 
-  app.get('/api/track/:hex', (req, reply) => {
+  app.get('/api/track/:hex', async (req, reply) => {
     const params = HexParams.safeParse(req.params);
     const query = TrackQuery.safeParse(req.query);
     if (!params.success || !query.success)
       return reply.code(400).send({ error: 'invalid request' });
     const hex = params.data.hex.toLowerCase();
-    const points = deps.history.get(hex, query.data.from, query.data.to);
-    const simplified = simplifyRdp(points, RDP_EPSILON, (p) => [p.lon, p.lat]);
-    return { hex, points: simplified, raw: points.length };
+    const to = query.data.to ?? now();
+    const from = query.data.from ?? to - HOUR_MS;
+    if (from > to) return reply.code(400).send({ error: 'from must be <= to' });
+    const { points, raw } = await deps.history.track(hex, from, to);
+    return { hex, points, raw };
+  });
+
+  app.get('/api/flights/:hex', async (req, reply) => {
+    const params = HexParams.safeParse(req.params);
+    if (!params.success) return reply.code(400).send({ error: 'invalid hex' });
+    const t = now();
+    const hex = params.data.hex.toLowerCase();
+    return { hex, flights: await deps.history.flights(hex, t - deps.retentionMs, t) };
+  });
+
+  app.get('/api/history', async (req, reply) => {
+    const q = PlaybackQuery.safeParse(req.query);
+    if (!q.success) return reply.code(400).send({ error: 'invalid request' });
+    const { bbox, from, to, spacing } = q.data;
+    if (from > to || to - from > MAX_PLAYBACK_MS) {
+      return reply.code(400).send({ error: 'window must be positive and at most 2 h' });
+    }
+    const body = await deps.history.playback(bbox, from, to, spacing);
+    return reply
+      .type('application/octet-stream')
+      .send(Buffer.from(body.buffer, body.byteOffset, body.byteLength));
   });
 
   app.get('/api/airport/:code', (req, reply) => {
@@ -186,7 +229,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       ingest: stats,
       stream: deps.hub.statistics,
       routesCached: deps.routes.size,
-      historyAircraft: deps.history.aircraftCount,
+      history: deps.historyStats?.() ?? null,
       staticData: deps.staticIndex !== null,
       scheduler: deps.scheduler.snapshot(t),
       providers: deps.pool.snapshot(t),

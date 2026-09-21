@@ -109,3 +109,21 @@
     flex-wrap: nowrap;
   }
 }
+
+.playback {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--tabbar-h, 0px) + 96px);
+  transform: translateX(-50%);
+  z-index: 6;
+}
+
+@media (min-width: 768px) {
+  .playback {
+    bottom: 22px;
+  }
+
+  .has-panel .playback {
+    left: calc(50% - 185px);
+  }
+}

@@ -9,7 +9,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { FlightDataService } from '../core/flight/flight-data.service';
 import { StreamClient } from '../core/live/stream-client.service';
+import { PlaybackService } from '../playback/playback.service';
 import { MapUiStore } from '../core/state/map-ui.store';
 import { ThemeService } from '../core/theme/theme.service';
 import type { MapEngine } from './map-engine';
@@ -51,6 +53,10 @@ export class MapViewComponent {
   private readonly store = inject(MapUiStore);
   private readonly client = inject(StreamClient);
   private readonly themeService = inject(ThemeService);
+  private readonly playback = inject(PlaybackService);
+  private readonly flightData = inject(FlightDataService);
+  /** Recorded track of the selected aircraft, from `/api/track`. */
+  private history: [number, number][] = [];
   private engine: MapEngine | null = null;
   private trail: [number, number][] = [];
   private trailTimer: ReturnType<typeof setInterval> | null = null;
@@ -69,12 +75,35 @@ export class MapViewComponent {
     effect(() => {
       const hex = this.store.selected();
       this.trail = [];
+      this.history = [];
       this.engine?.setSelected(hex);
       this.engine?.setTrail([]);
       if (hex === null) return;
       this.client.watch(hex);
       const ac = this.client.registry.aircraft.get(hex);
       if (ac !== undefined) this.engine?.flyTo(ac.record.lat, ac.record.lon);
+      // The trail starts with the recorded last hour, then grows live.
+      void this.flightData.track(hex).then((r) => {
+        if (r === null || this.store.selected() !== hex) return;
+        this.history = r.points.map((p) => [p.lon, p.lat]);
+        this.engine?.setTrail([...this.history, ...this.trail]);
+      });
+    });
+
+    // Hover trail (SPEC § 5.2): only for the aircraft under the cursor.
+    let hoverTimer: ReturnType<typeof setTimeout> | null = null;
+    effect(() => {
+      const hex = this.store.hovered()?.hex ?? null;
+      if (hoverTimer !== null) clearTimeout(hoverTimer);
+      this.engine?.setHoverTrail([]);
+      if (hex === null || hex === this.store.selected()) return;
+      hoverTimer = setTimeout(() => {
+        void this.flightData.track(hex).then((r) => {
+          if (r !== null && this.store.hovered()?.hex === hex) {
+            this.engine?.setHoverTrail(r.points.map((p) => [p.lon, p.lat]));
+          }
+        });
+      }, 300);
     });
 
     effect(() => {
@@ -97,7 +126,13 @@ export class MapViewComponent {
     try {
       this.engine = await createMapEngine({
         container: this.container().nativeElement,
-        registry: this.client.registry,
+        frameSource: () => {
+          if (this.playback.active()) {
+            this.playback.step();
+            return { registry: this.playback.registry, now: this.playback.clock() };
+          }
+          return { registry: this.client.registry, now: Date.now() };
+        },
         center,
         theme: this.themeService.theme(),
         rightInset: () => (globalThis.innerWidth >= 1200 ? PANEL_INSET : 0),
@@ -137,6 +172,6 @@ export class MapViewComponent {
     if (last?.[0] === ac.record.lon && last[1] === ac.record.lat) return;
     this.trail.push([ac.record.lon, ac.record.lat]);
     if (this.trail.length > TRAIL_LIMIT) this.trail.shift();
-    this.engine.setTrail(this.trail);
+    this.engine.setTrail([...this.history, ...this.trail]);
   }
 }

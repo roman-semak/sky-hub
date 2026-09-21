@@ -7,6 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import type { FlightRoute, TrackPoint } from '../core/api/api-types';
 import { FlightDataService, type Loadable } from '../core/flight/flight-data.service';
 import { flightPhase, flightProgress } from '../core/flight/flight-progress';
@@ -39,7 +40,7 @@ const timeOf = (ms: number): string =>
 @Component({
   selector: 'st-flight-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AltitudeChartComponent, IconComponent],
+  imports: [AltitudeChartComponent, IconComponent, RouterLink],
   templateUrl: './flight-panel.component.html',
   styleUrl: './flight-panel.component.css',
 })

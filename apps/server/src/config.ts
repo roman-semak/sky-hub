@@ -27,7 +27,10 @@ const EnvSchema = z.object({
   INGEST_ENABLED: bool.default(true),
   EVICT_AFTER_SEC: z.coerce.number().positive().default(180),
   STATIC_DATA_PATH: z.string().default('../../data/static/datasets.json.zst'),
-  HISTORY_DIR: z.string().default('data/history'),
+  HISTORY_ENABLED: bool.default(true),
+  HISTORY_DIR: z.string().default('../../data/history'),
+  /** SPEC § 6.1: flush every 5 minutes. */
+  HISTORY_FLUSH_SEC: z.coerce.number().positive().default(300),
   HISTORY_RETENTION_HOURS: z.coerce.number().positive().default(72),
   CORS_ORIGIN: z.string().default('*'),
 });

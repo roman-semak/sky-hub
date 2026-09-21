@@ -77,6 +77,12 @@ importers:
       flatbush:
         specifier: ^4.6.2
         version: 4.6.2
+      hyparquet:
+        specifier: ^1.31.1
+        version: 1.31.1
+      hyparquet-writer:
+        specifier: ^0.16.9
+        version: 0.16.9
       pino:
         specifier: ^10.3.1
         version: 10.3.1
@@ -2874,6 +2880,15 @@ packages:
     resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
     engines: {node: '>=18'}
     hasBin: true
+
+  hyparquet-writer@0.16.9:
+    resolution: {integrity: sha512-VZvH4Vq9lQwZa/+1y4YrEwF9+FAe5pED+mVN4AHflCoFk5LG2RemMHW9iwVlVqug7fO3ATwEMSG68cr3uZAkjQ==}
+
+  hyparquet@1.29.2:
+    resolution: {integrity: sha512-2LxinZ8X0JqToST+9OXcy9t3t5Q7ZneMTkSqUx/36Hv18pCTk/N71IWZc7APTSNG1Me39l/jjEvzZSZ0R+Knbw==}
+
+  hyparquet@1.31.1:
+    resolution: {integrity: sha512-tF9580Xb+41+Eb+mH0av1k7m1PWl+PSKrX66Yd7UOZ760cwEXP9/enwHRMSCeVncaubRI8XPb3v580/ujYKK5w==}
 
   iconv-lite@0.7.3:
     resolution: {integrity: sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==}
@@ -6804,6 +6819,14 @@ snapshots:
       - supports-color
 
   husky@9.1.7: {}
+
+  hyparquet-writer@0.16.9:
+    dependencies:
+      hyparquet: 1.29.2
+
+  hyparquet@1.29.2: {}
+
+  hyparquet@1.31.1: {}
 
   iconv-lite@0.7.3:
     dependencies:

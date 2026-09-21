@@ -77,8 +77,16 @@ export class LiveRegistry {
   }
 
   private upsert(r: AircraftRecord, frameTsSec: number, localNow: number): string {
-    const hex = idToHex(r.icao, r.nonIcao);
     const t = Math.min(localNow, frameTsSec * 1000 - r.age * 1000 + this.clockOffsetMs);
+    return this.upsertAt(r, t, localNow);
+  }
+
+  /**
+   * Applies one record with an explicit fix time. Playback uses this with a
+   * virtual clock, so dead reckoning and blending run in replay time.
+   */
+  upsertAt(r: AircraftRecord, t: number, localNow: number): string {
+    const hex = idToHex(r.icao, r.nonIcao);
     const fix: Fix = {
       lat: r.lat,
       lon: r.lon,
