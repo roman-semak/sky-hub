@@ -52,8 +52,11 @@ export class ConnectionBannerComponent {
     if (state === 'live') return null;
     const last = this.client.lastFrameAt();
     const age = last === null ? null : formatAge((Date.now() - last) / 1000);
-    if (state === 'connecting') return 'Connecting…';
-    const label = state === 'offline' ? 'Offline' : 'Reconnecting…';
-    return age === null ? label : `${label} · data ${age} old`;
+    if (state === 'connecting') return $localize`:@@conn.connecting:Connecting…`;
+    const label =
+      state === 'offline'
+        ? $localize`:@@conn.offlineTitle:Offline`
+        : $localize`:@@conn.reconnectingTitle:Reconnecting…`;
+    return age === null ? label : $localize`:@@conn.stale:${label}:label: · data ${age}:age: old`;
   });
 }

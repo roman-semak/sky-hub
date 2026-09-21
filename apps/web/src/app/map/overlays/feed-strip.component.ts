@@ -13,17 +13,17 @@ import { MapUiStore } from '../../core/state/map-ui.store';
   template: `
     <div class="strip glass">
       <div class="stat">
-        <span class="eyebrow">In view</span>
+        <span class="eyebrow" i18n="@@feed.inView">In view</span>
         <span class="value tabular" data-testid="in-view">{{ inView() }}</span>
       </div>
       <span class="divider"></span>
       <div class="stat">
-        <span class="eyebrow">Frame</span>
+        <span class="eyebrow" i18n="@@feed.frame">Frame</span>
         <span class="value tabular" data-testid="frame-ms">{{ frame() }}</span>
       </div>
       <span class="divider"></span>
       <div class="stat">
-        <span class="eyebrow">Stream</span>
+        <span class="eyebrow" i18n="@@feed.stream">Stream</span>
         <span class="value tabular">{{ stream() }}</span>
       </div>
     </div>

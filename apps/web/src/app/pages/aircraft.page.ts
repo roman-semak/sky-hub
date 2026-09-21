@@ -32,33 +32,37 @@ const dateTime = (ms: number): string =>
   imports: [RouterLink],
   template: `
     <section class="page" aria-labelledby="ac-title">
-      <a routerLink="/" class="back">← Map</a>
+      <a routerLink="/" class="back" i18n="@@aircraft.map">← Map</a>
       @switch (state()) {
         @case ('loading') {
-          <p class="muted" role="status">Looking up {{ id }}…</p>
+          <p class="muted" role="status" i18n="@@aircraft.looking">Looking up {{ id }}…</p>
         }
         @case ('missing') {
           <h1 id="ac-title">{{ id }}</h1>
-          <p class="muted">This aircraft is not live and has no recorded history.</p>
+          <p class="muted" i18n="@@aircraft.thisAircraftIsNotLive">
+            This aircraft is not live and has no recorded history.
+          </p>
         }
         @default {
           <header>
             <h1 id="ac-title">{{ title() }}</h1>
             <p class="muted">{{ sub() }}</p>
           </header>
-          <h2 class="eyebrow">Recorded flights</h2>
+          <h2 class="eyebrow" i18n="@@aircraft.recordedFlights">Recorded flights</h2>
           <ul class="flights">
             @for (f of rows(); track f.start) {
               <li>
                 <button type="button" (click)="showOnMap(f.lat, f.lon)">
                   <span class="when">{{ f.when }}</span>
-                  <span class="meta tabular"
+                  <span class="meta tabular" i18n="@@aircraft.flightMeta"
                     >{{ f.duration }} · max {{ f.alt }} · {{ f.points }} fixes</span
                   >
                 </button>
               </li>
             } @empty {
-              <li class="muted">No flights in the history window yet.</li>
+              <li class="muted" i18n="@@aircraft.noFlightsInTheHistory">
+                No flights in the history window yet.
+              </li>
             }
           </ul>
         }
@@ -151,7 +155,9 @@ export class AircraftPage {
         start: f.start,
         when: `${dateTime(f.start)} → ${dateTime(f.end)}`,
         duration:
-          minutes >= 60 ? `${Math.floor(minutes / 60)} h ${minutes % 60} min` : `${minutes} min`,
+          minutes >= 60
+            ? $localize`:@@aircraft.hoursMinutes:${Math.floor(minutes / 60)}:h: h ${minutes % 60}:m: min`
+            : $localize`:@@aircraft.minutes:${minutes}:m: min`,
         alt: formatAltitude(f.maxAlt, f.maxAlt === 0),
         points: f.points,
         lat: f.to.lat,

@@ -15,8 +15,11 @@ const ROWS = 8;
   imports: [IconComponent],
   template: `
     <div class="head">
-      <span class="title">Nearby</span>
-      <span class="live"><span class="live-dot"></span>{{ count() }} live</span>
+      <span class="title" i18n="@@nearby.title">Nearby</span>
+      <span class="live"
+        ><span class="live-dot"></span
+        ><ng-container i18n="@@nearby.live">{{ count() }} live</ng-container></span
+      >
     </div>
     <ul class="rows">
       @for (row of rows(); track row.hex) {
@@ -38,7 +41,7 @@ const ROWS = 8;
           </button>
         </li>
       } @empty {
-        <li class="empty">No aircraft in view.</li>
+        <li class="empty" i18n="@@nearby.empty">No aircraft in view.</li>
       }
     </ul>
   `,

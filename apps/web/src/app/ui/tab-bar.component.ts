@@ -8,7 +8,7 @@ import { IconComponent } from './icon/icon.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent, RouterLink, RouterLinkActive],
   template: `
-    <nav class="tabs" aria-label="Main">
+    <nav class="tabs" i18n-aria-label="@@nav.main" aria-label="Main">
       @for (item of items; track item.path) {
         <a
           [routerLink]="item.path"
@@ -48,9 +48,9 @@ import { IconComponent } from './icon/icon.component';
 })
 export class TabBarComponent {
   protected readonly items = [
-    { path: '/', icon: 'globe', label: 'Map' },
-    { path: '/search', icon: 'magnifying-glass', label: 'Search' },
-    { path: '/following', icon: 'bookmark-simple', label: 'Following' },
-    { path: '/stats', icon: 'user', label: 'Stats' },
+    { path: '/', icon: 'globe', label: $localize`:@@nav.map:Map` },
+    { path: '/search', icon: 'magnifying-glass', label: $localize`:@@nav.search:Search` },
+    { path: '/following', icon: 'bookmark-simple', label: $localize`:@@nav.following:Following` },
+    { path: '/stats', icon: 'user', label: $localize`:@@nav.stats:Stats` },
   ] as const;
 }

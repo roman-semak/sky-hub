@@ -14,6 +14,7 @@ import { IconComponent } from '../../ui/icon/icon.component';
         type="search"
         name="q"
         [attr.placeholder]="placeholder()"
+        i18n-aria-label="@@search.barLabel"
         aria-label="Search flights, airports or routes"
         (input)="queryChange.emit(field.value)"
       />
@@ -69,7 +70,7 @@ import { IconComponent } from '../../ui/icon/icon.component';
   `,
 })
 export class SearchBarComponent {
-  readonly placeholder = input('Flight, airport or route');
+  readonly placeholder = input($localize`:@@search.barPlaceholder:Flight, airport or route`);
   readonly showHint = input(false);
   readonly queryChange = output<string>();
   readonly submitted = output<string>();

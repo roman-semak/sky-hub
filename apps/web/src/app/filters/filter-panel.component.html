@@ -7,15 +7,21 @@
   data-testid="filter-panel"
 >
   <header>
-    <h2 id="filters-title">Filters</h2>
-    <button type="button" class="icon-action" (click)="close()" aria-label="Close filters">
+    <h2 id="filters-title" i18n="@@filters.filters">Filters</h2>
+    <button
+      type="button"
+      class="icon-action"
+      (click)="close()"
+      aria-label="Close filters"
+      i18n-aria-label="@@filters.closeFilters"
+    >
       <st-icon name="x-circle" />
     </button>
   </header>
 
   <div class="body">
     <div class="group">
-      <span class="eyebrow">Altitude band</span>
+      <span class="eyebrow" i18n="@@filters.altitudeBand">Altitude band</span>
       <st-range-slider
         label="Altitude"
         [min]="altRange[0]"
@@ -28,7 +34,7 @@
     </div>
 
     <div class="group">
-      <span class="eyebrow">Ground speed</span>
+      <span class="eyebrow" i18n="@@filters.groundSpeed">Ground speed</span>
       <st-range-slider
         label="Ground speed"
         [min]="speedRange[0]"
@@ -41,7 +47,7 @@
     </div>
 
     <div class="group">
-      <span class="eyebrow">Operators</span>
+      <span class="eyebrow" i18n="@@filters.operators">Operators</span>
       <div class="chips">
         @for (code of quickOperators; track code) {
           <button
@@ -65,7 +71,9 @@
         #op
         class="field"
         placeholder="Add airline ICAO code, e.g. SWR"
+        i18n-placeholder="@@filters.addAirlineIcaoCodeE"
         aria-label="Add airline ICAO code"
+        i18n-aria-label="@@filters.addAirlineIcaoCode"
         (keydown.enter)="addCode('operators', op, 3)"
       />
     </div>
@@ -81,7 +89,7 @@
                 class="chip"
                 aria-pressed="true"
                 (click)="removeCode(list.key, code)"
-                [attr.aria-label]="'Remove ' + code"
+                [attr.aria-label]="removeLabel(code)"
               >
                 {{ code }} <st-icon name="x-circle" />
               </button>
@@ -99,7 +107,7 @@
     }
 
     <div class="group">
-      <span class="eyebrow">Show only</span>
+      <span class="eyebrow" i18n="@@filters.showOnly">Show only</span>
       <div class="chips">
         @for (flag of flags; track flag.key) {
           <button
@@ -115,7 +123,7 @@
     </div>
 
     <div class="group">
-      <span class="eyebrow">Presets</span>
+      <span class="eyebrow" i18n="@@filters.presets">Presets</span>
       @if (filters.presets().length > 0) {
         <div class="chips">
           @for (p of filters.presets(); track p.name) {
@@ -125,7 +133,7 @@
                 type="button"
                 class="preset-del"
                 (click)="filters.deletePreset(p.name)"
-                [attr.aria-label]="'Delete preset ' + p.name"
+                [attr.aria-label]="deleteLabel(p.name)"
               >
                 <st-icon name="x-circle" />
               </button>
@@ -137,7 +145,9 @@
         <input
           class="field"
           placeholder="Preset name"
+          i18n-placeholder="@@filters.presetName"
           aria-label="Preset name"
+          i18n-aria-label="@@filters.presetName"
           [value]="presetName()"
           (input)="setName($event)"
           (keydown.enter)="savePreset()"
@@ -147,6 +157,7 @@
           class="chip"
           [disabled]="presetName().trim() === ''"
           (click)="savePreset()"
+          i18n="@@filters.save"
         >
           Save
         </button>
@@ -155,12 +166,12 @@
   </div>
 
   <footer>
-    <button type="button" class="reset" (click)="reset()">Reset</button>
+    <button type="button" class="reset" (click)="reset()" i18n="@@filters.reset">Reset</button>
     <button type="button" class="show" (click)="apply()" data-testid="apply-filters">
       @if (count() === null) {
-        Apply filters
+        <ng-container i18n="@@filters.apply">Apply filters</ng-container>
       } @else {
-        Show {{ count() }} flights
+        <ng-container i18n="@@filters.show">Show {{ count() }} flights</ng-container>
       }
     </button>
   </footer>

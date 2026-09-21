@@ -12,7 +12,9 @@ import { IconComponent } from '../../ui/icon/icon.component';
         type="button"
         class="icon-btn"
         title="Layers"
+        i18n-title="@@controls.layers"
         aria-label="Layers"
+        i18n-aria-label="@@controls.layers"
         (click)="layers.emit()"
       >
         <st-icon name="stack-simple" />
@@ -21,7 +23,9 @@ import { IconComponent } from '../../ui/icon/icon.component';
         type="button"
         class="icon-btn"
         title="Replay the last hour"
+        i18n-title="@@controls.replay"
         aria-label="Replay the last hour"
+        i18n-aria-label="@@controls.replay"
         data-testid="open-playback"
         (click)="history.emit()"
       >
@@ -31,7 +35,9 @@ import { IconComponent } from '../../ui/icon/icon.component';
         type="button"
         class="icon-btn"
         title="My location"
+        i18n-title="@@controls.locate"
         aria-label="My location"
+        i18n-aria-label="@@controls.locate"
         (click)="locate.emit()"
       >
         <st-icon name="crosshair" />
@@ -40,7 +46,9 @@ import { IconComponent } from '../../ui/icon/icon.component';
         type="button"
         class="icon-btn zoom"
         title="Zoom in"
+        i18n-title="@@controls.zoomIn"
         aria-label="Zoom in"
+        i18n-aria-label="@@controls.zoomIn"
         (click)="zoom.emit(1)"
       >
         <st-icon name="plus" />
@@ -49,7 +57,9 @@ import { IconComponent } from '../../ui/icon/icon.component';
         type="button"
         class="icon-btn zoom"
         title="Zoom out"
+        i18n-title="@@controls.zoomOut"
         aria-label="Zoom out"
+        i18n-aria-label="@@controls.zoomOut"
         (click)="zoom.emit(-1)"
       >
         <st-icon name="minus" />

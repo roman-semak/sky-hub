@@ -1,13 +1,8 @@
-import type { Layer, PickingInfo } from '@deck.gl/core';
-import { IconLayer, LineLayer, PathLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
-import { MapboxOverlay } from '@deck.gl/mapbox';
 import type { BBox } from '@skytrace/geo';
-import type { Cluster } from '@skytrace/protocol';
-import { AttributionControl, Map as MlMap, setWorkerUrl } from 'maplibre-gl';
+import { Map as MlMap, setWorkerUrl } from 'maplibre-gl';
 import type { LiveRegistry } from '../core/live/live-registry';
 import { WindParticles, type WindGrid } from '../weather/wind-field';
-import { AltitudeColorExtension } from './layers/altitude-color-extension';
-import { buildIconAtlas } from './layers/icon-atlas';
+import type { DeckOverlay, DeckScene } from './deck-layers';
 import { RenderBuffer } from './layers/render-buffer';
 import { loadMapStyle, type MapTheme } from './map-style';
 
@@ -67,20 +62,19 @@ export interface MapEngine {
   destroy(): void;
 }
 
-const ATTRIBUTION =
-  'Aircraft data: <a href="https://adsb.lol" target="_blank" rel="noopener">adsb.lol</a>, ' +
-  '<a href="https://adsb.fi" target="_blank" rel="noopener">adsb.fi</a> (ODbL) · ' +
-  'Map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · ' +
-  '© <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>';
-
 // MapLibre resolves its worker next to its own module; after bundling that
 // file does not exist, so the worker is shipped as an asset (angular.json).
 setWorkerUrl(new URL('maplibre/maplibre-gl-worker.mjs', document.baseURI).href);
 
+/** Lets the browser paint and handle input between two heavy steps. */
+const yieldToMain = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
+
 /**
- * Creates the WebGL map: MapLibre basemap + deck.gl overlay drawing every
- * aircraft from binary attributes. Loaded lazily so neither library counts
- * towards the initial bundle.
+ * Creates the WebGL map: MapLibre basemap first, then the deck.gl overlay
+ * that draws every aircraft from binary attributes. Both are lazy chunks;
+ * deck.gl loads only after the basemap is up, so neither big library is
+ * evaluated in the same long task (ADR-009). Attribution is rendered by the
+ * host page, not by MapLibre, so it paints with the first frame.
  */
 export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine> {
   const style = await loadMapStyle(opts.theme);
@@ -96,27 +90,23 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
     fadeDuration: 0,
   });
   map.touchZoomRotate.disableRotation();
-  map.addControl(
-    new AttributionControl({ compact: true, customAttribution: ATTRIBUTION }),
-    'bottom-right',
-  );
 
-  const atlas = buildIconAtlas();
-  const buffer = new RenderBuffer();
-  const extension = new AltitudeColorExtension();
+  const scene: DeckScene = {
+    buffer: new RenderBuffer(),
+    particles: null,
+    clusters: [],
+    trail: [],
+    hoverTrail: [],
+    iconVersion: 0,
+  };
+  let deck: DeckOverlay | null = null;
+  let destroyed = false;
   let selected: string | null = null;
-  let hovered: string | null = null;
   let dimmed = false;
-  let trail: readonly (readonly [number, number])[] = [];
-  let hoverTrail: readonly (readonly [number, number])[] = [];
   let lastRegistry: LiveRegistry | null = null;
   let lastVersion = -1;
-  let iconVersion = 0;
-  let clusters: readonly Cluster[] = [];
-
   let radar: { tiles: string; maxZoom: number } | null = null;
   let windGrid: WindGrid | null = null;
-  let particles: WindParticles | null = null;
   let lastFrameAt = performance.now();
 
   const viewBox = (): [number, number, number, number] => {
@@ -149,147 +139,43 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
   };
   map.on('style.load', applyRadar);
   map.on('moveend', () => {
-    particles?.setView(viewBox());
+    scene.particles?.setView(viewBox());
   });
-
-  const overlay = new MapboxOverlay({ interleaved: false, layers: [] });
-  map.addControl(overlay);
 
   const emitViewport = (): void => {
     const b = map.getBounds();
     const c = map.getCenter();
-    const w = Math.max(-180, b.getWest());
-    const e = Math.min(180, b.getEast());
     opts.onViewport({
-      bbox: [w, Math.max(-90, b.getSouth()), e, Math.min(90, b.getNorth())],
+      bbox: [
+        Math.max(-180, b.getWest()),
+        Math.max(-90, b.getSouth()),
+        Math.min(180, b.getEast()),
+        Math.min(90, b.getNorth()),
+      ],
       zoom: map.getZoom(),
       lat: c.lat,
       lon: c.lng,
     });
   };
   map.on('moveend', emitViewport);
-  map.once('load', emitViewport);
-
-  const pickHex = (info: PickingInfo): string | null =>
-    info.layer?.id === 'aircraft' && info.index >= 0 ? (buffer.hexes[info.index] ?? null) : null;
-
-  const buildLayers = (): Layer[] => {
-    const layers: Layer[] = [];
-    if (particles !== null) {
-      layers.push(
-        new LineLayer({
-          id: 'wind',
-          data: {
-            length: particles.count,
-            attributes: {
-              getSourcePosition: { value: particles.tail, size: 2 },
-              getTargetPosition: { value: particles.head, size: 2 },
-              getColor: { value: particles.alpha, size: 4, normalized: true },
-            },
-          },
-          getWidth: 1.2,
-          widthUnits: 'pixels',
-        }),
-      );
-    }
-    if (clusters.length > 0) {
-      const maxCount = Math.max(...clusters.map((c) => c.count));
-      layers.push(
-        new ScatterplotLayer<Cluster>({
-          id: 'clusters',
-          data: clusters,
-          getPosition: (c) => [c.lon, c.lat],
-          getRadius: (c) => 6 + 18 * Math.sqrt(c.count / maxCount),
-          radiusUnits: 'pixels',
-          getFillColor: [150, 138, 224, 90],
-          getLineColor: [181, 171, 252, 200],
-          lineWidthMinPixels: 1,
-          stroked: true,
-        }),
-        new TextLayer<Cluster>({
-          id: 'cluster-counts',
-          data: clusters.filter((c) => c.count >= 5),
-          getPosition: (c) => [c.lon, c.lat],
-          getText: (c) => (c.count >= 1000 ? `${(c.count / 1000).toFixed(1)}k` : String(c.count)),
-          getSize: 11,
-          getColor: [233, 233, 237, 230],
-          fontFamily: 'Inter Variable, Inter, system-ui, sans-serif',
-          fontWeight: 600,
-        }),
-      );
-    }
-    if (hoverTrail.length > 1) {
-      layers.push(
-        new PathLayer<{ path: [number, number][] }>({
-          id: 'hover-trail',
-          data: [{ path: hoverTrail.map(([lon, lat]) => [lon, lat] as [number, number]) }],
-          getPath: (d) => d.path,
-          getColor: [233, 233, 237, 90],
-          getWidth: 1.5,
-          widthUnits: 'pixels',
-        }),
-      );
-    }
-    if (trail.length > 1) {
-      layers.push(
-        new PathLayer<{ path: [number, number][] }>({
-          id: 'trail',
-          data: [{ path: trail.map(([lon, lat]) => [lon, lat] as [number, number]) }],
-          getPath: (d) => d.path,
-          getColor: [150, 138, 224, 200],
-          getWidth: 2,
-          widthUnits: 'pixels',
-          jointRounded: true,
-          capRounded: true,
-        }),
-      );
-    }
-    layers.push(
-      new IconLayer({
-        id: 'aircraft',
-        data: {
-          length: buffer.count,
-          attributes: {
-            getPosition: { value: buffer.positions, size: 2 },
-            getAngle: { value: buffer.angles, size: 1 },
-            getColor: { value: buffer.colors, size: 4, normalized: true },
-            getSize: { value: buffer.sizes, size: 1 },
-            getAltitude: { value: buffer.altitudes, size: 1 },
-          },
+  map.once('load', () => {
+    emitViewport();
+    void (async () => {
+      await yieldToMain();
+      const { createDeckOverlay } = await import('./deck-layers');
+      await yieldToMain();
+      if (destroyed) return;
+      deck = createDeckOverlay(map, scene, {
+        onSelect: opts.onSelect,
+        onHover: (hex, x, y) => {
+          opts.onHover(hex === null ? null : { hex, x, y });
         },
-        iconAtlas: atlas.url,
-        iconMapping: atlas.mapping,
-        getIcon: (_: unknown, { index }: { index: number }) => buffer.icons[index] ?? 'generic',
-        sizeUnits: 'pixels',
-        billboard: false,
-        pickable: true,
-        autoHighlight: false,
-        extensions: [extension],
-        updateTriggers: { getIcon: iconVersion },
-        onClick: (info: PickingInfo) => {
-          opts.onSelect(pickHex(info));
-        },
-        onHover: (info: PickingInfo) => {
-          const hex = pickHex(info);
-          if (hex !== hovered) {
-            hovered = hex;
-            map.getCanvas().style.cursor = hex === null ? '' : 'pointer';
-          }
-          opts.onHover(hex === null ? null : { hex, x: info.x, y: info.y });
-        },
-      }),
-    );
-    return layers;
-  };
+      });
+    })();
+  });
 
   map.on('click', (e) => {
-    const picked = overlay.pickObject({
-      x: e.point.x,
-      y: e.point.y,
-      radius: 6,
-      layerIds: ['aircraft'],
-    });
-    if (picked === null) opts.onSelect(null);
+    if (deck !== null && !deck.hitsAircraft(e.point.x, e.point.y)) opts.onSelect(null);
   });
 
   // Frame loop: project every aircraft, hand the buffers to deck.
@@ -300,10 +186,10 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
   const frame = (): void => {
     raf = requestAnimationFrame(frame);
     const t0 = performance.now();
-    if (particles !== null && windGrid !== null) {
+    if (scene.particles !== null && windGrid !== null) {
       // 30 m/s crosses ~4 % of the view per second: visible, not literal.
       const [w, , e] = viewBox();
-      particles.step(windGrid, Math.min(50, t0 - lastFrameAt), (0.04 * (e - w)) / 30_000);
+      scene.particles.step(windGrid, Math.min(50, t0 - lastFrameAt), (0.04 * (e - w)) / 30_000);
     }
     lastFrameAt = t0;
     const source = opts.frameSource();
@@ -311,17 +197,22 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
     if (reg !== lastRegistry || reg.version !== lastVersion) {
       lastRegistry = reg;
       lastVersion = reg.version;
-      iconVersion++;
-      clusters = reg.clusters;
+      scene.iconVersion++;
+      scene.clusters = reg.clusters;
     }
-    buffer.fill(reg.aircraft, source.now, selected, dimmed);
-    overlay.setProps({ layers: buildLayers() });
+    if (deck === null) return;
+    scene.buffer.fill(reg.aircraft, source.now, selected, dimmed);
+    deck.render();
     samples.push(performance.now() - t0);
     frames++;
     if (t0 - statsAt >= 1000) {
       samples.sort((a, b) => a - b);
       const p95 = samples[Math.floor(samples.length * 0.95)] ?? 0;
-      opts.onFrameStats({ frameMs: Math.round(p95 * 10) / 10, fps: frames, drawn: buffer.count });
+      opts.onFrameStats({
+        frameMs: Math.round(p95 * 10) / 10,
+        fps: frames,
+        drawn: scene.buffer.count,
+      });
       samples.length = 0;
       frames = 0;
       statsAt = t0;
@@ -340,10 +231,10 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
       dimmed = d;
     },
     setTrail(points) {
-      trail = points;
+      scene.trail = points;
     },
     setHoverTrail(points) {
-      hoverTrail = points;
+      scene.hoverTrail = points;
     },
     setRadar(tiles, maxZoom) {
       radar = tiles === null ? null : { tiles, maxZoom };
@@ -351,8 +242,8 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
     },
     setWind(grid) {
       windGrid = grid;
-      if (grid === null) particles = null;
-      else particles ??= new WindParticles(1500, viewBox());
+      if (grid === null) scene.particles = null;
+      else scene.particles ??= new WindParticles(1500, viewBox());
     },
     flyTo(lat, lon, zoom) {
       const reduced = globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -367,9 +258,9 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
       map.easeTo({ zoom: map.getZoom() + delta, duration: 250 });
     },
     destroy() {
+      destroyed = true;
       cancelAnimationFrame(raf);
-      map.removeControl(overlay);
-      overlay.finalize();
+      deck?.destroy();
       map.remove();
     },
   };

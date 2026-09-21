@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { FlightDataService } from '../core/flight/flight-data.service';
-import { flightPhase, flightProgress } from '../core/flight/flight-progress';
+import { flightPhase, flightProgress, phaseLabel } from '../core/flight/flight-progress';
 import { FollowStore } from '../core/follow/follow.store';
 import { formatAltitude } from '../core/format/format';
 import { AircraftMetaService } from '../core/live/aircraft-meta.service';
@@ -58,7 +58,10 @@ export class FollowingPage {
         hex: f.hex,
         title: callsign ?? f.hex.toUpperCase(),
         live: r !== undefined,
-        status: r === undefined ? 'Not in coverage' : flightPhase(r.onGround, r.baroRate, r.alt),
+        status:
+          r === undefined
+            ? $localize`:@@following.notInCoverage:Not in coverage`
+            : phaseLabel(flightPhase(r.onGround, r.baroRate, r.alt)),
         from:
           route?.state === 'ready' ? (route.value.origin.iata ?? route.value.origin.icao) : null,
         to:
@@ -68,9 +71,9 @@ export class FollowingPage {
         fraction: progress?.fraction ?? 0,
         caption:
           r === undefined
-            ? 'Last seen before this session'
+            ? $localize`:@@following.lastSeen:Last seen before this session`
             : progress !== null && progress.etaMin !== null
-              ? `Lands in ${progress.etaMin} min · ${formatAltitude(r.alt, r.onGround)}`
+              ? $localize`:@@following.landsIn:Lands in ${progress.etaMin}:eta: min · ${formatAltitude(r.alt, r.onGround)}:alt:`
               : formatAltitude(r.alt, r.onGround),
       };
     });
@@ -79,7 +82,9 @@ export class FollowingPage {
   protected readonly summary = computed(() => {
     const n = this.cards().length;
     const live = this.cards().filter((c) => c.live).length;
-    return `${n} ${n === 1 ? 'flight' : 'flights'} · ${live} live`;
+    return n === 1
+      ? $localize`:@@following.summaryOne:1 flight · ${live}:live: live`
+      : $localize`:@@following.summaryMany:${n}:count: flights · ${live}:live: live`;
   });
 
   protected open(hex: string): void {

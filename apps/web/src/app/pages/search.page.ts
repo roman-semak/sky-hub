@@ -22,9 +22,9 @@ interface Row {
 }
 
 const KINDS: readonly { id: SearchKind; label: string }[] = [
-  { id: 'flights', label: 'Flights' },
-  { id: 'airports', label: 'Airports' },
-  { id: 'airlines', label: 'Airlines' },
+  { id: 'flights', label: $localize`:@@search.flights:Flights` },
+  { id: 'airports', label: $localize`:@@search.airports:Airports` },
+  { id: 'airlines', label: $localize`:@@search.airlines:Airlines` },
 ];
 
 function toRow(r: SearchResult): Row {

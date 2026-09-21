@@ -58,10 +58,22 @@ export class StatsPage {
     const s = this.stats();
     if (s === null) return [];
     return [
-      { label: 'Tracked', value: formatCount(s.total) },
-      { label: 'Airborne', value: formatCount(s.airborne) },
-      { label: 'On ground', value: formatCount(s.onGround) },
-      { label: 'Military', value: formatCount(s.military) },
+      { id: 'Tracked', label: $localize`:@@stats.tracked:Tracked`, value: formatCount(s.total) },
+      {
+        id: 'Airborne',
+        label: $localize`:@@stats.airborne:Airborne`,
+        value: formatCount(s.airborne),
+      },
+      {
+        id: 'On ground',
+        label: $localize`:@@stats.ground:On ground`,
+        value: formatCount(s.onGround),
+      },
+      {
+        id: 'Military',
+        label: $localize`:@@stats.military:Military`,
+        value: formatCount(s.military),
+      },
     ];
   });
 

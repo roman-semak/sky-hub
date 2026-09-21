@@ -16,7 +16,7 @@ import { ChangeDetectionStrategy, Component, computed, input, model } from '@ang
         [max]="max()"
         [step]="step()"
         [value]="value()[0]"
-        [attr.aria-label]="label() + ' minimum'"
+        [attr.aria-label]="minLabel()"
         (input)="setLo($event)"
       />
       <input
@@ -25,7 +25,7 @@ import { ChangeDetectionStrategy, Component, computed, input, model } from '@ang
         [max]="max()"
         [step]="step()"
         [value]="value()[1]"
-        [attr.aria-label]="label() + ' maximum'"
+        [attr.aria-label]="maxLabel()"
         (input)="setHi($event)"
       />
     </div>
@@ -44,6 +44,12 @@ export class RangeSliderComponent {
   readonly format = input<(v: number) => string>((v) => String(v));
   readonly value = model.required<readonly [number, number]>();
 
+  protected readonly minLabel = computed(
+    () => $localize`:@@range.min:${this.label()}:label: minimum`,
+  );
+  protected readonly maxLabel = computed(
+    () => $localize`:@@range.max:${this.label()}:label: maximum`,
+  );
   protected readonly loPct = computed(() => this.pct(this.value()[0]));
   protected readonly hiPct = computed(() => this.pct(this.value()[1]));
 

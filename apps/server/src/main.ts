@@ -2,6 +2,7 @@ import { worldCoverageGrid } from '@skytrace/geo';
 import { pino } from 'pino';
 import { buildApp } from './app.js';
 import { loadConfig, MIRROR_MIN_INTERVAL_MS } from './config.js';
+import { serveWeb } from './web-static.js';
 import { ADSB_V2_MIRRORS, AdsbV2Provider } from './ingest/adsb-v2-provider.js';
 import { CoverageScheduler } from './ingest/coverage-scheduler.js';
 import { DEFAULT_INGEST_OPTIONS, IngestWorker } from './ingest/ingest-worker.js';
@@ -108,6 +109,10 @@ worker.onIndex((index) => {
   const heapMb = Math.round(process.memoryUsage().heapUsed / 1048576);
   logger.info({ aircraft: index.size, peak: store.peakSize, heapMb }, 'ingest status');
 });
+
+if (config.WEB_DIST !== undefined && (await serveWeb(app, config.WEB_DIST))) {
+  logger.info({ dir: config.WEB_DIST }, 'serving web build');
+}
 
 if (config.INGEST_ENABLED) worker.start();
 historyWriter?.start();

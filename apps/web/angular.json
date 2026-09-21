@@ -33,7 +33,8 @@
             "allowedCommonJsDependencies": ["earcut"],
             "loader": {
               ".svg": "text"
-            }
+            },
+            "polyfills": ["@angular/localize/init"]
           },
           "configurations": {
             "production": {
@@ -49,7 +50,9 @@
                   "maximumError": "10kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json",
+              "localize": true
             },
             "development": {
               "optimization": false,
@@ -75,7 +78,10 @@
           }
         },
         "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
+          "builder": "@angular/build:extract-i18n",
+          "options": {
+            "buildTarget": "web:build"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -83,6 +89,18 @@
             "tsConfig": "tsconfig.spec.json",
             "buildTarget": "::development",
             "runner": "vitest"
+          }
+        }
+      },
+      "i18n": {
+        "sourceLocale": {
+          "code": "en",
+          "subPath": ""
+        },
+        "locales": {
+          "uk": {
+            "translation": "src/locale/messages.uk.xlf",
+            "subPath": "uk"
           }
         }
       }

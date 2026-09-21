@@ -1,0 +1,1685 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en" trgLang="uk">
+  <file id="ngi18n" original="ng.template">
+    <unit id="rose.calm">
+      <notes>
+        <note category="location">src/app/airport/wind-rose.component.ts:30,32</note>
+      </notes>
+      <segment>
+        <source>calm <ph id="0" equiv="INTERPOLATION" disp="{{ calmPct() }}"/>%</source>
+        <target>штиль <ph id="0" equiv="INTERPOLATION" disp="{{ calmPct() }}"/>%</target>
+      </segment>
+    </unit>
+    <unit id="rose.empty">
+      <notes>
+        <note category="location">src/app/airport/wind-rose.component.ts:107</note>
+      </notes>
+      <segment>
+        <source>Wind rose: no wind observations</source>
+        <target>Роза вітрів: немає спостережень</target>
+      </segment>
+    </unit>
+    <unit id="rose.label">
+      <notes>
+        <note category="location">src/app/airport/wind-rose.component.ts:108</note>
+      </notes>
+      <segment>
+        <source>Wind rose over <ph id="0" equiv="count" disp="this.observations().length"/> observations, most often from <ph id="1" equiv="dir" disp="Math.round(top.dir)"/>°</source>
+        <target>Роза вітрів за <ph id="0" equiv="count" disp="this.observations().length"/> спостережень, найчастіше з <ph id="1" equiv="dir" disp="Math.round(top.dir)"/>°</target>
+      </segment>
+    </unit>
+    <unit id="title.map">
+      <notes>
+        <note category="location">src/app/app.routes.ts:9</note>
+      </notes>
+      <segment>
+        <source>SkyTrace — live flight map</source>
+        <target>SkyTrace — жива карта польотів</target>
+      </segment>
+    </unit>
+    <unit id="title.search">
+      <notes>
+        <note category="location">src/app/app.routes.ts:14</note>
+      </notes>
+      <segment>
+        <source>Search — SkyTrace</source>
+        <target>Пошук — SkyTrace</target>
+      </segment>
+    </unit>
+    <unit id="title.following">
+      <notes>
+        <note category="location">src/app/app.routes.ts:19</note>
+      </notes>
+      <segment>
+        <source>Following — SkyTrace</source>
+        <target>Відстеження — SkyTrace</target>
+      </segment>
+    </unit>
+    <unit id="title.stats">
+      <notes>
+        <note category="location">src/app/app.routes.ts:24</note>
+      </notes>
+      <segment>
+        <source>Statistics — SkyTrace</source>
+        <target>Статистика — SkyTrace</target>
+      </segment>
+    </unit>
+    <unit id="title.aircraft">
+      <notes>
+        <note category="location">src/app/app.routes.ts:29</note>
+      </notes>
+      <segment>
+        <source>Aircraft — SkyTrace</source>
+        <target>Борт — SkyTrace</target>
+      </segment>
+    </unit>
+    <unit id="title.airport">
+      <notes>
+        <note category="location">src/app/app.routes.ts:34</note>
+      </notes>
+      <segment>
+        <source>Airport — SkyTrace</source>
+        <target>Аеропорт — SkyTrace</target>
+      </segment>
+    </unit>
+    <unit id="phase.ground">
+      <notes>
+        <note category="location">src/app/core/flight/flight-progress.ts:46</note>
+      </notes>
+      <segment>
+        <source>On ground</source>
+        <target>На землі</target>
+      </segment>
+    </unit>
+    <unit id="phase.climbing">
+      <notes>
+        <note category="location">src/app/core/flight/flight-progress.ts:48</note>
+      </notes>
+      <segment>
+        <source>Climbing</source>
+        <target>Набір висоти</target>
+      </segment>
+    </unit>
+    <unit id="phase.descending">
+      <notes>
+        <note category="location">src/app/core/flight/flight-progress.ts:50</note>
+      </notes>
+      <segment>
+        <source>Descending</source>
+        <target>Зниження</target>
+      </segment>
+    </unit>
+    <unit id="phase.cruising">
+      <notes>
+        <note category="location">src/app/core/flight/flight-progress.ts:52</note>
+      </notes>
+      <segment>
+        <source>Cruising</source>
+        <target>Крейсерський</target>
+      </segment>
+    </unit>
+    <unit id="phase.enroute">
+      <notes>
+        <note category="location">src/app/core/flight/flight-progress.ts:54</note>
+      </notes>
+      <segment>
+        <source>En route</source>
+        <target>У польоті</target>
+      </segment>
+    </unit>
+    <unit id="fmt.ground">
+      <notes>
+        <note category="location">src/app/core/format/format.ts:3</note>
+      </notes>
+      <segment>
+        <source>ground</source>
+        <target>на землі</target>
+      </segment>
+    </unit>
+    <unit id="filters.filters">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:10,12</note>
+      </notes>
+      <segment>
+        <source>Filters</source>
+        <target>Фільтри</target>
+      </segment>
+    </unit>
+    <unit id="filters.closeFilters">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:15,16</note>
+      </notes>
+      <segment>
+        <source>Close filters</source>
+        <target>Закрити фільтри</target>
+      </segment>
+    </unit>
+    <unit id="filters.altitudeBand">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:24,26</note>
+      </notes>
+      <segment>
+        <source>Altitude band</source>
+        <target>Діапазон висот</target>
+      </segment>
+    </unit>
+    <unit id="filters.groundSpeed">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:37,39</note>
+      </notes>
+      <segment>
+        <source>Ground speed</source>
+        <target>Шляхова швидкість</target>
+      </segment>
+    </unit>
+    <unit id="filters.operators">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:50,51</note>
+      </notes>
+      <segment>
+        <source>Operators</source>
+        <target>Авіакомпанії</target>
+      </segment>
+    </unit>
+    <unit id="filters.addAirlineIcaoCodeE">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:73,74</note>
+      </notes>
+      <segment>
+        <source>Add airline ICAO code, e.g. SWR</source>
+        <target>Додайте ICAO-код авіакомпанії, напр. SWR</target>
+      </segment>
+    </unit>
+    <unit id="filters.addAirlineIcaoCode">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:75,76</note>
+      </notes>
+      <segment>
+        <source>Add airline ICAO code</source>
+        <target>Додати ICAO-код авіакомпанії</target>
+      </segment>
+    </unit>
+    <unit id="filters.showOnly">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:110,111</note>
+      </notes>
+      <segment>
+        <source>Show only</source>
+        <target>Показувати лише</target>
+      </segment>
+    </unit>
+    <unit id="filters.presets">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:126,127</note>
+      </notes>
+      <segment>
+        <source>Presets</source>
+        <target>Пресети</target>
+      </segment>
+    </unit>
+    <unit id="filters.presetName">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:147,148</note>
+        <note category="location">src/app/filters/filter-panel.component.html:149,150</note>
+      </notes>
+      <segment>
+        <source>Preset name</source>
+        <target>Назва пресету</target>
+      </segment>
+    </unit>
+    <unit id="filters.save">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:162,163</note>
+      </notes>
+      <segment>
+        <source> Save </source>
+        <target> Зберегти </target>
+      </segment>
+    </unit>
+    <unit id="filters.reset">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:169,170</note>
+      </notes>
+      <segment>
+        <source>Reset</source>
+        <target>Скинути</target>
+      </segment>
+    </unit>
+    <unit id="filters.apply">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:172,173</note>
+      </notes>
+      <segment>
+        <source>Apply filters</source>
+        <target>Застосувати фільтри</target>
+      </segment>
+    </unit>
+    <unit id="filters.show">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.html:174,175</note>
+      </notes>
+      <segment>
+        <source>Show <ph id="0" equiv="INTERPOLATION" disp="{{ count() }}"/> flights</source>
+        <target>Показати рейсів: <ph id="0" equiv="INTERPOLATION" disp="{{ count() }}"/></target>
+      </segment>
+    </unit>
+    <unit id="filters.militaryOnly">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.ts:46</note>
+      </notes>
+      <segment>
+        <source>Military only</source>
+        <target>Лише військові</target>
+      </segment>
+    </unit>
+    <unit id="filters.emergencyOnly">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.ts:47</note>
+      </notes>
+      <segment>
+        <source>Emergencies only</source>
+        <target>Лише аварійні</target>
+      </segment>
+    </unit>
+    <unit id="filters.laddOnly">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.ts:48</note>
+      </notes>
+      <segment>
+        <source>LADD-blocked only</source>
+        <target>Лише приховані LADD</target>
+      </segment>
+    </unit>
+    <unit id="filters.types">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.ts:58</note>
+      </notes>
+      <segment>
+        <source>Aircraft types</source>
+        <target>Типи повітряних суден</target>
+      </segment>
+    </unit>
+    <unit id="filters.typesHint">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.ts:59</note>
+      </notes>
+      <segment>
+        <source>ICAO type, e.g. A20N</source>
+        <target>ICAO-тип, напр. A20N</target>
+      </segment>
+    </unit>
+    <unit id="filters.countries">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.ts:64</note>
+      </notes>
+      <segment>
+        <source>Country of registration</source>
+        <target>Країна реєстрації</target>
+      </segment>
+    </unit>
+    <unit id="filters.countriesHint">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.ts:65</note>
+      </notes>
+      <segment>
+        <source>ISO code, e.g. PT</source>
+        <target>ISO-код, напр. UA</target>
+      </segment>
+    </unit>
+    <unit id="filters.remove">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.ts:138</note>
+      </notes>
+      <segment>
+        <source>Remove <ph id="0" equiv="code" disp="code"/></source>
+        <target>Прибрати <ph id="0" equiv="code" disp="code"/></target>
+      </segment>
+    </unit>
+    <unit id="filters.deletePreset">
+      <notes>
+        <note category="location">src/app/filters/filter-panel.component.ts:142</note>
+      </notes>
+      <segment>
+        <source>Delete preset <ph id="0" equiv="name" disp="name"/></source>
+        <target>Видалити пресет <ph id="0" equiv="name" disp="name"/></target>
+      </segment>
+    </unit>
+    <unit id="chart.collecting">
+      <notes>
+        <note category="location">src/app/flight/altitude-chart.component.ts:33,37</note>
+      </notes>
+      <segment>
+        <source> Collecting the track — the profile fills in as positions arrive. </source>
+        <target> Збираю трек — профіль заповнюється з новими позиціями. </target>
+      </segment>
+    </unit>
+    <unit id="chart.empty">
+      <notes>
+        <note category="location">src/app/flight/altitude-chart.component.ts:71</note>
+      </notes>
+      <segment>
+        <source>Altitude profile: no data yet</source>
+        <target>Профіль висоти: ще немає даних</target>
+      </segment>
+    </unit>
+    <unit id="chart.label">
+      <notes>
+        <note category="location">src/app/flight/altitude-chart.component.ts:72</note>
+      </notes>
+      <segment>
+        <source>Altitude profile, <ph id="0" equiv="count" disp="pts.length"/> points, max <ph id="1" equiv="max" disp="Math.max(...alts)"/> ft</source>
+        <target>Профіль висоти, точок: <ph id="0" equiv="count" disp="pts.length"/>, максимум <ph id="1" equiv="max" disp="Math.max(...alts)"/> ft</target>
+      </segment>
+    </unit>
+    <unit id="flight.detail">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:5,6</note>
+      </notes>
+      <segment>
+        <source>Flight detail</source>
+        <target>Деталі рейсу</target>
+      </segment>
+    </unit>
+    <unit id="flight.routeProgress">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:40,41</note>
+      </notes>
+      <segment>
+        <source>Route progress</source>
+        <target>Прогрес маршруту</target>
+      </segment>
+    </unit>
+    <unit id="flight.minRemaining">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:55,56</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="INTERPOLATION" disp="{{ p.etaMin }}"/> min remaining</source>
+        <target>залишилось <ph id="0" equiv="INTERPOLATION" disp="{{ p.etaMin }}"/> хв</target>
+      </segment>
+    </unit>
+    <unit id="flight.kmToGo">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:60,61</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="INTERPOLATION" disp="{{ p.remainingKm }}"/> km to go · scheduled route</source>
+        <target>ще <ph id="0" equiv="INTERPOLATION" disp="{{ p.remainingKm }}"/> км · за розкладом</target>
+      </segment>
+    </unit>
+    <unit id="flight.noRoute">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:72,76</note>
+      </notes>
+      <segment>
+        <source>No published route for this callsign.</source>
+        <target>Для цього позивного немає опублікованого маршруту.</target>
+      </segment>
+    </unit>
+    <unit id="flight.profile">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:86,87</note>
+      </notes>
+      <segment>
+        <source>Altitude profile</source>
+        <target>Профіль висоти</target>
+      </segment>
+    </unit>
+    <unit id="flight.recent">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:92,93</note>
+      </notes>
+      <segment>
+        <source>Recent positions</source>
+        <target>Останні позиції</target>
+      </segment>
+    </unit>
+    <unit id="flight.raw">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:104,106</note>
+      </notes>
+      <segment>
+        <source>Raw fields</source>
+        <target>Сирі поля</target>
+      </segment>
+    </unit>
+    <unit id="flight.following">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:124,125</note>
+      </notes>
+      <segment>
+        <source>Following</source>
+        <target>Відстежую</target>
+      </segment>
+    </unit>
+    <unit id="flight.follow">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:126,128</note>
+      </notes>
+      <segment>
+        <source>Follow</source>
+        <target>Відстежувати</target>
+      </segment>
+    </unit>
+    <unit id="flight.history">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:132,133</note>
+        <note category="location">src/app/flight/flight-panel.component.html:134,135</note>
+      </notes>
+      <segment>
+        <source>Flight history</source>
+        <target>Історія польотів</target>
+      </segment>
+    </unit>
+    <unit id="flight.photos">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:144,145</note>
+        <note category="location">src/app/flight/flight-panel.component.html:146,147</note>
+      </notes>
+      <segment>
+        <source>Photos on planespotters.net</source>
+        <target>Фото на planespotters.net</target>
+      </segment>
+    </unit>
+    <unit id="common.close">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:160,161</note>
+      </notes>
+      <segment>
+        <source>Close</source>
+        <target>Закрити</target>
+      </segment>
+    </unit>
+    <unit id="flight.linkCopied">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:57</note>
+      </notes>
+      <segment>
+        <source>Link copied</source>
+        <target>Посилання скопійовано</target>
+      </segment>
+    </unit>
+    <unit id="flight.share">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:57</note>
+      </notes>
+      <segment>
+        <source>Share</source>
+        <target>Поділитися</target>
+      </segment>
+    </unit>
+    <unit id="flight.emergency">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:118</note>
+      </notes>
+      <segment>
+        <source>Emergency · <ph id="0" equiv="kind" disp="r.emergency"/></source>
+        <target>Надзвичайна ситуація · <ph id="0" equiv="kind" disp="r.emergency"/></target>
+      </segment>
+    </unit>
+    <unit id="flight.altitude">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:122</note>
+      </notes>
+      <segment>
+        <source>Altitude</source>
+        <target>Висота</target>
+      </segment>
+    </unit>
+    <unit id="flight.groundSpeed">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:123</note>
+      </notes>
+      <segment>
+        <source>Ground speed</source>
+        <target>Шляхова швидкість</target>
+      </segment>
+    </unit>
+    <unit id="flight.track">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:124</note>
+      </notes>
+      <segment>
+        <source>Track</source>
+        <target>Курс</target>
+      </segment>
+    </unit>
+    <unit id="flight.vertical">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:125</note>
+      </notes>
+      <segment>
+        <source>Vertical</source>
+        <target>Вертикальна</target>
+      </segment>
+    </unit>
+    <unit id="flight.registration">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:129</note>
+      </notes>
+      <segment>
+        <source>Registration</source>
+        <target>Реєстрація</target>
+      </segment>
+    </unit>
+    <unit id="flight.country">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:130</note>
+      </notes>
+      <segment>
+        <source>Country</source>
+        <target>Країна</target>
+      </segment>
+    </unit>
+    <unit id="flight.squawk">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:131</note>
+      </notes>
+      <segment>
+        <source>Squawk</source>
+        <target>Squawk</target>
+      </segment>
+    </unit>
+    <unit id="flight.category">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:132</note>
+      </notes>
+      <segment>
+        <source>Category</source>
+        <target>Категорія</target>
+      </segment>
+    </unit>
+    <unit id="flight.source">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:133</note>
+      </notes>
+      <segment>
+        <source>Source</source>
+        <target>Джерело</target>
+      </segment>
+    </unit>
+    <unit id="flight.position">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:134</note>
+      </notes>
+      <segment>
+        <source>Position</source>
+        <target>Позиція</target>
+      </segment>
+    </unit>
+    <unit id="flight.lastFix">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:136</note>
+      </notes>
+      <segment>
+        <source>Last fix</source>
+        <target>Остання позиція</target>
+      </segment>
+    </unit>
+    <unit id="flight.secondsAgo">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.ts:137</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="seconds" disp="ageSec"/> s ago</source>
+        <target><ph id="0" equiv="seconds" disp="ageSec"/> с тому</target>
+      </segment>
+    </unit>
+    <unit id="map.failed">
+      <notes>
+        <note category="location">src/app/map/map-view.component.ts:35,38</note>
+      </notes>
+      <segment>
+        <source> Map failed to load. Live data is still streaming. </source>
+        <target> Карта не завантажилась. Живі дані все одно надходять. </target>
+      </segment>
+    </unit>
+    <unit id="attr.toggle">
+      <notes>
+        <note category="location">src/app/map/overlays/attribution.component.ts:20,21</note>
+      </notes>
+      <segment>
+        <source>Data sources and disclaimer</source>
+        <target>Джерела даних і застереження</target>
+      </segment>
+    </unit>
+    <unit id="attr.aircraft">
+      <notes>
+        <note category="location">src/app/map/overlays/attribution.component.ts:26,27</note>
+      </notes>
+      <segment>
+        <source>Aircraft data</source>
+        <target>Дані про борти</target>
+      </segment>
+    </unit>
+    <unit id="attr.disclaimer">
+      <notes>
+        <note category="location">src/app/map/overlays/attribution.component.ts:33,36</note>
+      </notes>
+      <segment>
+        <source>Non-commercial, not for navigation</source>
+        <target>Некомерційний проєкт, не для навігації</target>
+      </segment>
+    </unit>
+    <unit id="feed.inView">
+      <notes>
+        <note category="location">src/app/map/overlays/feed-strip.component.ts:16,17</note>
+      </notes>
+      <segment>
+        <source>In view</source>
+        <target>У видимості</target>
+      </segment>
+    </unit>
+    <unit id="feed.frame">
+      <notes>
+        <note category="location">src/app/map/overlays/feed-strip.component.ts:21,22</note>
+      </notes>
+      <segment>
+        <source>Frame</source>
+        <target>Кадр</target>
+      </segment>
+    </unit>
+    <unit id="feed.stream">
+      <notes>
+        <note category="location">src/app/map/overlays/feed-strip.component.ts:26,27</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:50</note>
+      </notes>
+      <segment>
+        <source>Stream</source>
+        <target>Потік</target>
+      </segment>
+    </unit>
+    <unit id="controls.layers">
+      <notes>
+        <note category="location">src/app/map/overlays/map-controls.component.ts:15</note>
+        <note category="location">src/app/map/overlays/map-controls.component.ts:17</note>
+      </notes>
+      <segment>
+        <source>Layers</source>
+        <target>Шари</target>
+      </segment>
+    </unit>
+    <unit id="controls.replay">
+      <notes>
+        <note category="location">src/app/map/overlays/map-controls.component.ts:25,26</note>
+        <note category="location">src/app/map/overlays/map-controls.component.ts:27,28</note>
+      </notes>
+      <segment>
+        <source>Replay the last hour</source>
+        <target>Програти останню годину</target>
+      </segment>
+    </unit>
+    <unit id="controls.locate">
+      <notes>
+        <note category="location">src/app/map/overlays/map-controls.component.ts:37,38</note>
+        <note category="location">src/app/map/overlays/map-controls.component.ts:39,40</note>
+      </notes>
+      <segment>
+        <source>My location</source>
+        <target>Моє місце</target>
+      </segment>
+    </unit>
+    <unit id="controls.zoomIn">
+      <notes>
+        <note category="location">src/app/map/overlays/map-controls.component.ts:49</note>
+        <note category="location">src/app/map/overlays/map-controls.component.ts:51</note>
+      </notes>
+      <segment>
+        <source>Zoom in</source>
+        <target>Наблизити</target>
+      </segment>
+    </unit>
+    <unit id="controls.zoomOut">
+      <notes>
+        <note category="location">src/app/map/overlays/map-controls.component.ts:59,60</note>
+        <note category="location">src/app/map/overlays/map-controls.component.ts:61,62</note>
+      </notes>
+      <segment>
+        <source>Zoom out</source>
+        <target>Віддалити</target>
+      </segment>
+    </unit>
+    <unit id="nearby.title">
+      <notes>
+        <note category="location">src/app/map/overlays/nearby-list.component.ts:18,19</note>
+      </notes>
+      <segment>
+        <source>Nearby</source>
+        <target>Поруч</target>
+      </segment>
+    </unit>
+    <unit id="nearby.live">
+      <notes>
+        <note category="location">src/app/map/overlays/nearby-list.component.ts:21</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="INTERPOLATION" disp="{{ count() }}"/> live</source>
+        <target><ph id="0" equiv="INTERPOLATION" disp="{{ count() }}"/> наживо</target>
+      </segment>
+    </unit>
+    <unit id="nearby.empty">
+      <notes>
+        <note category="location">src/app/map/overlays/nearby-list.component.ts:44,47</note>
+      </notes>
+      <segment>
+        <source>No aircraft in view.</source>
+        <target>У полі зору немає бортів.</target>
+      </segment>
+    </unit>
+    <unit id="search.barLabel">
+      <notes>
+        <note category="location">src/app/map/overlays/search-bar.component.ts:18,19</note>
+      </notes>
+      <segment>
+        <source>Search flights, airports or routes</source>
+        <target>Пошук рейсів, аеропортів або маршрутів</target>
+      </segment>
+    </unit>
+    <unit id="search.barPlaceholder">
+      <notes>
+        <note category="location">src/app/map/overlays/search-bar.component.ts:73</note>
+      </notes>
+      <segment>
+        <source>Flight, airport or route</source>
+        <target>Рейс, аеропорт або маршрут</target>
+      </segment>
+    </unit>
+    <unit id="aircraft.map">
+      <notes>
+        <note category="location">src/app/pages/aircraft.page.ts:35,36</note>
+      </notes>
+      <segment>
+        <source>← Map</source>
+        <target>← Карта</target>
+      </segment>
+    </unit>
+    <unit id="aircraft.looking">
+      <notes>
+        <note category="location">src/app/pages/aircraft.page.ts:38,40</note>
+      </notes>
+      <segment>
+        <source>Looking up <ph id="0" equiv="INTERPOLATION" disp="{{ id }}"/>…</source>
+        <target>Шукаю <ph id="0" equiv="INTERPOLATION" disp="{{ id }}"/>…</target>
+      </segment>
+    </unit>
+    <unit id="aircraft.thisAircraftIsNotLive">
+      <notes>
+        <note category="location">src/app/pages/aircraft.page.ts:43,46</note>
+      </notes>
+      <segment>
+        <source> This aircraft is not live and has no recorded history. </source>
+        <target> Цей борт зараз не в ефірі й не має записаної історії. </target>
+      </segment>
+    </unit>
+    <unit id="aircraft.recordedFlights">
+      <notes>
+        <note category="location">src/app/pages/aircraft.page.ts:51,53</note>
+      </notes>
+      <segment>
+        <source>Recorded flights</source>
+        <target>Записані польоти</target>
+      </segment>
+    </unit>
+    <unit id="aircraft.flightMeta">
+      <notes>
+        <note category="location">src/app/pages/aircraft.page.ts:58,59</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="INTERPOLATION" disp="{{ f.duration }}"/> · max <ph id="1" equiv="INTERPOLATION_1" disp="{{ f.alt }}"/> · <ph id="2" equiv="INTERPOLATION_2" disp="{{ f.points }}"/> fixes</source>
+        <target><ph id="0" equiv="INTERPOLATION" disp="{{ f.duration }}"/> · макс. <ph id="1" equiv="INTERPOLATION_1" disp="{{ f.alt }}"/> · фіксів: <ph id="2" equiv="INTERPOLATION_2" disp="{{ f.points }}"/></target>
+      </segment>
+    </unit>
+    <unit id="aircraft.noFlightsInTheHistory">
+      <notes>
+        <note category="location">src/app/pages/aircraft.page.ts:64,66</note>
+      </notes>
+      <segment>
+        <source> No flights in the history window yet. </source>
+        <target> У вікні історії ще немає польотів. </target>
+      </segment>
+    </unit>
+    <unit id="aircraft.hoursMinutes">
+      <notes>
+        <note category="location">src/app/pages/aircraft.page.ts:159</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="h" disp="Math.floor(minutes / 60)"/> h <ph id="1" equiv="m" disp="minutes % 60"/> min</source>
+        <target><ph id="0" equiv="h" disp="Math.floor(minutes / 60)"/> год <ph id="1" equiv="m" disp="minutes % 60"/> хв</target>
+      </segment>
+    </unit>
+    <unit id="aircraft.minutes">
+      <notes>
+        <note category="location">src/app/pages/aircraft.page.ts:160</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="m" disp="minutes"/> min</source>
+        <target><ph id="0" equiv="m" disp="minutes"/> хв</target>
+      </segment>
+    </unit>
+    <unit id="airport.map">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:2,3</note>
+      </notes>
+      <segment>
+        <source>← Map</source>
+        <target>← Карта</target>
+      </segment>
+    </unit>
+    <unit id="airport.loading">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:4,5</note>
+      </notes>
+      <segment>
+        <source>Loading <ph id="0" equiv="INTERPOLATION" disp="{{ code }}"/>…</source>
+        <target>Завантажую <ph id="0" equiv="INTERPOLATION" disp="{{ code }}"/>…</target>
+      </segment>
+    </unit>
+    <unit id="airport.noAirportWithThisIcao">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:8,10</note>
+      </notes>
+      <segment>
+        <source> No airport with this ICAO or IATA code. </source>
+        <target> Аеропорту з таким кодом ICAO чи IATA немає. </target>
+      </segment>
+    </unit>
+    <unit id="airport.showOnMap">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:19,22</note>
+      </notes>
+      <segment>
+        <source> Show on map </source>
+        <target> Показати на карті </target>
+      </segment>
+    </unit>
+    <unit id="airport.weather">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:25,26</note>
+      </notes>
+      <segment>
+        <source>Weather</source>
+        <target>Погода</target>
+      </segment>
+    </unit>
+    <unit id="airport.wind">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:29,30</note>
+      </notes>
+      <segment>
+        <source>Wind</source>
+        <target>Вітер</target>
+      </segment>
+    </unit>
+    <unit id="airport.visibility">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:33,34</note>
+      </notes>
+      <segment>
+        <source>Visibility</source>
+        <target>Видимість</target>
+      </segment>
+    </unit>
+    <unit id="airport.tempDew">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:37,38</note>
+      </notes>
+      <segment>
+        <source>Temp / dew</source>
+        <target>Темп. / точка роси</target>
+      </segment>
+    </unit>
+    <unit id="airport.qnh">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:41,42</note>
+      </notes>
+      <segment>
+        <source>QNH</source>
+        <target>QNH</target>
+      </segment>
+    </unit>
+    <unit id="airport.noRecentMetarForThis">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:53,55</note>
+      </notes>
+      <segment>
+        <source>No recent METAR for this station.</source>
+        <target>Для цієї станції немає свіжого METAR.</target>
+      </segment>
+    </unit>
+    <unit id="airport.windRoseLast24H">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:61,63</note>
+      </notes>
+      <segment>
+        <source> Wind rose · last 24 h </source>
+        <target> Роза вітрів · за 24 год </target>
+      </segment>
+    </unit>
+    <unit id="airport.trafficWithin50Nm">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:68,69</note>
+      </notes>
+      <segment>
+        <source>Traffic within 50 nm</source>
+        <target>Рух у радіусі 50 nm</target>
+      </segment>
+    </unit>
+    <unit id="airport.traffic">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:69</note>
+      </notes>
+      <segment>
+        <source>Traffic</source>
+        <target>Рух</target>
+      </segment>
+    </unit>
+    <unit id="airport.nothingHereRightNow">
+      <notes>
+        <note category="location">src/app/pages/airport.page.html:95,99</note>
+      </notes>
+      <segment>
+        <source>Nothing here right now.</source>
+        <target>Зараз тут порожньо.</target>
+      </segment>
+    </unit>
+    <unit id="airport.tab.arrival">
+      <notes>
+        <note category="location">src/app/pages/airport.page.ts:60</note>
+      </notes>
+      <segment>
+        <source>Arrivals</source>
+        <target>Прибуття</target>
+      </segment>
+    </unit>
+    <unit id="airport.tab.departure">
+      <notes>
+        <note category="location">src/app/pages/airport.page.ts:61</note>
+      </notes>
+      <segment>
+        <source>Departures</source>
+        <target>Відправлення</target>
+      </segment>
+    </unit>
+    <unit id="airport.tab.ground">
+      <notes>
+        <note category="location">src/app/pages/airport.page.ts:62</note>
+      </notes>
+      <segment>
+        <source>On ground</source>
+        <target>На землі</target>
+      </segment>
+    </unit>
+    <unit id="following.following">
+      <notes>
+        <note category="location">src/app/pages/following.page.html:3,4</note>
+      </notes>
+      <segment>
+        <source>Following</source>
+        <target>Відстеження</target>
+      </segment>
+    </unit>
+    <unit id="following.unfollow">
+      <notes>
+        <note category="location">src/app/pages/following.page.html:32,34</note>
+      </notes>
+      <segment>
+        <source> Unfollow </source>
+        <target> Не відстежувати </target>
+      </segment>
+    </unit>
+    <unit id="following.followAFlightFromIts">
+      <notes>
+        <note category="location">src/app/pages/following.page.html:38,43</note>
+      </notes>
+      <segment>
+        <source> Follow a flight from its detail panel to see it here, wherever it is. </source>
+        <target> Натисніть «Відстежувати» в картці рейсу — і він з’явиться тут, де б не був. </target>
+      </segment>
+    </unit>
+    <unit id="following.alertsOnTakeoffAmpLanding">
+      <notes>
+        <note category="location">src/app/pages/following.page.html:43,46</note>
+      </notes>
+      <segment>
+        <source>Alerts on takeoff &amp; landing</source>
+        <target>Сповіщення про зліт і посадку</target>
+      </segment>
+    </unit>
+    <unit id="following.notInCoverage">
+      <notes>
+        <note category="location">src/app/pages/following.page.ts:63</note>
+      </notes>
+      <segment>
+        <source>Not in coverage</source>
+        <target>Поза покриттям</target>
+      </segment>
+    </unit>
+    <unit id="following.lastSeen">
+      <notes>
+        <note category="location">src/app/pages/following.page.ts:74</note>
+      </notes>
+      <segment>
+        <source>Last seen before this session</source>
+        <target>Востаннє бачили до цієї сесії</target>
+      </segment>
+    </unit>
+    <unit id="following.landsIn">
+      <notes>
+        <note category="location">src/app/pages/following.page.ts:76</note>
+      </notes>
+      <segment>
+        <source>Lands in <ph id="0" equiv="eta" disp="progress.etaMin"/> min · <ph id="1" equiv="alt" disp="formatAltitude(r.alt, r.onGround)"/></source>
+        <target>Посадка за <ph id="0" equiv="eta" disp="progress.etaMin"/> хв · <ph id="1" equiv="alt" disp="formatAltitude(r.alt, r.onGround)"/></target>
+      </segment>
+    </unit>
+    <unit id="following.summaryOne">
+      <notes>
+        <note category="location">src/app/pages/following.page.ts:86</note>
+      </notes>
+      <segment>
+        <source>1 flight · <ph id="0" equiv="live" disp="live"/> live</source>
+        <target>1 рейс · наживо: <ph id="0" equiv="live" disp="live"/></target>
+      </segment>
+    </unit>
+    <unit id="following.summaryMany">
+      <notes>
+        <note category="location">src/app/pages/following.page.ts:87</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="count" disp="n"/> flights · <ph id="1" equiv="live" disp="live"/> live</source>
+        <target>рейсів: <ph id="0" equiv="count" disp="n"/> · наживо: <ph id="1" equiv="live" disp="live"/></target>
+      </segment>
+    </unit>
+    <unit id="map.filters">
+      <notes>
+        <note category="location">src/app/pages/map.page.ts:56,57</note>
+      </notes>
+      <segment>
+        <source>Filters</source>
+        <target>Фільтри</target>
+      </segment>
+    </unit>
+    <unit id="map.aboveFl200">
+      <notes>
+        <note category="location">src/app/pages/map.page.ts:65,66</note>
+      </notes>
+      <segment>
+        <source>Above FL200</source>
+        <target>Вище FL200</target>
+      </segment>
+    </unit>
+    <unit id="search.search">
+      <notes>
+        <note category="location">src/app/pages/search.page.html:2,3</note>
+        <note category="location">src/app/pages/search.page.html:11</note>
+      </notes>
+      <segment>
+        <source>Search</source>
+        <target>Пошук</target>
+      </segment>
+    </unit>
+    <unit id="search.flightRegistrationAirportOrAirline">
+      <notes>
+        <note category="location">src/app/pages/search.page.html:8,9</note>
+      </notes>
+      <segment>
+        <source>Flight, registration, airport or airline</source>
+        <target>Рейс, реєстрація, аеропорт або авіакомпанія</target>
+      </segment>
+    </unit>
+    <unit id="search.clearSearch">
+      <notes>
+        <note category="location">src/app/pages/search.page.html:20,21</note>
+      </notes>
+      <segment>
+        <source>Clear search</source>
+        <target>Очистити пошук</target>
+      </segment>
+    </unit>
+    <unit id="search.searchIn">
+      <notes>
+        <note category="location">src/app/pages/search.page.html:28</note>
+      </notes>
+      <segment>
+        <source>Search in</source>
+        <target>Шукати серед</target>
+      </segment>
+    </unit>
+    <unit id="search.nothing">
+      <notes>
+        <note category="location">src/app/pages/search.page.html:49,51</note>
+      </notes>
+      <segment>
+        <source>Nothing matches “<ph id="0" equiv="INTERPOLATION" disp="{{ query() }}"/>”.</source>
+        <target>Нічого не знайдено за «<ph id="0" equiv="INTERPOLATION" disp="{{ query() }}"/>».</target>
+      </segment>
+    </unit>
+    <unit id="search.recent">
+      <notes>
+        <note category="location">src/app/pages/search.page.html:54,55</note>
+      </notes>
+      <segment>
+        <source>Recent</source>
+        <target>Нещодавні</target>
+      </segment>
+    </unit>
+    <unit id="search.flights">
+      <notes>
+        <note category="location">src/app/pages/search.page.ts:25</note>
+      </notes>
+      <segment>
+        <source>Flights</source>
+        <target>Рейси</target>
+      </segment>
+    </unit>
+    <unit id="search.airports">
+      <notes>
+        <note category="location">src/app/pages/search.page.ts:26</note>
+      </notes>
+      <segment>
+        <source>Airports</source>
+        <target>Аеропорти</target>
+      </segment>
+    </unit>
+    <unit id="search.airlines">
+      <notes>
+        <note category="location">src/app/pages/search.page.ts:27</note>
+      </notes>
+      <segment>
+        <source>Airlines</source>
+        <target>Авіакомпанії</target>
+      </segment>
+    </unit>
+    <unit id="stats.liveStatistics">
+      <notes>
+        <note category="location">src/app/pages/stats.page.html:3,5</note>
+      </notes>
+      <segment>
+        <source>Live statistics</source>
+        <target>Статистика наживо</target>
+      </segment>
+    </unit>
+    <unit id="stats.updated">
+      <notes>
+        <note category="location">src/app/pages/stats.page.html:7</note>
+      </notes>
+      <segment>
+        <source>updated <ph id="0" equiv="INTERPOLATION" disp="{{ updated() }}"/></source>
+        <target>оновлено <ph id="0" equiv="INTERPOLATION" disp="{{ updated() }}"/></target>
+      </segment>
+    </unit>
+    <unit id="stats.emergencies">
+      <notes>
+        <note category="location">src/app/pages/stats.page.html:24,26</note>
+      </notes>
+      <segment>
+        <source>Emergencies</source>
+        <target>Надзвичайні ситуації</target>
+      </segment>
+    </unit>
+    <unit id="stats.squawk">
+      <notes>
+        <note category="location">src/app/pages/stats.page.html:31,33</note>
+      </notes>
+      <segment>
+        <source>squawk <ph id="0" equiv="INTERPOLATION" disp="{{ e.squawk ?? &apos;—&apos; }}"/> · <ph id="1" equiv="INTERPOLATION_1" disp="{{ e.kind }}"/></source>
+        <target>squawk <ph id="0" equiv="INTERPOLATION" disp="{{ e.squawk ?? &apos;—&apos; }}"/> · <ph id="1" equiv="INTERPOLATION_1" disp="{{ e.kind }}"/></target>
+      </segment>
+    </unit>
+    <unit id="stats.altitudeDistributionAirborne">
+      <notes>
+        <note category="location">src/app/pages/stats.page.html:43,45</note>
+      </notes>
+      <segment>
+        <source> Altitude distribution, airborne </source>
+        <target> Розподіл висот, у повітрі </target>
+      </segment>
+    </unit>
+    <unit id="stats.topOperators">
+      <notes>
+        <note category="location">src/app/pages/stats.page.html:57,58</note>
+      </notes>
+      <segment>
+        <source>Top operators</source>
+        <target>Топ авіакомпаній</target>
+      </segment>
+    </unit>
+    <unit id="stats.topAircraftTypes">
+      <notes>
+        <note category="location">src/app/pages/stats.page.html:70,71</note>
+      </notes>
+      <segment>
+        <source>Top aircraft types</source>
+        <target>Топ типів ПС</target>
+      </segment>
+    </unit>
+    <unit id="stats.loading">
+      <notes>
+        <note category="location">src/app/pages/stats.page.html:83,86</note>
+      </notes>
+      <segment>
+        <source>Loading…</source>
+        <target>Завантаження…</target>
+      </segment>
+    </unit>
+    <unit id="stats.tracked">
+      <notes>
+        <note category="location">src/app/pages/stats.page.ts:61</note>
+      </notes>
+      <segment>
+        <source>Tracked</source>
+        <target>Відстежується</target>
+      </segment>
+    </unit>
+    <unit id="stats.airborne">
+      <notes>
+        <note category="location">src/app/pages/stats.page.ts:64</note>
+      </notes>
+      <segment>
+        <source>Airborne</source>
+        <target>У повітрі</target>
+      </segment>
+    </unit>
+    <unit id="stats.ground">
+      <notes>
+        <note category="location">src/app/pages/stats.page.ts:69</note>
+      </notes>
+      <segment>
+        <source>On ground</source>
+        <target>На землі</target>
+      </segment>
+    </unit>
+    <unit id="stats.military">
+      <notes>
+        <note category="location">src/app/pages/stats.page.ts:74</note>
+      </notes>
+      <segment>
+        <source>Military</source>
+        <target>Військові</target>
+      </segment>
+    </unit>
+    <unit id="playback.historyPlayback">
+      <notes>
+        <note category="location">src/app/playback/playback-bar.component.ts:21,22</note>
+      </notes>
+      <segment>
+        <source>History playback</source>
+        <target>Програвання історії</target>
+      </segment>
+    </unit>
+    <unit id="playback.loadingTheLastHour">
+      <notes>
+        <note category="location">src/app/playback/playback-bar.component.ts:28,31</note>
+      </notes>
+      <segment>
+        <source>Loading the last hour…</source>
+        <target>Завантажую останню годину…</target>
+      </segment>
+    </unit>
+    <unit id="playback.historyIsUnavailableRightNow">
+      <notes>
+        <note category="location">src/app/playback/playback-bar.component.ts:33,37</note>
+      </notes>
+      <segment>
+        <source>History is unavailable right now.</source>
+        <target>Історія зараз недоступна.</target>
+      </segment>
+    </unit>
+    <unit id="playback.playbackTime">
+      <notes>
+        <note category="location">src/app/playback/playback-bar.component.ts:50,51</note>
+      </notes>
+      <segment>
+        <source>Playback time</source>
+        <target>Час програвання</target>
+      </segment>
+    </unit>
+    <unit id="playback.playbackSpeed">
+      <notes>
+        <note category="location">src/app/playback/playback-bar.component.ts:61,62</note>
+      </notes>
+      <segment>
+        <source>Playback speed</source>
+        <target>Швидкість програвання</target>
+      </segment>
+    </unit>
+    <unit id="playback.count">
+      <notes>
+        <note category="location">src/app/playback/playback-bar.component.ts:70,71</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="INTERPOLATION" disp="{{ pb.aircraft() }}"/> aircraft</source>
+        <target>бортів: <ph id="0" equiv="INTERPOLATION" disp="{{ pb.aircraft() }}"/></target>
+      </segment>
+    </unit>
+    <unit id="playback.backToLive">
+      <notes>
+        <note category="location">src/app/playback/playback-bar.component.ts:76,77</note>
+      </notes>
+      <segment>
+        <source>Back to live</source>
+        <target>Назад до живого ефіру</target>
+      </segment>
+    </unit>
+    <unit id="playback.live">
+      <notes>
+        <note category="location">src/app/playback/playback-bar.component.ts:81,83</note>
+      </notes>
+      <segment>
+        <source> Live </source>
+        <target> Наживо </target>
+      </segment>
+    </unit>
+    <unit id="playback.pause">
+      <notes>
+        <note category="location">src/app/playback/playback-bar.component.ts:160</note>
+      </notes>
+      <segment>
+        <source>Pause</source>
+        <target>Пауза</target>
+      </segment>
+    </unit>
+    <unit id="playback.play">
+      <notes>
+        <note category="location">src/app/playback/playback-bar.component.ts:160</note>
+      </notes>
+      <segment>
+        <source>Play</source>
+        <target>Відтворити</target>
+      </segment>
+    </unit>
+    <unit id="sheet.collapsed">
+      <notes>
+        <note category="location">src/app/ui/bottom-sheet.component.ts:95</note>
+      </notes>
+      <segment>
+        <source>Sheet collapsed, press arrow up to expand</source>
+        <target>Панель згорнута, стрілка вгору — розгорнути</target>
+      </segment>
+    </unit>
+    <unit id="sheet.peek">
+      <notes>
+        <note category="location">src/app/ui/bottom-sheet.component.ts:96</note>
+      </notes>
+      <segment>
+        <source>Sheet half open</source>
+        <target>Панель напіввідкрита</target>
+      </segment>
+    </unit>
+    <unit id="sheet.full">
+      <notes>
+        <note category="location">src/app/ui/bottom-sheet.component.ts:97</note>
+      </notes>
+      <segment>
+        <source>Sheet fully open, press arrow down to shrink</source>
+        <target>Панель розгорнута, стрілка вниз — згорнути</target>
+      </segment>
+    </unit>
+    <unit id="conn.connecting">
+      <notes>
+        <note category="location">src/app/ui/connection-banner.component.ts:55</note>
+      </notes>
+      <segment>
+        <source>Connecting…</source>
+        <target>З’єднання…</target>
+      </segment>
+    </unit>
+    <unit id="conn.offlineTitle">
+      <notes>
+        <note category="location">src/app/ui/connection-banner.component.ts:58</note>
+      </notes>
+      <segment>
+        <source>Offline</source>
+        <target>Офлайн</target>
+      </segment>
+    </unit>
+    <unit id="conn.reconnectingTitle">
+      <notes>
+        <note category="location">src/app/ui/connection-banner.component.ts:59</note>
+      </notes>
+      <segment>
+        <source>Reconnecting…</source>
+        <target>Повторне з’єднання…</target>
+      </segment>
+    </unit>
+    <unit id="conn.stale">
+      <notes>
+        <note category="location">src/app/ui/connection-banner.component.ts:60</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="label" disp="label"/> · data <ph id="1" equiv="age" disp="age"/> old</source>
+        <target><ph id="0" equiv="label" disp="label"/> · дані застаріли на <ph id="1" equiv="age" disp="age"/></target>
+      </segment>
+    </unit>
+    <unit id="nav.main">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:16</note>
+        <note category="location">src/app/ui/tab-bar.component.ts:12</note>
+      </notes>
+      <segment>
+        <source>Main</source>
+        <target>Головна навігація</target>
+      </segment>
+    </unit>
+    <unit id="nav.filters">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:37,38</note>
+      </notes>
+      <segment>
+        <source>Filters</source>
+        <target>Фільтри</target>
+      </segment>
+    </unit>
+    <unit id="feed.title">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:45,46</note>
+      </notes>
+      <segment>
+        <source>Feed</source>
+        <target>Потік</target>
+      </segment>
+    </unit>
+    <unit id="feed.aircraft">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:47</note>
+      </notes>
+      <segment>
+        <source>Aircraft</source>
+        <target>Бортів</target>
+      </segment>
+    </unit>
+    <unit id="feed.latency">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:53</note>
+      </notes>
+      <segment>
+        <source>WS latency</source>
+        <target>Затримка WS</target>
+      </segment>
+    </unit>
+    <unit id="nav.lightTheme">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:68,70</note>
+      </notes>
+      <segment>
+        <source>Light theme</source>
+        <target>Світла тема</target>
+      </segment>
+    </unit>
+    <unit id="nav.darkTheme">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:70,72</note>
+      </notes>
+      <segment>
+        <source>Dark theme</source>
+        <target>Темна тема</target>
+      </segment>
+    </unit>
+    <unit id="nav.map">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:94</note>
+        <note category="location">src/app/ui/tab-bar.component.ts:51</note>
+      </notes>
+      <segment>
+        <source>Map</source>
+        <target>Карта</target>
+      </segment>
+    </unit>
+    <unit id="nav.search">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:95</note>
+        <note category="location">src/app/ui/tab-bar.component.ts:52</note>
+      </notes>
+      <segment>
+        <source>Search</source>
+        <target>Пошук</target>
+      </segment>
+    </unit>
+    <unit id="nav.following">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:96</note>
+        <note category="location">src/app/ui/tab-bar.component.ts:53</note>
+      </notes>
+      <segment>
+        <source>Following</source>
+        <target>Відстеження</target>
+      </segment>
+    </unit>
+    <unit id="nav.stats">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:97</note>
+        <note category="location">src/app/ui/tab-bar.component.ts:54</note>
+      </notes>
+      <segment>
+        <source>Stats</source>
+        <target>Статистика</target>
+      </segment>
+    </unit>
+    <unit id="conn.live">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:104</note>
+      </notes>
+      <segment>
+        <source>live</source>
+        <target>наживо</target>
+      </segment>
+    </unit>
+    <unit id="conn.offline">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:106</note>
+      </notes>
+      <segment>
+        <source>offline</source>
+        <target>офлайн</target>
+      </segment>
+    </unit>
+    <unit id="conn.reconnecting">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:107</note>
+      </notes>
+      <segment>
+        <source>reconnecting</source>
+        <target>перепідключення</target>
+      </segment>
+    </unit>
+    <unit id="range.min">
+      <notes>
+        <note category="location">src/app/ui/range-slider.component.ts:48</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="label" disp="this.label()"/> minimum</source>
+        <target><ph id="0" equiv="label" disp="this.label()"/>, мінімум</target>
+      </segment>
+    </unit>
+    <unit id="range.max">
+      <notes>
+        <note category="location">src/app/ui/range-slider.component.ts:51</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="label" disp="this.label()"/> maximum</source>
+        <target><ph id="0" equiv="label" disp="this.label()"/>, максимум</target>
+      </segment>
+    </unit>
+    <unit id="layers.mapLayers">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:12,13</note>
+      </notes>
+      <segment>
+        <source>Map layers</source>
+        <target>Шари карти</target>
+      </segment>
+    </unit>
+    <unit id="layers.precipitationRadar">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:23,24</note>
+      </notes>
+      <segment>
+        <source>Precipitation radar</source>
+        <target>Радар опадів</target>
+      </segment>
+    </unit>
+    <unit id="layers.windAloft">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:34,35</note>
+      </notes>
+      <segment>
+        <source>Wind aloft</source>
+        <target>Вітер на висотах</target>
+      </segment>
+    </unit>
+    <unit id="layers.openMeteoForecastCurrentHour">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:36,40</note>
+      </notes>
+      <segment>
+        <source>Open-Meteo forecast, current hour</source>
+        <target>Прогноз Open-Meteo, поточна година</target>
+      </segment>
+    </unit>
+    <unit id="layers.windLevel">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:44,45</note>
+      </notes>
+      <segment>
+        <source>Wind level</source>
+        <target>Рівень вітру</target>
+      </segment>
+    </unit>
+    <unit id="layers.done">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:59,62</note>
+      </notes>
+      <segment>
+        <source>Done</source>
+        <target>Готово</target>
+      </segment>
+    </unit>
+    <unit id="layers.radarIdle">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:126</note>
+      </notes>
+      <segment>
+        <source>RainViewer, updated every 10 min</source>
+        <target>RainViewer, оновлення кожні 10 хв</target>
+      </segment>
+    </unit>
+    <unit id="layers.loading">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:127</note>
+      </notes>
+      <segment>
+        <source>Loading…</source>
+        <target>Завантаження…</target>
+      </segment>
+    </unit>
+    <unit id="layers.radarTime">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:129</note>
+      </notes>
+      <segment>
+        <source>RainViewer, <ph id="0" equiv="time" disp="time"/></source>
+        <target>RainViewer, <ph id="0" equiv="time" disp="time"/></target>
+      </segment>
+    </unit>
+  </file>
+</xliff>

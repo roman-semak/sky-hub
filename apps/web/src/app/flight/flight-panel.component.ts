@@ -10,7 +10,7 @@ import {
 import { RouterLink } from '@angular/router';
 import type { FlightRoute, TrackPoint } from '../core/api/api-types';
 import { FlightDataService, type Loadable } from '../core/flight/flight-data.service';
-import { flightPhase, flightProgress } from '../core/flight/flight-progress';
+import { flightPhase, flightProgress, phaseLabel } from '../core/flight/flight-progress';
 import { FollowStore } from '../core/follow/follow.store';
 import {
   formatAltitude,
@@ -53,6 +53,9 @@ export class FlightPanelComponent {
   private readonly tick = signal(0);
   protected readonly track = signal<readonly TrackPoint[]>([]);
   protected readonly copied = signal(false);
+  protected readonly shareLabel = computed(() =>
+    this.copied() ? $localize`:@@flight.linkCopied:Link copied` : $localize`:@@flight.share:Share`,
+  );
 
   constructor() {
     const timer = setInterval(() => {
@@ -112,24 +115,27 @@ export class FlightPanelComponent {
       emergency: r.emergency !== 'none',
       status:
         r.emergency !== 'none'
-          ? `Emergency · ${r.emergency}`
-          : flightPhase(r.onGround, r.baroRate, r.alt),
+          ? $localize`:@@flight.emergency:Emergency · ${r.emergency}:kind:`
+          : phaseLabel(flightPhase(r.onGround, r.baroRate, r.alt)),
       progress,
       tiles: [
-        { label: 'Altitude', value: formatAltitude(r.alt, r.onGround) },
-        { label: 'Ground speed', value: formatSpeed(r.gs) },
-        { label: 'Track', value: formatTrack(r.track) },
-        { label: 'Vertical', value: formatVerticalRate(r.baroRate) },
+        { label: $localize`:@@flight.altitude:Altitude`, value: formatAltitude(r.alt, r.onGround) },
+        { label: $localize`:@@flight.groundSpeed:Ground speed`, value: formatSpeed(r.gs) },
+        { label: $localize`:@@flight.track:Track`, value: formatTrack(r.track) },
+        { label: $localize`:@@flight.vertical:Vertical`, value: formatVerticalRate(r.baroRate) },
       ],
       raw: [
         ['ICAO24', hex.toUpperCase()],
-        ['Registration', meta?.registration ?? '—'],
-        ['Country', meta?.country ?? '—'],
-        ['Squawk', r.squawk ?? '—'],
-        ['Category', r.category ?? '—'],
-        ['Source', r.mlat ? 'MLAT' : r.tisb ? 'TIS-B' : 'ADS-B'],
-        ['Position', formatCoord(r.lat, r.lon)],
-        ['Last fix', `${ageSec} s ago`],
+        [$localize`:@@flight.registration:Registration`, meta?.registration ?? '—'],
+        [$localize`:@@flight.country:Country`, meta?.country ?? '—'],
+        [$localize`:@@flight.squawk:Squawk`, r.squawk ?? '—'],
+        [$localize`:@@flight.category:Category`, r.category ?? '—'],
+        [$localize`:@@flight.source:Source`, r.mlat ? 'MLAT' : r.tisb ? 'TIS-B' : 'ADS-B'],
+        [$localize`:@@flight.position:Position`, formatCoord(r.lat, r.lon)],
+        [
+          $localize`:@@flight.lastFix:Last fix`,
+          $localize`:@@flight.secondsAgo:${ageSec}:seconds: s ago`,
+        ],
       ] as const,
       photoUrl: `https://www.planespotters.net/hex/${hex.replace('~', '').toUpperCase()}`,
     };

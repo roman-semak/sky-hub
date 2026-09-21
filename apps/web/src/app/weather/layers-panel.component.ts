@@ -6,7 +6,13 @@ import { WeatherLayersService, WIND_LEVELS, type WindLevel } from './weather-lay
   selector: 'st-layers-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="panel glass" role="dialog" aria-label="Map layers" data-testid="layers-panel">
+    <div
+      class="panel glass"
+      role="dialog"
+      aria-label="Map layers"
+      i18n-aria-label="@@layers.mapLayers"
+      data-testid="layers-panel"
+    >
       <label class="row">
         <input
           type="checkbox"
@@ -14,7 +20,7 @@ import { WeatherLayersService, WIND_LEVELS, type WindLevel } from './weather-lay
           (change)="weather.radarOn.set(checked($event))"
         />
         <span class="text">
-          <span class="title">Precipitation radar</span>
+          <span class="title" i18n="@@layers.precipitationRadar">Precipitation radar</span>
           <span class="sub">{{ radarCaption() }}</span>
         </span>
       </label>
@@ -25,12 +31,19 @@ import { WeatherLayersService, WIND_LEVELS, type WindLevel } from './weather-lay
           (change)="weather.windOn.set(checked($event))"
         />
         <span class="text">
-          <span class="title">Wind aloft</span>
-          <span class="sub">Open-Meteo forecast, current hour</span>
+          <span class="title" i18n="@@layers.windAloft">Wind aloft</span>
+          <span class="sub" i18n="@@layers.openMeteoForecastCurrentHour"
+            >Open-Meteo forecast, current hour</span
+          >
         </span>
       </label>
       @if (weather.windOn()) {
-        <div class="levels" role="radiogroup" aria-label="Wind level">
+        <div
+          class="levels"
+          role="radiogroup"
+          aria-label="Wind level"
+          i18n-aria-label="@@layers.windLevel"
+        >
           @for (l of levels; track l.level) {
             <button
               type="button"
@@ -43,7 +56,7 @@ import { WeatherLayersService, WIND_LEVELS, type WindLevel } from './weather-lay
           }
         </div>
       }
-      <button type="button" class="done" (click)="closed.emit()">Done</button>
+      <button type="button" class="done" (click)="closed.emit()" i18n="@@layers.done">Done</button>
     </div>
   `,
   styles: `
@@ -109,10 +122,11 @@ export class LayersPanelComponent {
 
   protected readonly radarCaption = computed(() => {
     const t = this.weather.radarTime();
-    if (!this.weather.radarOn()) return 'RainViewer, updated every 10 min';
-    return t === null
-      ? 'Loading…'
-      : `RainViewer, ${new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+    if (!this.weather.radarOn())
+      return $localize`:@@layers.radarIdle:RainViewer, updated every 10 min`;
+    if (t === null) return $localize`:@@layers.loading:Loading…`;
+    const time = new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return $localize`:@@layers.radarTime:RainViewer, ${time}:time:`;
   });
 
   protected checked(e: Event): boolean {

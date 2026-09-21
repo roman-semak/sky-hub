@@ -1,5 +1,10 @@
 @if (flight(); as f) {
-  <section class="panel" aria-label="Flight detail" data-testid="flight-panel">
+  <section
+    class="panel"
+    i18n-aria-label="@@flight.detail"
+    aria-label="Flight detail"
+    data-testid="flight-panel"
+  >
     <header>
       <div class="ident">
         <h1 data-testid="flight-title">{{ f.title }}</h1>
@@ -31,6 +36,7 @@
                 <div
                   class="rail"
                   role="progressbar"
+                  i18n-aria-label="@@flight.routeProgress"
                   aria-label="Route progress"
                   [attr.aria-valuenow]="(p.fraction * 100).toFixed(0)"
                   aria-valuemin="0"
@@ -45,9 +51,14 @@
                 </div>
                 <span class="caption">
                   @if (p.etaMin !== null) {
-                    {{ p.etaMin }} min remaining ·
+                    <ng-container i18n="@@flight.minRemaining"
+                      >{{ p.etaMin }} min remaining</ng-container
+                    >
+                    ·
                   }
-                  {{ p.remainingKm }} km to go · scheduled route
+                  <ng-container i18n="@@flight.kmToGo"
+                    >{{ p.remainingKm }} km to go · scheduled route</ng-container
+                  >
                 </span>
               }
             </div>
@@ -58,7 +69,7 @@
         <div class="route skeleton" aria-hidden="true"></div>
       }
       @case ('missing') {
-        <p class="caption">No published route for this callsign.</p>
+        <p class="caption" i18n="@@flight.noRoute">No published route for this callsign.</p>
       }
     }
 
@@ -72,13 +83,13 @@
     </div>
 
     <div class="block">
-      <span class="eyebrow">Altitude profile</span>
+      <span class="eyebrow" i18n="@@flight.profile">Altitude profile</span>
       <st-altitude-chart [points]="track()" />
     </div>
 
     @if (recent().length > 0) {
       <div class="block">
-        <span class="eyebrow">Recent positions</span>
+        <span class="eyebrow" i18n="@@flight.recent">Recent positions</span>
         @for (p of recent(); track p.t) {
           <div class="log-row tabular">
             <span>{{ p.t }}</span
@@ -90,7 +101,7 @@
     }
 
     <details class="block raw">
-      <summary class="eyebrow">Raw fields</summary>
+      <summary class="eyebrow" i18n="@@flight.raw">Raw fields</summary>
       <dl>
         @for (row of f.raw; track row[0]) {
           <div class="raw-row">
@@ -109,13 +120,19 @@
         (click)="toggleFollow()"
       >
         <st-icon name="bookmark-simple" />
-        {{ following() ? 'Following' : 'Follow' }}
+        @if (following()) {
+          <ng-container i18n="@@flight.following">Following</ng-container>
+        } @else {
+          <ng-container i18n="@@flight.follow">Follow</ng-container>
+        }
       </button>
       <a
         class="icon-action"
         [routerLink]="['/aircraft', f.hex]"
         title="Flight history"
+        i18n-title="@@flight.history"
         aria-label="Flight history"
+        i18n-aria-label="@@flight.history"
       >
         <st-icon name="clock-counter-clockwise" />
       </a>
@@ -125,19 +142,22 @@
         target="_blank"
         rel="noopener"
         title="Photos on planespotters.net"
+        i18n-title="@@flight.photos"
         aria-label="Photos on planespotters.net"
+        i18n-aria-label="@@flight.photos"
       >
         <st-icon name="arrow-up-right" />
       </a>
+      <button type="button" class="icon-action" (click)="share()" [attr.aria-label]="shareLabel()">
+        <st-icon name="share-network" />
+      </button>
       <button
         type="button"
         class="icon-action"
-        (click)="share()"
-        [attr.aria-label]="copied() ? 'Link copied' : 'Share'"
+        (click)="close()"
+        i18n-aria-label="@@common.close"
+        aria-label="Close"
       >
-        <st-icon name="share-network" />
-      </button>
-      <button type="button" class="icon-action" (click)="close()" aria-label="Close">
         <st-icon name="x-circle" />
       </button>
     </div>
