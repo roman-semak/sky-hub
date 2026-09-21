@@ -14,11 +14,12 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "check": "turbo run lint typecheck test build",
+    "check": "turbo run lint typecheck test build && turbo run size && pnpm --filter @skytrace/server test:load",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "data:refresh": "tsx scripts/fetch-static-data.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "e2e": "pnpm --filter @skytrace/web e2e"
   },
   "lint-staged": {
     "*.{ts,js,mjs,json,md,html,css,scss,yml,yaml}": "prettier --write"

@@ -1,0 +1,91 @@
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.top-left {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  z-index: 3;
+}
+
+.top-left st-search-bar {
+  width: 100%;
+}
+
+.controls {
+  position: absolute;
+  right: 14px;
+  top: 96px;
+  z-index: 3;
+}
+
+.feed {
+  display: none;
+}
+
+.detail {
+  display: none;
+}
+
+.sheet {
+  z-index: 4;
+}
+
+@media (min-width: 768px) {
+  .top-left {
+    left: 22px;
+    top: 22px;
+    right: auto;
+    width: 420px;
+  }
+
+  .controls {
+    right: 22px;
+    top: 22px;
+  }
+
+  .sheet {
+    display: none;
+  }
+
+  .detail {
+    display: block;
+    position: absolute;
+    right: 22px;
+    top: 22px;
+    bottom: 22px;
+    width: 348px;
+    max-width: calc(100% - 44px);
+    border-radius: 22px;
+    padding: 20px;
+    z-index: 4;
+  }
+
+  .has-panel .controls {
+    right: 392px;
+  }
+
+  .feed {
+    display: block;
+    position: absolute;
+    left: 22px;
+    bottom: 22px;
+    z-index: 3;
+  }
+}
+
+@media (min-width: 1200px) {
+  .top-left {
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+  }
+}

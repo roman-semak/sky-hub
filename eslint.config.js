@@ -1,7 +1,9 @@
 // @ts-check
 import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
 import prettier from 'eslint-config-prettier';
+import tseslint from 'typescript-eslint';
+
+const TS_FILES = ['**/*.ts', '**/*.mts', '**/*.cts'];
 
 export default tseslint.config(
   {
@@ -14,12 +16,18 @@ export default tseslint.config(
       'data/**',
       '**/*.config.{js,mjs,ts}',
       '**/playwright-report/**',
+      '**/out-tsc/**',
     ],
   },
-  js.configs.recommended,
-  ...tseslint.configs.strictTypeChecked,
-  ...tseslint.configs.stylisticTypeChecked,
   {
+    // TS rules are scoped to TS files: Angular inline templates are linted as
+    // virtual .html files that carry no type information.
+    files: TS_FILES,
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.strictTypeChecked,
+      ...tseslint.configs.stylisticTypeChecked,
+    ],
     languageOptions: {
       parserOptions: {
         projectService: true,

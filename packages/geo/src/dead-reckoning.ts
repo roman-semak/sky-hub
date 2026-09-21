@@ -1,8 +1,10 @@
 import { lerpAngle, normalizeLon, shortestAngleDelta } from './angles.js';
-import { KNOTS_TO_MPS } from './constants.js';
+import { EARTH_RADIUS_M, KNOTS_TO_MPS } from './constants.js';
 import { destinationPoint, type LatLon } from './destination-point.js';
 import { easeOutCubic } from './easing.js';
 import { haversineDistance } from './haversine-distance.js';
+
+const DEG = Math.PI / 180;
 
 /** A reported position with its kinematics. */
 export interface Fix {
@@ -97,6 +99,71 @@ function lerpLatLon(a: LatLon, b: LatLon, k: number): LatLon {
     lat: a.lat + (b.lat - a.lat) * k,
     lon: a.lon + shortestAngleDelta(a.lon, b.lon) * k,
   };
+}
+
+/** Mutable pose for the allocation-free render path. */
+export interface MutablePose {
+  lat: number;
+  lon: number;
+  heading: number;
+}
+
+/**
+ * Allocation-free {@link deadReckon}: writes the extrapolated position into
+ * `out` (same great-circle formula as {@link destinationPoint}). Used by the
+ * 60 fps render loop where thousands of calls per frame must not allocate.
+ */
+export function deadReckonInto(
+  fix: Fix,
+  nowMs: number,
+  maxExtrapolationSec: number,
+  out: MutablePose,
+): void {
+  const { track, gs } = fix;
+  const dtSec = Math.min(maxExtrapolationSec, Math.max(0, (nowMs - fix.t) / 1000));
+  if (track === null || gs === null || gs <= 0 || dtSec === 0) {
+    out.lat = fix.lat;
+    out.lon = fix.lon;
+    return;
+  }
+  const δ = (gs * KNOTS_TO_MPS * dtSec) / EARTH_RADIUS_M;
+  const θ = track * DEG;
+  const φ1 = fix.lat * DEG;
+  const sinφ1 = Math.sin(φ1);
+  const cosφ1 = Math.cos(φ1);
+  const sinδ = Math.sin(δ);
+  const cosδ = Math.cos(δ);
+  const sinφ2 = Math.min(1, Math.max(-1, sinφ1 * cosδ + cosφ1 * sinδ * Math.cos(θ)));
+  const Δλ = Math.atan2(Math.sin(θ) * sinδ * cosφ1, cosδ - sinφ1 * sinφ2);
+  out.lat = Math.asin(sinφ2) / DEG;
+  out.lon = normalizeLon(fix.lon + Δλ / DEG);
+}
+
+const scratch: MutablePose = { lat: 0, lon: 0, heading: 0 };
+
+/**
+ * Allocation-free {@link renderPose}: writes where to draw the aircraft into
+ * `out`. The render loop calls this for every aircraft on every frame.
+ */
+export function renderPoseInto(
+  state: TrackState,
+  nowMs: number,
+  opts: DeadReckoningOptions,
+  out: MutablePose,
+): void {
+  const cur = state.current;
+  deadReckonInto(cur, nowMs, opts.maxExtrapolationSec, out);
+  const prev = state.previous;
+  const targetHeading = cur.track ?? prev?.track ?? 0;
+  const k = prev === null ? 1 : easeOutCubic((nowMs - state.blendStart) / opts.blendMs);
+  if (prev === null || k >= 1) {
+    out.heading = targetHeading;
+    return;
+  }
+  deadReckonInto(prev, nowMs, opts.maxExtrapolationSec, scratch);
+  out.lat = scratch.lat + (out.lat - scratch.lat) * k;
+  out.lon = normalizeLon(scratch.lon + shortestAngleDelta(scratch.lon, out.lon) * k);
+  out.heading = lerpAngle(prev.track ?? targetHeading, targetHeading, k);
 }
 
 /** Where to draw the aircraft at `nowMs`. */

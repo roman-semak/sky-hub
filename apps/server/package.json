@@ -10,7 +10,8 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
-    "test": "vitest run --coverage"
+    "test": "vitest run --coverage",
+    "test:load": "vitest run --config vitest.load.config.ts"
   },
   "devDependencies": {
     "@types/ws": "^8.18.1",
