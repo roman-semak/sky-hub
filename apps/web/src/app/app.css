@@ -1,0 +1,40 @@
+.shell {
+  --tabbar-h: 72px;
+  display: flex;
+  height: 100dvh;
+  width: 100vw;
+  background: var(--ground-a);
+}
+
+.content {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.rail {
+  display: none;
+}
+
+.tabs {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  border-radius: 0;
+}
+
+@media (min-width: 768px) {
+  .shell {
+    --tabbar-h: 0px;
+  }
+
+  .rail {
+    display: flex;
+  }
+
+  .tabs {
+    display: none;
+  }
+}

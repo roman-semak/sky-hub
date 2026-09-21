@@ -2,6 +2,9 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import {
   applyFix,
+  deadReckonInto,
+  DEFAULT_DR_OPTIONS,
+  renderPoseInto,
   createTrackState,
   deadReckon,
   easeOutCubic,
@@ -123,6 +126,39 @@ describe('track smoothing', () => {
             const after = renderPose(s, t);
             expect(haversineDistance(prev.lat, prev.lon, after.lat, after.lon)).toBeLessThan(1);
           }
+        },
+      ),
+    );
+  });
+});
+
+describe('allocation-free variants', () => {
+  it('match the allocating functions exactly', () => {
+    fc.assert(
+      fc.property(
+        lat,
+        lon,
+        bearing,
+        fc.double({ min: 0, max: 600, noNaN: true }),
+        fc.option(bearing, { nil: null }),
+        fc.integer({ min: 0, max: 3000 }),
+        (φ, λ, θ, gs, newTrack, dt) => {
+          const s0 = createTrackState({ lat: φ, lon: λ, track: θ, gs, t: T0 });
+          const s1 = applyFix(s0, { lat: φ, lon: λ, track: newTrack, gs, t: T0 + 1000 }, T0 + 1000);
+          for (const s of [s0, s1]) {
+            const out = { lat: 0, lon: 0, heading: 0 };
+            renderPoseInto(s, T0 + 1000 + dt, DEFAULT_DR_OPTIONS, out);
+            const ref = renderPose(s, T0 + 1000 + dt);
+            expect(out.lat).toBeCloseTo(ref.lat, 9);
+            expect(out.lon).toBeCloseTo(ref.lon, 9);
+            expect(out.heading).toBeCloseTo(ref.heading, 9);
+          }
+          const fix: Fix = { lat: φ, lon: λ, track: θ, gs, t: T0 };
+          const o = { lat: 0, lon: 0, heading: 0 };
+          deadReckonInto(fix, T0 + dt * 10, 60, o);
+          const r = deadReckon(fix, T0 + dt * 10, 60);
+          expect(o.lat).toBeCloseTo(r.lat, 9);
+          expect(o.lon).toBeCloseTo(r.lon, 9);
         },
       ),
     );

@@ -25,3 +25,7 @@ jobs:
       - run: pnpm turbo run typecheck
       - run: pnpm turbo run test
       - run: pnpm turbo run build
+      - run: pnpm turbo run size
+      - run: pnpm --filter @skytrace/server test:load
+      - run: pnpm --filter @skytrace/web exec playwright install --with-deps chromium
+      - run: pnpm e2e
