@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { StreamClient } from '../core/live/stream-client.service';
+import { FilterStore } from '../core/filters/filter.store';
 import { ThemeService } from '../core/theme/theme.service';
 import { formatBytesPerSec, formatCount } from '../core/format/format';
 import { IconComponent } from './icon/icon.component';
@@ -30,6 +31,15 @@ import { IconComponent } from './icon/icon.component';
             </a>
           </li>
         }
+        <li>
+          <button type="button" class="nav-button" (click)="filters.open.set(true)">
+            <st-icon name="sliders-horizontal" class="nav-icon" />
+            <span class="label">Filters</span>
+            @if (filters.activeCount() > 0) {
+              <span class="badge">{{ filters.activeCount() }}</span>
+            }
+          </button>
+        </li>
       </ul>
       <div class="feed">
         <span class="eyebrow">Feed</span>
@@ -53,12 +63,13 @@ import { IconComponent } from './icon/icon.component';
 })
 export class NavRailComponent {
   protected readonly theme = inject(ThemeService);
+  protected readonly filters = inject(FilterStore);
   private readonly client = inject(StreamClient);
   protected readonly items = [
     { path: '/', icon: 'globe', label: 'Map' },
     { path: '/search', icon: 'magnifying-glass', label: 'Search' },
     { path: '/following', icon: 'bookmark-simple', label: 'Following' },
-    { path: '/stats', icon: 'sliders-horizontal', label: 'Stats' },
+    { path: '/stats', icon: 'globe-line', label: 'Stats' },
   ] as const;
 
   protected readonly aircraft = () => formatCount(this.client.aircraftCount());

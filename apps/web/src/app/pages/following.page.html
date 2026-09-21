@@ -1,0 +1,42 @@
+<section class="page" aria-labelledby="following-title">
+  <header>
+    <h1 id="following-title">Following</h1>
+    <span class="summary">{{ summary() }}</span>
+  </header>
+
+  @for (card of cards(); track card.hex) {
+  <article class="card" [class.active]="card.live">
+    <div class="top">
+      <button type="button" class="title" (click)="open(card.hex)">{{ card.title }}</button>
+      <span class="status">
+        @if (card.live) {
+        <span class="live-dot"></span>
+        } {{ card.status }}
+      </span>
+    </div>
+    @if (card.from !== null && card.to !== null) {
+    <div class="route">
+      <span>{{ card.from }}</span>
+      <span class="line" [style.--p.%]="card.fraction * 100"></span>
+      <span>{{ card.to }}</span>
+    </div>
+    }
+    <div class="bottom">
+      <span class="caption">{{ card.caption }}</span>
+      <button type="button" class="unfollow" (click)="unfollow(card.hex)">Unfollow</button>
+    </div>
+  </article>
+  } @empty {
+  <p class="empty">Follow a flight from its detail panel to see it here, wherever it is.</p>
+  }
+
+  <label class="alerts">
+    <span>Alerts on takeoff &amp; landing</span>
+    <input
+      type="checkbox"
+      role="switch"
+      [checked]="follow.alerts()"
+      (change)="toggleAlerts($event)"
+    />
+  </label>
+</section>

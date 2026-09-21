@@ -1,0 +1,167 @@
+<div class="scrim" (click)="close()" aria-hidden="true"></div>
+<section
+  class="panel glass-strong"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="filters-title"
+  data-testid="filter-panel"
+>
+  <header>
+    <h2 id="filters-title">Filters</h2>
+    <button type="button" class="icon-action" (click)="close()" aria-label="Close filters">
+      <st-icon name="x-circle" />
+    </button>
+  </header>
+
+  <div class="body">
+    <div class="group">
+      <span class="eyebrow">Altitude band</span>
+      <st-range-slider
+        label="Altitude"
+        [min]="altRange[0]"
+        [max]="altRange[1]"
+        [step]="500"
+        [format]="flightLevel"
+        [value]="draft().altitude"
+        (valueChange)="patch({ altitude: [$event[0], $event[1]] })"
+      />
+    </div>
+
+    <div class="group">
+      <span class="eyebrow">Ground speed</span>
+      <st-range-slider
+        label="Ground speed"
+        [min]="speedRange[0]"
+        [max]="speedRange[1]"
+        [step]="10"
+        [format]="knots"
+        [value]="draft().speed"
+        (valueChange)="patch({ speed: [$event[0], $event[1]] })"
+      />
+    </div>
+
+    <div class="group">
+      <span class="eyebrow">Operators</span>
+      <div class="chips">
+        @for (code of quickOperators; track code) {
+          <button
+            type="button"
+            class="chip"
+            [attr.aria-pressed]="draft().operators.includes(code)"
+            (click)="toggleOperator(code)"
+          >
+            {{ code }}
+          </button>
+        }
+        @for (code of draft().operators; track code) {
+          @if (!quickOperators.includes(code)) {
+            <button type="button" class="chip" aria-pressed="true" (click)="toggleOperator(code)">
+              {{ code }}
+            </button>
+          }
+        }
+      </div>
+      <input
+        #op
+        class="field"
+        placeholder="Add airline ICAO code, e.g. SWR"
+        aria-label="Add airline ICAO code"
+        (keydown.enter)="addCode('operators', op, 3)"
+      />
+    </div>
+
+    @for (list of lists; track list.key) {
+      <div class="group">
+        <span class="eyebrow">{{ list.label }}</span>
+        @if (draft()[list.key].length > 0) {
+          <div class="chips">
+            @for (code of draft()[list.key]; track code) {
+              <button
+                type="button"
+                class="chip"
+                aria-pressed="true"
+                (click)="removeCode(list.key, code)"
+                [attr.aria-label]="'Remove ' + code"
+              >
+                {{ code }} <st-icon name="x-circle" />
+              </button>
+            }
+          </div>
+        }
+        <input
+          #field
+          class="field"
+          [placeholder]="list.placeholder"
+          [attr.aria-label]="list.label"
+          (keydown.enter)="addCode(list.key, field, list.max)"
+        />
+      </div>
+    }
+
+    <div class="group">
+      <span class="eyebrow">Show only</span>
+      <div class="chips">
+        @for (flag of flags; track flag.key) {
+          <button
+            type="button"
+            class="chip"
+            [attr.aria-pressed]="draft()[flag.key]"
+            (click)="toggleFlag(flag.key)"
+          >
+            {{ flag.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="eyebrow">Presets</span>
+      @if (filters.presets().length > 0) {
+        <div class="chips">
+          @for (p of filters.presets(); track p.name) {
+            <span class="preset">
+              <button type="button" class="chip" (click)="loadPreset(p.name)">{{ p.name }}</button>
+              <button
+                type="button"
+                class="preset-del"
+                (click)="filters.deletePreset(p.name)"
+                [attr.aria-label]="'Delete preset ' + p.name"
+              >
+                <st-icon name="x-circle" />
+              </button>
+            </span>
+          }
+        </div>
+      }
+      <div class="save">
+        <input
+          class="field"
+          placeholder="Preset name"
+          aria-label="Preset name"
+          [value]="presetName()"
+          (input)="setName($event)"
+          (keydown.enter)="savePreset()"
+        />
+        <button
+          type="button"
+          class="chip"
+          [disabled]="presetName().trim() === ''"
+          (click)="savePreset()"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <button type="button" class="reset" (click)="reset()">Reset</button>
+    <button type="button" class="show" (click)="apply()" data-testid="apply-filters">
+      @if (count() === null) {
+        Apply filters
+      } @else {
+        Show {{ count() }} flights
+      }
+    </button>
+  </footer>
+</section>

@@ -77,6 +77,13 @@ export class MapViewComponent {
       if (ac !== undefined) this.engine?.flyTo(ac.record.lat, ac.record.lon);
     });
 
+    effect(() => {
+      const cmd = this.store.camera();
+      if (cmd === null || this.engine === null) return;
+      if (cmd.kind === 'fly') this.engine.flyTo(cmd.lat, cmd.lon, cmd.zoom ?? undefined);
+      else this.engine.zoomBy(cmd.delta);
+    });
+
     inject(DestroyRef).onDestroy(() => {
       if (this.trailTimer !== null) clearInterval(this.trailTimer);
       this.engine?.destroy();

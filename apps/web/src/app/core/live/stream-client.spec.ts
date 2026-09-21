@@ -152,6 +152,23 @@ describe('StreamClient', () => {
     client.stop();
   });
 
+  it('answers filter previews and times out', async () => {
+    const client = setup();
+    expect(await client.preview({})).toBe(0);
+    client.start();
+    const socket = FakeSocket.last;
+    socket?.open();
+    const p = client.preview({ militaryOnly: true });
+    const sent = JSON.parse(socket?.sent.at(-1) ?? '{}') as { t: string; id: number };
+    expect(sent.t).toBe('preview');
+    socket?.receive(JSON.stringify({ t: 'preview', id: sent.id, count: 17 }));
+    expect(await p).toBe(17);
+    const late = client.preview({});
+    vi.advanceTimersByTime(3000);
+    expect(await late).toBe(0);
+    client.stop();
+  });
+
   it('runs a synthetic feed without a socket', () => {
     const client = setup();
     client.startSynthetic(25, 50, 10);
