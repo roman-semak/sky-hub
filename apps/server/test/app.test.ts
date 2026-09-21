@@ -3,6 +3,8 @@ import { decodeFrame, FrameType } from '@skytrace/protocol';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import WebSocket from 'ws';
 import { buildApp } from '../src/app.js';
+import { TrackHistory } from '../src/history/track-history.js';
+import { RouteService } from '../src/routes/route-service.js';
 import { loadConfig } from '../src/config.js';
 import { CoverageScheduler } from '../src/ingest/coverage-scheduler.js';
 import { IngestWorker } from '../src/ingest/ingest-worker.js';
@@ -11,10 +13,15 @@ import { silentLogger } from '../src/logger.js';
 import { SpatialIndex } from '../src/state/spatial-index.js';
 import { StateStore } from '../src/state/state-store.js';
 import { StreamHub } from '../src/stream/stream-hub.js';
+import { StaticIndex } from '@skytrace/static-data';
+import type { RouteProvider } from '../src/routes/route-providers.js';
 import { makeAircraft, makeCircle } from './fixtures.js';
 
 const now = Date.now();
-const store = new StateStore();
+const history = new TrackHistory();
+const store = new StateStore((ac) => {
+  history.record(ac);
+});
 store.upsertMany([
   makeAircraft({ posTime: now, seenTime: now }),
   makeAircraft({ hex: '000002', callsign: 'KLM1', posTime: now, seenTime: now }),
@@ -26,6 +33,58 @@ const hub = new StreamHub(silentLogger, (v) => {
   scheduler.setDemand(v);
 });
 hub.publish(SpatialIndex.build(store.values()), []);
+const staticIndex = new StaticIndex({
+  version: 1,
+  generatedAt: '2026-09-21T00:00:00Z',
+  airports: [
+    {
+      icao: 'LPPT',
+      iata: 'LIS',
+      name: 'Humberto Delgado Airport',
+      city: 'Lisbon',
+      country: 'PT',
+      lat: 38.78,
+      lon: -9.13,
+      elevationFt: 374,
+      kind: 'large',
+    },
+    {
+      icao: 'LPMA',
+      iata: 'FNC',
+      name: 'Madeira Airport',
+      city: 'Funchal',
+      country: 'PT',
+      lat: 32.69,
+      lon: -16.77,
+      elevationFt: 192,
+      kind: 'large',
+    },
+  ],
+  airlines: [
+    {
+      icao: 'TAP',
+      iata: 'TP',
+      name: 'TAP Air Portugal',
+      callsign: 'AIR PORTUGAL',
+      country: 'Portugal',
+    },
+  ],
+  types: [{ code: 'A20N', name: 'AIRBUS A-320neo', desc: 'L2J', wtc: 'M' }],
+});
+const routeProvider: RouteProvider = {
+  id: 'adsbdb',
+  lookup: async (callsign) =>
+    callsign === 'TAP123'
+      ? {
+          callsign,
+          origin: { icao: 'LPMA', iata: 'FNC', name: 'x', city: null, lat: 0, lon: 0 },
+          destination: { icao: 'LPPT', iata: 'LIS', name: 'y', city: null, lat: 0, lon: 0 },
+          airline: 'TAP Portugal',
+          source: 'adsbdb',
+        }
+      : null,
+};
+const routes = new RouteService([routeProvider], staticIndex, silentLogger);
 const app = await buildApp({
   logger: false,
   store,
@@ -33,6 +92,9 @@ const app = await buildApp({
   pool,
   scheduler,
   hub,
+  staticIndex,
+  routes,
+  history,
   corsOrigin: '*',
   maxConnectionsPerIp: 2,
 });
@@ -73,6 +135,44 @@ describe('REST', () => {
     const res = await app.inject('/api/search?q=klm');
     expect(res.json()).toMatchObject({ results: [{ hex: '000002' }] });
     expect((await app.inject('/api/search')).statusCode).toBe(400);
+  });
+
+  it('GET /api/ac/:hex is enriched with static data', async () => {
+    expect((await app.inject('/api/ac/abcdef')).json()).toMatchObject({
+      airline: { name: 'TAP Air Portugal' },
+      aircraftType: { code: 'A20N' },
+      country: 'US',
+    });
+  });
+
+  it('GET /api/search covers flights, airlines and airports', async () => {
+    const all = (await app.inject('/api/search?q=tap')).json<{ results: { kind: string }[] }>();
+    expect(all.results.map((r) => r.kind)).toEqual(['aircraft', 'airline']);
+    const airports = (await app.inject('/api/search?q=lisbon&kind=airports')).json<{
+      results: { kind: string; icao: string; size: string }[];
+    }>();
+    expect(airports.results[0]).toMatchObject({ kind: 'airport', icao: 'LPPT', size: 'large' });
+  });
+
+  it('GET /api/route/:callsign', async () => {
+    const res = (await app.inject('/api/route/tap123')).json<{ origin: { name: string } }>();
+    // Provider names are replaced by our own airport table.
+    expect(res.origin.name).toBe('Madeira Airport');
+    expect((await app.inject('/api/route/KLM1')).statusCode).toBe(404);
+    expect((await app.inject('/api/route/x')).statusCode).toBe(400);
+  });
+
+  it('GET /api/track/:hex returns the recorded, simplified track', async () => {
+    const res = (await app.inject('/api/track/abcdef')).json<{ points: unknown[]; raw: number }>();
+    expect(res.raw).toBe(1);
+    expect(res.points).toHaveLength(1);
+    expect((await app.inject('/api/track/zz')).statusCode).toBe(400);
+  });
+
+  it('GET /api/airport/:code', async () => {
+    expect((await app.inject('/api/airport/LIS')).json()).toMatchObject({ icao: 'LPPT' });
+    expect((await app.inject('/api/airport/ZZZZ')).statusCode).toBe(404);
+    expect((await app.inject('/api/airport/!!')).statusCode).toBe(400);
   });
 
   it('GET /api/stats is cached', async () => {

@@ -2,6 +2,8 @@ import type { AddressInfo } from 'node:net';
 import { describe, expect, it } from 'vitest';
 import WebSocket from 'ws';
 import { buildApp } from '../src/app.js';
+import { TrackHistory } from '../src/history/track-history.js';
+import { RouteService } from '../src/routes/route-service.js';
 import { CoverageScheduler } from '../src/ingest/coverage-scheduler.js';
 import { IngestWorker } from '../src/ingest/ingest-worker.js';
 import { ProviderPool } from '../src/ingest/provider-pool.js';
@@ -34,6 +36,9 @@ describe('load: 200 WebSocket clients', () => {
       pool,
       scheduler,
       hub,
+      staticIndex: null,
+      routes: new RouteService([], null, silentLogger),
+      history: new TrackHistory(),
       corsOrigin: '*',
       maxConnectionsPerIp: CLIENTS + 10,
     });

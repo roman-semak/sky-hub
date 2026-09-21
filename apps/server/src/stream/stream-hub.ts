@@ -1,3 +1,4 @@
+import type { CountryResolver } from '@skytrace/adsb-types';
 import type { BBox } from '@skytrace/geo';
 import { ClientMessageSchema, type ServerMessage } from '@skytrace/protocol';
 import type { Logger } from '../logger.js';
@@ -61,6 +62,7 @@ export class StreamHub {
     private readonly onDemand: (viewports: BBox[]) => void,
     private readonly opts: StreamHubOptions = DEFAULT_HUB_OPTIONS,
     private readonly now: () => number = Date.now,
+    private readonly countryOf?: CountryResolver,
   ) {}
 
   start(): void {
@@ -84,7 +86,7 @@ export class StreamHub {
   connect(socket: StreamSocket): { onMessage: (data: string) => void; onClose: () => void } {
     const conn: Conn = {
       socket,
-      session: new ClientSession(),
+      session: new ClientSession(this.countryOf),
       msgWindowStart: this.now(),
       msgCount: 0,
       rttMs: null,
@@ -178,6 +180,12 @@ export class StreamHub {
       case 'pong':
         conn.rttMs = Math.max(0, now - msg.ts);
         break;
+      case 'preview': {
+        const count =
+          this.index === null ? 0 : conn.session.countMatching({ index: this.index, now }, msg.f);
+        this.sendJson(conn, { t: 'preview', id: msg.id, count });
+        break;
+      }
     }
   }
 

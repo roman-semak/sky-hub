@@ -1,0 +1,150 @@
+/**
+ * ICAO 24-bit address blocks per state, from ICAO Annex 10 Vol. III,
+ * Part I, Chapter 9, Appendix (allocation of aircraft addresses).
+ * `[first, last, ISO-3166 alpha-2]`, sorted by `first`. Partial: covers the
+ * states that account for virtually all tracked traffic.
+ */
+const BLOCKS: readonly (readonly [number, number, string])[] = [
+  [0x004000, 0x0043ff, 'ZW'],
+  [0x006000, 0x006fff, 'MZ'],
+  [0x008000, 0x00ffff, 'ZA'],
+  [0x010000, 0x017fff, 'EG'],
+  [0x018000, 0x01ffff, 'LY'],
+  [0x020000, 0x027fff, 'MA'],
+  [0x028000, 0x02ffff, 'TN'],
+  [0x030000, 0x0303ff, 'BW'],
+  [0x040000, 0x040fff, 'ET'],
+  [0x04c000, 0x04cfff, 'KE'],
+  [0x064000, 0x064fff, 'NG'],
+  [0x068000, 0x068fff, 'TZ'],
+  [0x06a000, 0x06a3ff, 'QA'],
+  [0x0a0000, 0x0a7fff, 'DZ'],
+  [0x0ac000, 0x0acfff, 'CO'],
+  [0x0b0000, 0x0b0fff, 'CU'],
+  [0x0c4000, 0x0c4fff, 'DO'],
+  [0x0d0000, 0x0d7fff, 'MX'],
+  [0x0d8000, 0x0dffff, 'VE'],
+  [0x100000, 0x1fffff, 'RU'],
+  [0x300000, 0x33ffff, 'IT'],
+  [0x340000, 0x37ffff, 'ES'],
+  [0x380000, 0x3bffff, 'FR'],
+  [0x3c0000, 0x3fffff, 'DE'],
+  [0x400000, 0x43ffff, 'GB'],
+  [0x440000, 0x447fff, 'AT'],
+  [0x448000, 0x44ffff, 'BE'],
+  [0x450000, 0x457fff, 'BG'],
+  [0x458000, 0x45ffff, 'DK'],
+  [0x460000, 0x467fff, 'FI'],
+  [0x468000, 0x46ffff, 'GR'],
+  [0x470000, 0x477fff, 'HU'],
+  [0x478000, 0x47ffff, 'NO'],
+  [0x480000, 0x487fff, 'NL'],
+  [0x488000, 0x48ffff, 'PL'],
+  [0x490000, 0x497fff, 'PT'],
+  [0x498000, 0x49ffff, 'CZ'],
+  [0x4a0000, 0x4a7fff, 'RO'],
+  [0x4a8000, 0x4affff, 'SE'],
+  [0x4b0000, 0x4b7fff, 'CH'],
+  [0x4b8000, 0x4bffff, 'TR'],
+  [0x4c0000, 0x4c7fff, 'RS'],
+  [0x4c8000, 0x4c83ff, 'CY'],
+  [0x4ca000, 0x4cafff, 'IE'],
+  [0x4cc000, 0x4ccfff, 'IS'],
+  [0x4d0000, 0x4d03ff, 'LU'],
+  [0x4d2000, 0x4d23ff, 'MT'],
+  [0x4d4000, 0x4d43ff, 'MC'],
+  [0x500000, 0x5003ff, 'SM'],
+  [0x501000, 0x5013ff, 'AL'],
+  [0x501c00, 0x501fff, 'HR'],
+  [0x502c00, 0x502fff, 'LV'],
+  [0x503c00, 0x503fff, 'LT'],
+  [0x504c00, 0x504fff, 'MD'],
+  [0x505c00, 0x505fff, 'SK'],
+  [0x506c00, 0x506fff, 'SI'],
+  [0x507c00, 0x507fff, 'UZ'],
+  [0x508000, 0x50ffff, 'UA'],
+  [0x510000, 0x5103ff, 'BY'],
+  [0x511000, 0x5113ff, 'EE'],
+  [0x512000, 0x5123ff, 'MK'],
+  [0x513000, 0x5133ff, 'BA'],
+  [0x514000, 0x5143ff, 'GE'],
+  [0x515000, 0x5153ff, 'TJ'],
+  [0x516000, 0x5163ff, 'ME'],
+  [0x600000, 0x6003ff, 'AM'],
+  [0x600800, 0x600bff, 'AZ'],
+  [0x601000, 0x6013ff, 'KG'],
+  [0x601800, 0x601bff, 'TM'],
+  [0x682000, 0x6823ff, 'MN'],
+  [0x683000, 0x6833ff, 'KZ'],
+  [0x700000, 0x700fff, 'AF'],
+  [0x702000, 0x702fff, 'BD'],
+  [0x704000, 0x704fff, 'MM'],
+  [0x706000, 0x706fff, 'KW'],
+  [0x708000, 0x708fff, 'LA'],
+  [0x70a000, 0x70afff, 'NP'],
+  [0x70c000, 0x70c3ff, 'OM'],
+  [0x70e000, 0x70efff, 'KH'],
+  [0x710000, 0x717fff, 'SA'],
+  [0x718000, 0x71ffff, 'KR'],
+  [0x720000, 0x727fff, 'KP'],
+  [0x728000, 0x72ffff, 'IQ'],
+  [0x730000, 0x737fff, 'IR'],
+  [0x738000, 0x73ffff, 'IL'],
+  [0x740000, 0x747fff, 'JO'],
+  [0x748000, 0x74ffff, 'LB'],
+  [0x750000, 0x757fff, 'MY'],
+  [0x758000, 0x75ffff, 'PH'],
+  [0x760000, 0x767fff, 'PK'],
+  [0x768000, 0x76ffff, 'SG'],
+  [0x770000, 0x777fff, 'LK'],
+  [0x778000, 0x77ffff, 'SY'],
+  [0x780000, 0x7bffff, 'CN'],
+  [0x7c0000, 0x7fffff, 'AU'],
+  [0x800000, 0x83ffff, 'IN'],
+  [0x840000, 0x87ffff, 'JP'],
+  [0x880000, 0x887fff, 'TH'],
+  [0x888000, 0x88ffff, 'VN'],
+  [0x890000, 0x890fff, 'YE'],
+  [0x894000, 0x894fff, 'BH'],
+  [0x895000, 0x8953ff, 'BN'],
+  [0x896000, 0x896fff, 'AE'],
+  [0x898000, 0x898fff, 'PG'],
+  [0x899000, 0x8993ff, 'TW'],
+  [0x8a0000, 0x8a7fff, 'ID'],
+  [0xa00000, 0xafffff, 'US'],
+  [0xc00000, 0xc3ffff, 'CA'],
+  [0xc80000, 0xc87fff, 'NZ'],
+  [0xc88000, 0xc88fff, 'FJ'],
+  [0xe00000, 0xe3ffff, 'AR'],
+  [0xe40000, 0xe7ffff, 'BR'],
+  [0xe80000, 0xe80fff, 'CL'],
+  [0xe84000, 0xe84fff, 'EC'],
+  [0xe88000, 0xe88fff, 'PY'],
+  [0xe8c000, 0xe8cfff, 'PE'],
+  [0xe90000, 0xe90fff, 'UY'],
+  [0xe94000, 0xe94fff, 'BO'],
+];
+
+/** Number of allocation blocks in the table (exported for tests). */
+export const ICAO24_BLOCK_COUNT = BLOCKS.length;
+
+/**
+ * State of registry for an ICAO24 address, by binary search over the
+ * allocation blocks. `~`-prefixed (non-ICAO) addresses have no state.
+ */
+export function countryOfIcao24(hex: string): string | null {
+  if (hex.startsWith('~')) return null;
+  const addr = Number.parseInt(hex, 16);
+  if (!Number.isInteger(addr)) return null;
+  let lo = 0;
+  let hi = BLOCKS.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const block = BLOCKS[mid];
+    if (block === undefined) return null;
+    if (addr < block[0]) hi = mid - 1;
+    else if (addr > block[1]) lo = mid + 1;
+    else return block[2];
+  }
+  return null;
+}

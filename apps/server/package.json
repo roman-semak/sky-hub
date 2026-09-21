@@ -24,6 +24,7 @@
     "@skytrace/adsb-types": "workspace:*",
     "@skytrace/geo": "workspace:*",
     "@skytrace/protocol": "workspace:*",
+    "@skytrace/static-data": "workspace:*",
     "fastify": "^5.12.5",
     "flatbush": "^4.6.2",
     "pino": "^10.3.1",

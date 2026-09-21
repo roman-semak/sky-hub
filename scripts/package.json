@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "zod": "^4.6.5"
+  },
+  "dependencies": {
+    "@skytrace/static-data": "workspace:*"
   }
 }

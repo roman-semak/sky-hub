@@ -9,7 +9,7 @@ Open-source live flight tracker in the spirit of Flightradar24, built entirely o
 
 ## Quick start
 
-Requirements: Node ≥ 22, pnpm 10.
+Requirements: Node ≥ 22.15 (built-in zstd), pnpm 10.
 
 ```bash
 pnpm install

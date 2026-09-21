@@ -10,6 +10,11 @@ import type { Provider } from './ingest/provider.js';
 import { ProviderPool } from './ingest/provider-pool.js';
 import { StateStore } from './state/state-store.js';
 import { StreamHub } from './stream/stream-hub.js';
+import { countryOfIcao24 } from '@skytrace/static-data';
+import { TrackHistory } from './history/track-history.js';
+import { AdsbdbRouteProvider, AdsbLolRouteProvider } from './routes/route-providers.js';
+import { RouteService } from './routes/route-service.js';
+import { loadStaticData } from './static/load-static-data.js';
 
 const config = loadConfig();
 const logger = pino({
@@ -23,17 +28,33 @@ const providers: Provider[] = config.PROVIDERS.map(
 );
 if (config.OPENSKY_ENABLED) providers.push(new OpenSkyProvider());
 
-const store = new StateStore();
+const staticIndex = await loadStaticData(config.STATIC_DATA_PATH, logger);
+const history = new TrackHistory();
+const routes = new RouteService(
+  [new AdsbLolRouteProvider(), new AdsbdbRouteProvider()],
+  staticIndex,
+  logger,
+);
+const store = new StateStore((ac) => {
+  history.record(ac);
+});
 const pool = new ProviderPool(providers);
 const scheduler = new CoverageScheduler(worldCoverageGrid(), Date.now());
 const worker = new IngestWorker(pool, scheduler, store, logger, {
   ...DEFAULT_INGEST_OPTIONS,
   evictAfterMs: config.EVICT_AFTER_SEC * 1000,
 });
-const hub = new StreamHub(logger, (viewports) => {
-  scheduler.setDemand(viewports);
-});
+const hub = new StreamHub(
+  logger,
+  (viewports) => {
+    scheduler.setDemand(viewports);
+  },
+  undefined,
+  undefined,
+  countryOfIcao24,
+);
 worker.onIndex((index, removed) => {
+  history.forget(removed);
   hub.publish(index, removed);
 });
 const app = await buildApp({
@@ -43,6 +64,9 @@ const app = await buildApp({
   pool,
   scheduler,
   hub,
+  staticIndex,
+  routes,
+  history,
   corsOrigin: config.CORS_ORIGIN,
 });
 

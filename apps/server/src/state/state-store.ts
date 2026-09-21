@@ -23,6 +23,9 @@ export class StateStore {
   private revision = 0;
   private peak = 0;
 
+  /** @param onAccept called with every accepted update (e.g. to record history). */
+  constructor(private readonly onAccept?: (ac: Aircraft) => void) {}
+
   get size(): number {
     return this.map.size;
   }
@@ -57,6 +60,7 @@ export class StateStore {
       posTime: merged.posTime,
       bytes: encodeRecord(toRecord(merged, merged.posTime)),
     });
+    this.onAccept?.(merged);
     return true;
   }
 

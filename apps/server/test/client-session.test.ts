@@ -109,6 +109,28 @@ describe('ClientSession', () => {
     expect(hexes(frames(s, w.rebuild())[0])).toEqual(['000001']);
   });
 
+  it('filters by registration country via the resolver', () => {
+    const w = new World().put({ hex: '4951ab' }, { hex: '3c6444' });
+    const s = new ClientSession((hex) => (hex.startsWith('49') ? 'PT' : 'DE'));
+    s.subscribe({ bbox: LISBON, zoom: 9 });
+    s.setFilter({ countries: ['PT'] });
+    expect(hexes(frames(s, w.rebuild())[0])).toEqual(['4951ab']);
+  });
+
+  it('counts what a filter would show without applying it', () => {
+    const w = new World().put(
+      { hex: '000001', altBaro: 30000 },
+      { hex: '000002', altBaro: 5000 },
+      { hex: '000003', lat: 60 },
+    );
+    const s = new ClientSession();
+    const view = w.rebuild();
+    expect(s.countMatching(view, {})).toBe(0);
+    s.subscribe({ bbox: LISBON, zoom: 9 });
+    expect(s.countMatching(view, {})).toBe(2);
+    expect(s.countMatching(view, { altitude: [20000, 45000] })).toBe(1);
+  });
+
   it('streams watched aircraft even outside the viewport, capped at 20', () => {
     const w = new World().put({ hex: '000001' }, { hex: '0000ff', lat: -30, lon: 100 });
     const s = new ClientSession();

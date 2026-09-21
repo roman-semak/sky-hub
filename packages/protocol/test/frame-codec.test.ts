@@ -164,6 +164,7 @@ describe('ClientMessageSchema', () => {
       { t: 'unwatch', hex: '~4951ab' },
       { t: 'filter', f: { militaryOnly: true } },
       { t: 'pong', ts: 1 },
+      { t: 'preview', f: { altitude: [20000, 45000] }, id: 3 },
     ]) {
       expect(ClientMessageSchema.safeParse(m).success).toBe(true);
     }

@@ -1,4 +1,10 @@
-import { isEmptyFilter, matchesFilter, type Aircraft, type FilterSpec } from '@skytrace/adsb-types';
+import {
+  isEmptyFilter,
+  matchesFilter,
+  type Aircraft,
+  type CountryResolver,
+  type FilterSpec,
+} from '@skytrace/adsb-types';
 import type { BBox } from '@skytrace/geo';
 import {
   assembleAircraftFrame,
@@ -49,6 +55,8 @@ export class ClientSession {
   private needsSnapshot = true;
   private lastFrameAt = 0;
   private clustersSent = false;
+
+  constructor(private readonly countryOf?: CountryResolver) {}
 
   get subscription(): Subscription | null {
     return this.sub;
@@ -160,8 +168,20 @@ export class ClientSession {
     };
   }
 
+  /** How many aircraft in the current viewport a filter would let through. */
+  countMatching(view: WorldView, f: FilterSpec): number {
+    const sub = this.sub;
+    if (sub === null) return 0;
+    const all = isEmptyFilter(f);
+    let n = 0;
+    for (const item of view.index.query(sub.bbox)) {
+      if (all || matchesFilter(item.ac, f, this.countryOf)) n++;
+    }
+    return n;
+  }
+
   private passes(ac: Aircraft): boolean {
-    return !this.filterActive || matchesFilter(ac, this.filter);
+    return !this.filterActive || matchesFilter(ac, this.filter, this.countryOf);
   }
 }
 
