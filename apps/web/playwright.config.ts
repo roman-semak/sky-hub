@@ -6,6 +6,9 @@ export default defineConfig({
   testDir: './e2e',
   timeout: 90_000,
   retries: 0,
+  // FPS and playback tests measure frame timing; parallel workers would
+  // compete for the CPU and make both them and their neighbours flaky.
+  workers: 1,
   reporter: [['list']],
   use: {
     baseURL: `http://localhost:${PORT}`,

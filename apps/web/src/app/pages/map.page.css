@@ -36,6 +36,10 @@
   right: 14px;
   top: 96px;
   z-index: 3;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .feed {

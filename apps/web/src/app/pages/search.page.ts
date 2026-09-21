@@ -110,7 +110,7 @@ export class SearchPage {
       void this.router.navigate(['/']);
     } else if (r.kind === 'airport') {
       this.store.flyTo(r.lat, r.lon, 10);
-      void this.router.navigate(['/']);
+      void this.router.navigate(['/airport', r.icao]);
     } else {
       this.setKind('flights');
       this.setQuery(r.icao);

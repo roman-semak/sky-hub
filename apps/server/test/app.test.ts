@@ -96,6 +96,8 @@ const app = await buildApp({
   staticIndex,
   routes,
   history: new HistoryService(null, null, history),
+  weather: null,
+  wind: null,
   retentionMs: 3_600_000,
   corsOrigin: '*',
   maxConnectionsPerIp: 2,
@@ -197,9 +199,19 @@ describe('REST', () => {
   });
 
   it('GET /api/airport/:code', async () => {
-    expect((await app.inject('/api/airport/LIS')).json()).toMatchObject({ icao: 'LPPT' });
+    expect((await app.inject('/api/airport/LIS')).json()).toMatchObject({
+      icao: 'LPPT',
+      metar: null,
+      taf: null,
+      windHistory: [],
+    });
     expect((await app.inject('/api/airport/ZZZZ')).statusCode).toBe(404);
     expect((await app.inject('/api/airport/!!')).statusCode).toBe(400);
+  });
+
+  it('GET /api/wind needs a configured source and a valid level', async () => {
+    expect((await app.inject('/api/wind?bbox=-10,37,-8,40&level=250')).statusCode).toBe(503);
+    expect((await app.inject('/api/wind?bbox=-10,37,-8,40&level=300')).statusCode).toBe(400);
   });
 
   it('GET /api/stats is cached', async () => {

@@ -1,0 +1,78 @@
+<section class="page" aria-labelledby="stats-title">
+  <header>
+    <h1 id="stats-title">Live statistics</h1>
+    @if (updated() !== '') {
+    <span class="muted"><span class="live-dot"></span> updated {{ updated() }}</span>
+    }
+  </header>
+
+  @if (stats(); as s) {
+  <div class="tiles">
+    @for (t of tiles(); track t.label) {
+    <div class="tile">
+      <span class="eyebrow">{{ t.label }}</span>
+      <span class="value tabular" [attr.data-testid]="'stat-' + t.label">{{ t.value }}</span>
+    </div>
+    }
+  </div>
+
+  @if (s.emergencies.length > 0) {
+  <section class="card alert" aria-labelledby="em-title">
+    <h2 id="em-title" class="eyebrow">Emergencies</h2>
+    <ul class="list">
+      @for (e of s.emergencies; track e.hex) {
+      <li>
+        <button type="button" (click)="openEmergency(e.hex)">
+          <span class="title">{{ e.callsign ?? e.hex.toUpperCase() }}</span>
+          <span class="muted">squawk {{ e.squawk ?? '—' }} · {{ e.kind }}</span>
+        </button>
+      </li>
+      }
+    </ul>
+  </section>
+  }
+
+  <div class="grid">
+    <section class="card" aria-labelledby="alt-title">
+      <h2 id="alt-title" class="eyebrow">Altitude distribution, airborne</h2>
+      <div class="bars" role="list">
+        @for (b of bands(); track b.label) {
+        <div class="bar-row" role="listitem">
+          <span class="bar-label tabular">{{ b.label }}</span>
+          <span class="bar"><span class="fill" [style.width.%]="b.pct"></span></span>
+          <span class="bar-n tabular">{{ b.n }}</span>
+        </div>
+        }
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="op-title">
+      <h2 id="op-title" class="eyebrow">Top operators</h2>
+      <div class="bars" role="list">
+        @for (o of operators(); track o.key) {
+        <div class="bar-row" role="listitem">
+          <span class="bar-label">{{ o.key }}</span>
+          <span class="bar"><span class="fill" [style.width.%]="o.pct"></span></span>
+          <span class="bar-n tabular">{{ o.n }}</span>
+        </div>
+        }
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="ty-title">
+      <h2 id="ty-title" class="eyebrow">Top aircraft types</h2>
+      <div class="bars" role="list">
+        @for (t of types(); track t.key) {
+        <div class="bar-row" role="listitem">
+          <span class="bar-label">{{ t.key }}</span>
+          <span class="bar"><span class="fill" [style.width.%]="t.pct"></span></span>
+          <span class="bar-n tabular">{{ t.n }}</span>
+        </div>
+        }
+      </div>
+    </section>
+  </div>
+  } @else {
+  <p class="muted" role="status">Loading…</p>
+  }
+</section>

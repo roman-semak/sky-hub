@@ -4,7 +4,10 @@ import Fastify, { type FastifyBaseLogger, type FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { computeLiveStats, type LiveStats } from './api/live-stats.js';
 import { searchAircraft } from './api/search.js';
+import { airportTraffic } from './airport/airport-traffic.js';
 import type { HistoryService } from './history/history-service.js';
+import type { AviationWeather } from './weather/aviation-weather.js';
+import { WIND_LEVELS, type WindAloft, type WindLevel } from './weather/wind-aloft.js';
 import { RouteService } from './routes/route-service.js';
 import type { CoverageScheduler } from './ingest/coverage-scheduler.js';
 import type { IngestWorker } from './ingest/ingest-worker.js';
@@ -23,6 +26,8 @@ export interface AppDeps {
   readonly staticIndex: StaticIndex | null;
   readonly routes: RouteService;
   readonly history: HistoryService;
+  readonly weather: AviationWeather | null;
+  readonly wind: WindAloft | null;
   /** How far back `/api/flights` looks, ms. */
   readonly retentionMs: number;
   readonly historyStats?: () => object;
@@ -59,6 +64,13 @@ const PlaybackQuery = z.object({
   spacing: z.coerce.number().int().min(5_000).max(300_000).default(20_000),
 });
 const HOUR_MS = 3_600_000;
+const WindQuery = z.object({
+  bbox: PlaybackQuery.shape.bbox,
+  level: z.coerce
+    .number()
+    .refine((l): l is WindLevel => l in WIND_LEVELS, 'unsupported level')
+    .default(250),
+});
 /** Playback windows are capped so one request cannot scan the whole archive. */
 const MAX_PLAYBACK_MS = 2 * HOUR_MS;
 const CallsignParams = z.object({ callsign: z.string().min(2).max(8) });
@@ -196,12 +208,42 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       .send(Buffer.from(body.buffer, body.byteOffset, body.byteLength));
   });
 
-  app.get('/api/airport/:code', (req, reply) => {
+  app.get('/api/airport/:code', async (req, reply) => {
     const params = CodeParams.safeParse(req.params);
     if (!params.success) return reply.code(400).send({ error: 'invalid code' });
     const airport = deps.staticIndex?.airport(params.data.code) ?? null;
     if (airport === null) return reply.code(404).send({ error: 'not found' });
-    return airport;
+    const [metars, taf] =
+      deps.weather === null
+        ? [[], null]
+        : await Promise.all([
+            deps.weather.metars(airport.icao, 24),
+            deps.weather.taf(airport.icao),
+          ]);
+    return {
+      ...airport,
+      metar: metars[0] ?? null,
+      taf,
+      // Last 24 h of surface wind for the wind rose.
+      windHistory: metars
+        .filter((m) => m.windDir !== null && m.windKt !== null)
+        .map((m) => ({ t: m.observedAt, dir: m.windDir, kt: m.windKt })),
+      traffic: airportTraffic(
+        deps.worker.currentIndex,
+        airport.lat,
+        airport.lon,
+        airport.elevationFt ?? 0,
+      ),
+    };
+  });
+
+  app.get('/api/wind', async (req, reply) => {
+    const q = WindQuery.safeParse(req.query);
+    if (!q.success) return reply.code(400).send({ error: 'invalid request' });
+    if (deps.wind === null) return reply.code(503).send({ error: 'wind unavailable' });
+    const grid = await deps.wind.grid(q.data.bbox, q.data.level);
+    if (grid === null) return reply.code(502).send({ error: 'upstream unavailable' });
+    return grid;
   });
 
   let statsCache: LiveStats | null = null;

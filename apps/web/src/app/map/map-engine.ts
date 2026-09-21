@@ -1,10 +1,11 @@
 import type { Layer, PickingInfo } from '@deck.gl/core';
-import { IconLayer, PathLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
+import { IconLayer, LineLayer, PathLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import type { BBox } from '@skytrace/geo';
 import type { Cluster } from '@skytrace/protocol';
 import { AttributionControl, Map as MlMap, setWorkerUrl } from 'maplibre-gl';
 import type { LiveRegistry } from '../core/live/live-registry';
+import { WindParticles, type WindGrid } from '../weather/wind-field';
 import { AltitudeColorExtension } from './layers/altitude-color-extension';
 import { buildIconAtlas } from './layers/icon-atlas';
 import { RenderBuffer } from './layers/render-buffer';
@@ -58,6 +59,9 @@ export interface MapEngine {
   setDimmed(dimmed: boolean): void;
   setTrail(points: readonly (readonly [number, number])[]): void;
   setHoverTrail(points: readonly (readonly [number, number])[]): void;
+  /** `{z}/{x}/{y}` raster tile template for precipitation radar, or `null`. */
+  setRadar(tiles: string | null, maxZoom: number): void;
+  setWind(grid: WindGrid | null): void;
   flyTo(lat: number, lon: number, zoom?: number): void;
   zoomBy(delta: number): void;
   destroy(): void;
@@ -110,6 +114,44 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
   let iconVersion = 0;
   let clusters: readonly Cluster[] = [];
 
+  let radar: { tiles: string; maxZoom: number } | null = null;
+  let windGrid: WindGrid | null = null;
+  let particles: WindParticles | null = null;
+  let lastFrameAt = performance.now();
+
+  const viewBox = (): [number, number, number, number] => {
+    const b = map.getBounds();
+    return [
+      Math.max(-180, b.getWest()),
+      Math.max(-85, b.getSouth()),
+      Math.min(180, b.getEast()),
+      Math.min(85, b.getNorth()),
+    ];
+  };
+
+  // Raster sources vanish with setStyle (theme switch); re-add them each time.
+  const applyRadar = (): void => {
+    if (map.getLayer('radar') !== undefined) map.removeLayer('radar');
+    if (map.getSource('radar') !== undefined) map.removeSource('radar');
+    if (radar === null) return;
+    map.addSource('radar', {
+      type: 'raster',
+      tiles: [radar.tiles],
+      tileSize: 256,
+      maxzoom: radar.maxZoom,
+    });
+    map.addLayer({
+      id: 'radar',
+      type: 'raster',
+      source: 'radar',
+      paint: { 'raster-opacity': 0.55 },
+    });
+  };
+  map.on('style.load', applyRadar);
+  map.on('moveend', () => {
+    particles?.setView(viewBox());
+  });
+
   const overlay = new MapboxOverlay({ interleaved: false, layers: [] });
   map.addControl(overlay);
 
@@ -133,6 +175,23 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
 
   const buildLayers = (): Layer[] => {
     const layers: Layer[] = [];
+    if (particles !== null) {
+      layers.push(
+        new LineLayer({
+          id: 'wind',
+          data: {
+            length: particles.count,
+            attributes: {
+              getSourcePosition: { value: particles.tail, size: 2 },
+              getTargetPosition: { value: particles.head, size: 2 },
+              getColor: { value: particles.alpha, size: 4, normalized: true },
+            },
+          },
+          getWidth: 1.2,
+          widthUnits: 'pixels',
+        }),
+      );
+    }
     if (clusters.length > 0) {
       const maxCount = Math.max(...clusters.map((c) => c.count));
       layers.push(
@@ -241,6 +300,12 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
   const frame = (): void => {
     raf = requestAnimationFrame(frame);
     const t0 = performance.now();
+    if (particles !== null && windGrid !== null) {
+      // 30 m/s crosses ~4 % of the view per second: visible, not literal.
+      const [w, , e] = viewBox();
+      particles.step(windGrid, Math.min(50, t0 - lastFrameAt), (0.04 * (e - w)) / 30_000);
+    }
+    lastFrameAt = t0;
     const source = opts.frameSource();
     const reg = source.registry;
     if (reg !== lastRegistry || reg.version !== lastVersion) {
@@ -279,6 +344,15 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
     },
     setHoverTrail(points) {
       hoverTrail = points;
+    },
+    setRadar(tiles, maxZoom) {
+      radar = tiles === null ? null : { tiles, maxZoom };
+      if (map.isStyleLoaded()) applyRadar();
+    },
+    setWind(grid) {
+      windGrid = grid;
+      if (grid === null) particles = null;
+      else particles ??= new WindParticles(1500, viewBox());
     },
     flyTo(lat, lon, zoom) {
       const reduced = globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;

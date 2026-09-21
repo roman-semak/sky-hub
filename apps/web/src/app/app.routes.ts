@@ -26,5 +26,10 @@ export const routes: Routes = [
     loadComponent: async () => (await import('./pages/aircraft.page')).AircraftPage,
     title: 'Aircraft — SkyTrace',
   },
+  {
+    path: 'airport/:icao',
+    loadComponent: async () => (await import('./pages/airport.page')).AirportPage,
+    title: 'Airport — SkyTrace',
+  },
   { path: '**', redirectTo: '' },
 ];

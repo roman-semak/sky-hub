@@ -19,6 +19,8 @@ import { TrackHistory } from './history/track-history.js';
 import { AdsbdbRouteProvider, AdsbLolRouteProvider } from './routes/route-providers.js';
 import { RouteService } from './routes/route-service.js';
 import { loadStaticData } from './static/load-static-data.js';
+import { AviationWeather } from './weather/aviation-weather.js';
+import { WindAloft } from './weather/wind-aloft.js';
 
 const config = loadConfig();
 const logger = pino({
@@ -88,6 +90,8 @@ const app = await buildApp({
   staticIndex,
   routes,
   history,
+  weather: new AviationWeather(),
+  wind: new WindAloft(),
   retentionMs,
   historyStats: () => ({
     ...(historyWriter?.statistics ?? {}),

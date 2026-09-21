@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import type { BBox } from '@skytrace/geo';
 import { FlightPanelComponent } from '../flight/flight-panel.component';
@@ -13,6 +13,7 @@ import { SearchBarComponent } from '../map/overlays/search-bar.component';
 import { FilterStore } from '../core/filters/filter.store';
 import { PlaybackBarComponent } from '../playback/playback-bar.component';
 import { PlaybackService } from '../playback/playback.service';
+import { LayersPanelComponent } from '../weather/layers-panel.component';
 import { BottomSheetComponent } from '../ui/bottom-sheet.component';
 import { IconComponent } from '../ui/icon/icon.component';
 import { ConnectionBannerComponent } from '../ui/connection-banner.component';
@@ -28,6 +29,7 @@ import { ConnectionBannerComponent } from '../ui/connection-banner.component';
     FlightPanelComponent,
     HoverTooltipComponent,
     IconComponent,
+    LayersPanelComponent,
     MapControlsComponent,
     MapViewComponent,
     NearbyListComponent,
@@ -64,7 +66,15 @@ import { ConnectionBannerComponent } from '../ui/connection-banner.component';
       </div>
 
       <div class="controls">
-        <st-map-controls (zoom)="zoom($event)" (locate)="locate()" (history)="openPlayback()" />
+        <st-map-controls
+          (zoom)="zoom($event)"
+          (locate)="locate()"
+          (history)="openPlayback()"
+          (layers)="layersOpen.set(!layersOpen())"
+        />
+        @if (layersOpen()) {
+          <st-layers-panel class="layers" (closed)="layersOpen.set(false)" />
+        }
       </div>
 
       @if (playback.active()) {
@@ -117,6 +127,7 @@ export class MapPage {
   protected readonly connection = this.client.connection;
   protected readonly filters = inject(FilterStore);
   protected readonly playback = inject(PlaybackService);
+  protected readonly layersOpen = signal(false);
 
   protected openPlayback(): void {
     // Before the map reports its bounds, approximate them from centre and zoom.
