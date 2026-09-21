@@ -12,6 +12,7 @@ import {
 import { FlightDataService } from '../core/flight/flight-data.service';
 import { StreamClient } from '../core/live/stream-client.service';
 import { PlaybackService } from '../playback/playback.service';
+import { RADAR_MAX_ZOOM, WeatherLayersService } from '../weather/weather-layers.service';
 import { MapUiStore } from '../core/state/map-ui.store';
 import { ThemeService } from '../core/theme/theme.service';
 import type { MapEngine } from './map-engine';
@@ -55,12 +56,15 @@ export class MapViewComponent {
   private readonly themeService = inject(ThemeService);
   private readonly playback = inject(PlaybackService);
   private readonly flightData = inject(FlightDataService);
+  private readonly weather = inject(WeatherLayersService);
   /** Recorded track of the selected aircraft, from `/api/track`. */
   private history: [number, number][] = [];
   private engine: MapEngine | null = null;
   private trail: [number, number][] = [];
   private trailTimer: ReturnType<typeof setInterval> | null = null;
   protected readonly failed = signal(false);
+  /** Flips once the engine exists so effects re-run and push their state into it. */
+  protected readonly engineReady = signal(false);
 
   constructor() {
     afterNextRender(() => {
@@ -88,6 +92,17 @@ export class MapViewComponent {
         this.history = r.points.map((p) => [p.lon, p.lat]);
         this.engine?.setTrail([...this.history, ...this.trail]);
       });
+    });
+
+    effect(() => {
+      const tiles = this.weather.radarTiles();
+      this.engineReady();
+      this.engine?.setRadar(tiles, RADAR_MAX_ZOOM);
+    });
+    effect(() => {
+      const grid = this.weather.wind();
+      this.engineReady();
+      this.engine?.setWind(grid);
     });
 
     // Hover trail (SPEC § 5.2): only for the aircraft under the cursor.
@@ -154,6 +169,7 @@ export class MapViewComponent {
         },
       });
       this.engine.setSelected(this.store.selected());
+      this.engineReady.set(true);
       this.trailTimer = setInterval(() => {
         this.sampleTrail();
       }, 1000);

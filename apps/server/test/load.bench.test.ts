@@ -40,6 +40,8 @@ describe('load: 200 WebSocket clients', () => {
       staticIndex: null,
       routes: new RouteService([], null, silentLogger),
       history: new HistoryService(null, null, new TrackHistory()),
+      weather: null,
+      wind: null,
       retentionMs: 3_600_000,
       corsOrigin: '*',
       maxConnectionsPerIp: CLIENTS + 10,

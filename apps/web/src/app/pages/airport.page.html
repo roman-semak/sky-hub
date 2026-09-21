@@ -1,0 +1,92 @@
+<section class="page" aria-labelledby="ap-title">
+  <a routerLink="/" class="back">← Map</a>
+  @switch (state()) { @case ('loading') {
+  <p class="muted" role="status">Loading {{ code }}…</p>
+  } @case ('missing') {
+  <h1 id="ap-title">{{ code }}</h1>
+  <p class="muted">No airport with this ICAO or IATA code.</p>
+  } @default { @if (data(); as a) {
+  <header>
+    <div>
+      <h1 id="ap-title" data-testid="airport-title">
+        {{ a.icao }}{{ a.iata === null ? '' : ' · ' + a.iata }}
+      </h1>
+      <p class="muted">{{ a.name }}{{ a.city === null ? '' : ', ' + a.city }} · {{ a.country }}</p>
+    </div>
+    <button type="button" class="chip" (click)="showOnMap()">Show on map</button>
+  </header>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="wx-title">
+      <h2 id="wx-title" class="eyebrow">Weather</h2>
+      @if (a.metar; as m) {
+      <div class="tiles">
+        <div class="tile">
+          <span class="eyebrow">Wind</span><span class="value tabular">{{ wind() }}</span>
+        </div>
+        <div class="tile">
+          <span class="eyebrow">Visibility</span
+          ><span class="value tabular">{{ m.visibility ?? '—' }}</span>
+        </div>
+        <div class="tile">
+          <span class="eyebrow">Temp / dew</span>
+          <span class="value tabular">{{ m.tempC ?? '—' }}° / {{ m.dewpointC ?? '—' }}°</span>
+        </div>
+        <div class="tile">
+          <span class="eyebrow">QNH</span><span class="value tabular">{{ m.qnhHpa ?? '—' }}</span>
+        </div>
+      </div>
+      <p class="raw" data-testid="metar">
+        @if (m.category !== null) {
+        <span class="cat" [attr.data-cat]="m.category">{{ m.category }}</span>
+        }
+        <span>{{ m.raw }}</span>
+        <span class="muted"> · {{ observed() }}</span>
+      </p>
+      } @else {
+      <p class="muted">No recent METAR for this station.</p>
+      } @if (a.taf; as t) {
+      <p class="raw taf">{{ t.raw }}</p>
+      }
+    </section>
+
+    <section class="card" aria-labelledby="rose-title">
+      <h2 id="rose-title" class="eyebrow">Wind rose · last 24 h</h2>
+      <st-wind-rose [observations]="a.windHistory" />
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="tr-title">
+    <h2 id="tr-title" class="eyebrow">Traffic within 50 nm</h2>
+    <div class="segmented" role="tablist" aria-label="Traffic">
+      @for (t of tabs; track t.id) {
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="tab() === t.id"
+        (click)="tab.set(t.id)"
+        [attr.data-testid]="'tab-' + t.id"
+      >
+        {{ t.label }} <span class="n tabular">{{ counts()[t.id] }}</span>
+      </button>
+      }
+    </div>
+    <ul class="traffic" data-testid="traffic">
+      @for (r of rows(); track r.hex) {
+      <li>
+        <button type="button" (click)="open(r.hex)">
+          <span class="main"
+            ><span class="title">{{ r.title }}</span><span class="muted">{{ r.type }}</span></span
+          >
+          <span class="right tabular"
+            ><span>{{ r.alt }}</span><span class="muted">{{ r.dist }} · {{ r.vr }}</span></span
+          >
+        </button>
+      </li>
+      } @empty {
+      <li class="muted empty">Nothing here right now.</li>
+      }
+    </ul>
+  </section>
+  } } }
+</section>
