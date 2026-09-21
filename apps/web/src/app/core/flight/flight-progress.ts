@@ -1,4 +1,4 @@
-import { haversineDistance, KNOTS_TO_MPS } from '@skytrace/geo';
+import { haversineDistance, initialBearing, KNOTS_TO_MPS, shortestAngleDelta } from '@skytrace/geo';
 import type { FlightRoute } from '../api/api-types';
 
 export interface FlightProgress {
@@ -35,6 +35,29 @@ export function flightProgress(
     remainingKm: Math.round(toDest / 1000),
     etaMin,
   };
+}
+
+/**
+ * Whether a published route plausibly describes what the aircraft is doing.
+ * Callsign → route databases sometimes return the opposite leg of a
+ * rotation; the tell is an aircraft climbing out right next to its supposed
+ * destination, or flying directly away from it.
+ */
+export function routePlausible(
+  route: FlightRoute,
+  lat: number,
+  lon: number,
+  track: number | null,
+  baroRate: number | null,
+  onGround: boolean,
+): boolean {
+  if (onGround || track === null) return true;
+  const { destination: d } = route;
+  const toDestM = haversineDistance(lat, lon, d.lat, d.lon);
+  const away = Math.abs(shortestAngleDelta(track, initialBearing(lat, lon, d.lat, d.lon))) > 100;
+  if (toDestM < 60_000 && (baroRate ?? 0) > 1000) return false;
+  if (toDestM > 30_000 && away && (baroRate ?? 0) >= 0) return false;
+  return true;
 }
 
 export type FlightPhase = 'ground' | 'climbing' | 'descending' | 'cruising' | 'enroute';

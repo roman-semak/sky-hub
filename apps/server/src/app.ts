@@ -264,7 +264,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     const stats = deps.worker.statistics;
     return {
       status: 'ok',
-      uptimeSec: Math.round((t - stats.startedAt) / 1000),
+      uptimeSec: Math.round(process.uptime()),
       aircraft: deps.store.size,
       peakAircraft: deps.store.peakSize,
       indexed: deps.worker.currentIndex.size,

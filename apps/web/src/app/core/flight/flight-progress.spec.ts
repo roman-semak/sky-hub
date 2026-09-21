@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { FlightRoute } from '../api/api-types';
-import { flightPhase, flightProgress, phaseLabel, type FlightPhase } from './flight-progress';
+import {
+  flightPhase,
+  flightProgress,
+  phaseLabel,
+  routePlausible,
+  type FlightPhase,
+} from './flight-progress';
 
 const route: FlightRoute = {
   callsign: 'TAP88TM',
@@ -47,6 +53,28 @@ describe('flightProgress', () => {
   it('handles a degenerate route', () => {
     const r = { ...route, destination: route.origin };
     expect(flightProgress(r, route.origin.lat, route.origin.lon, 0).fraction).toBe(1);
+  });
+});
+
+describe('routePlausible', () => {
+  it('accepts an aircraft heading for its destination', () => {
+    // Between Madeira and Lisbon, tracking north-east, cruising.
+    expect(routePlausible(route, 35.7, -13, 55, 0, false)).toBe(true);
+    // Descending on final into Lisbon.
+    expect(routePlausible(route, 38.7, -9.3, 30, -900, false)).toBe(true);
+  });
+
+  it('rejects the opposite leg: climbing out next to the destination', () => {
+    expect(routePlausible(route, 38.8, -9.2, 220, 2800, false)).toBe(false);
+  });
+
+  it('rejects cruising directly away from the destination', () => {
+    expect(routePlausible(route, 35.7, -13, 235, 0, false)).toBe(false);
+  });
+
+  it('gives the benefit of the doubt on the ground or without a track', () => {
+    expect(routePlausible(route, 38.78, -9.13, 200, 3000, true)).toBe(true);
+    expect(routePlausible(route, 38.8, -9.2, null, 2800, false)).toBe(true);
   });
 });
 

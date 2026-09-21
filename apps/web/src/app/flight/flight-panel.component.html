@@ -32,6 +32,12 @@
                   }}</span>
                 </div>
               </div>
+              @if (f.routeUnverified) {
+                <span class="caption" data-testid="route-unverified" i18n="@@flight.routeUnverified"
+                  >Published route for this callsign does not match the aircraft's movement —
+                  possibly the return leg.</span
+                >
+              }
               @if (f.progress; as p) {
                 <div
                   class="rail"
