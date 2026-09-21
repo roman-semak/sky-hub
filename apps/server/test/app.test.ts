@@ -3,6 +3,7 @@ import { decodeFrame, FrameType } from '@skytrace/protocol';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import WebSocket from 'ws';
 import { buildApp } from '../src/app.js';
+import { HistoryService } from '../src/history/history-service.js';
 import { TrackHistory } from '../src/history/track-history.js';
 import { RouteService } from '../src/routes/route-service.js';
 import { loadConfig } from '../src/config.js';
@@ -94,7 +95,8 @@ const app = await buildApp({
   hub,
   staticIndex,
   routes,
-  history,
+  history: new HistoryService(null, null, history),
+  retentionMs: 3_600_000,
   corsOrigin: '*',
   maxConnectionsPerIp: 2,
 });
@@ -167,6 +169,31 @@ describe('REST', () => {
     expect(res.raw).toBe(1);
     expect(res.points).toHaveLength(1);
     expect((await app.inject('/api/track/zz')).statusCode).toBe(400);
+  });
+
+  it('GET /api/track/:hex validates the window', async () => {
+    expect((await app.inject('/api/track/abcdef?from=10&to=5')).statusCode).toBe(400);
+  });
+
+  it('GET /api/flights/:hex', async () => {
+    const res = (await app.inject('/api/flights/abcdef')).json<{ flights: unknown[] }>();
+    expect(res.flights).toHaveLength(1);
+    expect((await app.inject('/api/flights/nothex')).statusCode).toBe(400);
+  });
+
+  it('GET /api/history returns binary playback frames', async () => {
+    const t = Date.now();
+    const ok = await app.inject(
+      `/api/history?bbox=-11,37,-8,40&from=${t - 600_000}&to=${t + 1000}`,
+    );
+    expect(ok.statusCode).toBe(200);
+    expect(ok.headers['content-type']).toBe('application/octet-stream');
+    // No Parquet reader or writer in this app instance: an empty, valid payload.
+    expect(ok.rawPayload.byteLength).toBe(0);
+    expect((await app.inject(`/api/history?bbox=-11,37,-8,40&from=0&to=${t}`)).statusCode).toBe(
+      400,
+    );
+    expect((await app.inject('/api/history?bbox=1,2,3&from=0&to=1')).statusCode).toBe(400);
   });
 
   it('GET /api/airport/:code', async () => {

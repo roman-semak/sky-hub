@@ -11,6 +11,10 @@ import { ProviderPool } from './ingest/provider-pool.js';
 import { StateStore } from './state/state-store.js';
 import { StreamHub } from './stream/stream-hub.js';
 import { countryOfIcao24 } from '@skytrace/static-data';
+import { purgeHistory } from './history/history-retention.js';
+import { HistoryReader } from './history/history-reader.js';
+import { HistoryService } from './history/history-service.js';
+import { HistoryWriter } from './history/history-writer.js';
 import { TrackHistory } from './history/track-history.js';
 import { AdsbdbRouteProvider, AdsbLolRouteProvider } from './routes/route-providers.js';
 import { RouteService } from './routes/route-service.js';
@@ -29,14 +33,31 @@ const providers: Provider[] = config.PROVIDERS.map(
 if (config.OPENSKY_ENABLED) providers.push(new OpenSkyProvider());
 
 const staticIndex = await loadStaticData(config.STATIC_DATA_PATH, logger);
-const history = new TrackHistory();
+const recentTracks = new TrackHistory();
+const historyWriter = config.HISTORY_ENABLED
+  ? new HistoryWriter(
+      {
+        dir: config.HISTORY_DIR,
+        flushMs: config.HISTORY_FLUSH_SEC * 1000,
+        maxBufferedRows: 500_000,
+      },
+      logger,
+    )
+  : null;
+const history = new HistoryService(
+  config.HISTORY_ENABLED ? new HistoryReader(config.HISTORY_DIR) : null,
+  historyWriter,
+  recentTracks,
+);
+const retentionMs = config.HISTORY_RETENTION_HOURS * 3_600_000;
 const routes = new RouteService(
   [new AdsbLolRouteProvider(), new AdsbdbRouteProvider()],
   staticIndex,
   logger,
 );
 const store = new StateStore((ac) => {
-  history.record(ac);
+  recentTracks.record(ac);
+  historyWriter?.append(ac);
 });
 const pool = new ProviderPool(providers);
 const scheduler = new CoverageScheduler(worldCoverageGrid(), Date.now());
@@ -54,7 +75,7 @@ const hub = new StreamHub(
   countryOfIcao24,
 );
 worker.onIndex((index, removed) => {
-  history.forget(removed);
+  recentTracks.forget(removed);
   hub.publish(index, removed);
 });
 const app = await buildApp({
@@ -67,6 +88,11 @@ const app = await buildApp({
   staticIndex,
   routes,
   history,
+  retentionMs,
+  historyStats: () => ({
+    ...(historyWriter?.statistics ?? {}),
+    recentAircraft: recentTracks.aircraftCount,
+  }),
   corsOrigin: config.CORS_ORIGIN,
 });
 
@@ -80,6 +106,15 @@ worker.onIndex((index) => {
 });
 
 if (config.INGEST_ENABLED) worker.start();
+historyWriter?.start();
+// Retention cron (SPEC § 6.1): every 10 minutes drop hours older than the window.
+const purge = (): void => {
+  void purgeHistory(config.HISTORY_DIR, Date.now() - retentionMs).then((deleted) => {
+    if (deleted.length > 0) logger.info({ deleted: deleted.length }, 'history retention purge');
+  });
+};
+purge();
+const purgeTimer = setInterval(purge, 10 * 60_000);
 hub.start();
 await app.listen({ port: config.PORT, host: config.HOST });
 
@@ -87,8 +122,10 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const) {
   process.once(signal, () => {
     logger.info({ signal }, 'shutting down');
     hub.stop();
+    clearInterval(purgeTimer);
     void worker
       .stop()
+      .then(() => historyWriter?.stop())
       .then(() => app.close())
       .then(() => process.exit(0));
   });

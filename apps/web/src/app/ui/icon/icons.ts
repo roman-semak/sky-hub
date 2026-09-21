@@ -9,6 +9,8 @@ import bookmark from '@phosphor-icons/core/assets/regular/bookmark-simple.svg';
 import caretUpDown from '@phosphor-icons/core/assets/regular/caret-up-down.svg';
 import clock from '@phosphor-icons/core/assets/regular/clock-counter-clockwise.svg';
 import crosshair from '@phosphor-icons/core/assets/regular/crosshair.svg';
+import pause from '@phosphor-icons/core/assets/fill/pause-fill.svg';
+import play from '@phosphor-icons/core/assets/fill/play-fill.svg';
 import globeLine from '@phosphor-icons/core/assets/regular/globe-hemisphere-west.svg';
 import magnifier from '@phosphor-icons/core/assets/regular/magnifying-glass.svg';
 import minus from '@phosphor-icons/core/assets/regular/minus.svg';
@@ -32,6 +34,8 @@ export const ICONS = {
   'caret-up-down': caretUpDown,
   'clock-counter-clockwise': clock,
   crosshair,
+  pause,
+  play,
   globe,
   'globe-line': globeLine,
   'magnifying-glass': magnifier,

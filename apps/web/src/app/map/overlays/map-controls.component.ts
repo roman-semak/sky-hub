@@ -20,6 +20,16 @@ import { IconComponent } from '../../ui/icon/icon.component';
       <button
         type="button"
         class="icon-btn"
+        title="Replay the last hour"
+        aria-label="Replay the last hour"
+        data-testid="open-playback"
+        (click)="history.emit()"
+      >
+        <st-icon name="clock-counter-clockwise" />
+      </button>
+      <button
+        type="button"
+        class="icon-btn"
         title="My location"
         aria-label="My location"
         (click)="locate.emit()"
@@ -67,4 +77,5 @@ export class MapControlsComponent {
   readonly zoom = output<number>();
   readonly locate = output();
   readonly layers = output();
+  readonly history = output();
 }

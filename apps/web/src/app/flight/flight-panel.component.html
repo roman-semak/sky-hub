@@ -113,6 +113,14 @@
       </button>
       <a
         class="icon-action"
+        [routerLink]="['/aircraft', f.hex]"
+        title="Flight history"
+        aria-label="Flight history"
+      >
+        <st-icon name="clock-counter-clockwise" />
+      </a>
+      <a
+        class="icon-action"
         [href]="f.photoUrl"
         target="_blank"
         rel="noopener"

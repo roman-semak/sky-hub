@@ -2,6 +2,7 @@ import type { AddressInfo } from 'node:net';
 import { describe, expect, it } from 'vitest';
 import WebSocket from 'ws';
 import { buildApp } from '../src/app.js';
+import { HistoryService } from '../src/history/history-service.js';
 import { TrackHistory } from '../src/history/track-history.js';
 import { RouteService } from '../src/routes/route-service.js';
 import { CoverageScheduler } from '../src/ingest/coverage-scheduler.js';
@@ -38,7 +39,8 @@ describe('load: 200 WebSocket clients', () => {
       hub,
       staticIndex: null,
       routes: new RouteService([], null, silentLogger),
-      history: new TrackHistory(),
+      history: new HistoryService(null, null, new TrackHistory()),
+      retentionMs: 3_600_000,
       corsOrigin: '*',
       maxConnectionsPerIp: CLIENTS + 10,
     });
