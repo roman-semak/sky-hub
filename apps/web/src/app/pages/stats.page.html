@@ -1,30 +1,35 @@
 <section class="page" aria-labelledby="stats-title">
   <header>
-    <h1 id="stats-title">Live statistics</h1>
+    <h1 id="stats-title" i18n="@@stats.liveStatistics">Live statistics</h1>
     @if (updated() !== '') {
-    <span class="muted"><span class="live-dot"></span> updated {{ updated() }}</span>
+    <span class="muted"
+      ><span class="live-dot"></span>
+      <ng-container i18n="@@stats.updated">updated {{ updated() }}</ng-container></span
+    >
     }
   </header>
 
   @if (stats(); as s) {
   <div class="tiles">
-    @for (t of tiles(); track t.label) {
+    @for (t of tiles(); track t.id) {
     <div class="tile">
       <span class="eyebrow">{{ t.label }}</span>
-      <span class="value tabular" [attr.data-testid]="'stat-' + t.label">{{ t.value }}</span>
+      <span class="value tabular" [attr.data-testid]="'stat-' + t.id">{{ t.value }}</span>
     </div>
     }
   </div>
 
   @if (s.emergencies.length > 0) {
   <section class="card alert" aria-labelledby="em-title">
-    <h2 id="em-title" class="eyebrow">Emergencies</h2>
+    <h2 id="em-title" class="eyebrow" i18n="@@stats.emergencies">Emergencies</h2>
     <ul class="list">
       @for (e of s.emergencies; track e.hex) {
       <li>
         <button type="button" (click)="openEmergency(e.hex)">
           <span class="title">{{ e.callsign ?? e.hex.toUpperCase() }}</span>
-          <span class="muted">squawk {{ e.squawk ?? '—' }} · {{ e.kind }}</span>
+          <span class="muted" i18n="@@stats.squawk"
+            >squawk {{ e.squawk ?? '—' }} · {{ e.kind }}</span
+          >
         </button>
       </li>
       }
@@ -34,7 +39,9 @@
 
   <div class="grid">
     <section class="card" aria-labelledby="alt-title">
-      <h2 id="alt-title" class="eyebrow">Altitude distribution, airborne</h2>
+      <h2 id="alt-title" class="eyebrow" i18n="@@stats.altitudeDistributionAirborne">
+        Altitude distribution, airborne
+      </h2>
       <div class="bars" role="list">
         @for (b of bands(); track b.label) {
         <div class="bar-row" role="listitem">
@@ -47,7 +54,7 @@
     </section>
 
     <section class="card" aria-labelledby="op-title">
-      <h2 id="op-title" class="eyebrow">Top operators</h2>
+      <h2 id="op-title" class="eyebrow" i18n="@@stats.topOperators">Top operators</h2>
       <div class="bars" role="list">
         @for (o of operators(); track o.key) {
         <div class="bar-row" role="listitem">
@@ -60,7 +67,7 @@
     </section>
 
     <section class="card" aria-labelledby="ty-title">
-      <h2 id="ty-title" class="eyebrow">Top aircraft types</h2>
+      <h2 id="ty-title" class="eyebrow" i18n="@@stats.topAircraftTypes">Top aircraft types</h2>
       <div class="bars" role="list">
         @for (t of types(); track t.key) {
         <div class="bar-row" role="listitem">
@@ -73,6 +80,6 @@
     </section>
   </div>
   } @else {
-  <p class="muted" role="status">Loading…</p>
+  <p class="muted" role="status" i18n="@@stats.loading">Loading…</p>
   }
 </section>

@@ -1,10 +1,12 @@
 <section class="page" aria-labelledby="ap-title">
-  <a routerLink="/" class="back">← Map</a>
+  <a routerLink="/" class="back" i18n="@@airport.map">← Map</a>
   @switch (state()) { @case ('loading') {
-  <p class="muted" role="status">Loading {{ code }}…</p>
+  <p class="muted" role="status" i18n="@@airport.loading">Loading {{ code }}…</p>
   } @case ('missing') {
   <h1 id="ap-title">{{ code }}</h1>
-  <p class="muted">No airport with this ICAO or IATA code.</p>
+  <p class="muted" i18n="@@airport.noAirportWithThisIcao">
+    No airport with this ICAO or IATA code.
+  </p>
   } @default { @if (data(); as a) {
   <header>
     <div>
@@ -13,27 +15,31 @@
       </h1>
       <p class="muted">{{ a.name }}{{ a.city === null ? '' : ', ' + a.city }} · {{ a.country }}</p>
     </div>
-    <button type="button" class="chip" (click)="showOnMap()">Show on map</button>
+    <button type="button" class="chip" (click)="showOnMap()" i18n="@@airport.showOnMap">
+      Show on map
+    </button>
   </header>
 
   <div class="grid">
     <section class="card" aria-labelledby="wx-title">
-      <h2 id="wx-title" class="eyebrow">Weather</h2>
+      <h2 id="wx-title" class="eyebrow" i18n="@@airport.weather">Weather</h2>
       @if (a.metar; as m) {
       <div class="tiles">
         <div class="tile">
-          <span class="eyebrow">Wind</span><span class="value tabular">{{ wind() }}</span>
+          <span class="eyebrow" i18n="@@airport.wind">Wind</span
+          ><span class="value tabular">{{ wind() }}</span>
         </div>
         <div class="tile">
-          <span class="eyebrow">Visibility</span
+          <span class="eyebrow" i18n="@@airport.visibility">Visibility</span
           ><span class="value tabular">{{ m.visibility ?? '—' }}</span>
         </div>
         <div class="tile">
-          <span class="eyebrow">Temp / dew</span>
+          <span class="eyebrow" i18n="@@airport.tempDew">Temp / dew</span>
           <span class="value tabular">{{ m.tempC ?? '—' }}° / {{ m.dewpointC ?? '—' }}°</span>
         </div>
         <div class="tile">
-          <span class="eyebrow">QNH</span><span class="value tabular">{{ m.qnhHpa ?? '—' }}</span>
+          <span class="eyebrow" i18n="@@airport.qnh">QNH</span
+          ><span class="value tabular">{{ m.qnhHpa ?? '—' }}</span>
         </div>
       </div>
       <p class="raw" data-testid="metar">
@@ -44,21 +50,23 @@
         <span class="muted"> · {{ observed() }}</span>
       </p>
       } @else {
-      <p class="muted">No recent METAR for this station.</p>
+      <p class="muted" i18n="@@airport.noRecentMetarForThis">No recent METAR for this station.</p>
       } @if (a.taf; as t) {
       <p class="raw taf">{{ t.raw }}</p>
       }
     </section>
 
     <section class="card" aria-labelledby="rose-title">
-      <h2 id="rose-title" class="eyebrow">Wind rose · last 24 h</h2>
+      <h2 id="rose-title" class="eyebrow" i18n="@@airport.windRoseLast24H">
+        Wind rose · last 24 h
+      </h2>
       <st-wind-rose [observations]="a.windHistory" />
     </section>
   </div>
 
   <section class="card" aria-labelledby="tr-title">
-    <h2 id="tr-title" class="eyebrow">Traffic within 50 nm</h2>
-    <div class="segmented" role="tablist" aria-label="Traffic">
+    <h2 id="tr-title" class="eyebrow" i18n="@@airport.trafficWithin50Nm">Traffic within 50 nm</h2>
+    <div class="segmented" role="tablist" aria-label="Traffic" i18n-aria-label="@@airport.traffic">
       @for (t of tabs; track t.id) {
       <button
         type="button"
@@ -84,7 +92,7 @@
         </button>
       </li>
       } @empty {
-      <li class="muted empty">Nothing here right now.</li>
+      <li class="muted empty" i18n="@@airport.nothingHereRightNow">Nothing here right now.</li>
       }
     </ul>
   </section>

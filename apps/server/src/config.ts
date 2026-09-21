@@ -33,6 +33,8 @@ const EnvSchema = z.object({
   HISTORY_FLUSH_SEC: z.coerce.number().positive().default(300),
   HISTORY_RETENTION_HOURS: z.coerce.number().positive().default(72),
   CORS_ORIGIN: z.string().default('*'),
+  /** Serve the Angular production build from this directory (optional). */
+  WEB_DIST: z.string().optional(),
 });
 
 export type Config = z.infer<typeof EnvSchema>;

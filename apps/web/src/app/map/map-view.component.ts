@@ -31,7 +31,9 @@ const TRAIL_LIMIT = 600;
   template: `
     <div #container class="map" data-testid="map-canvas"></div>
     @if (failed()) {
-      <p class="map-error" role="status">Map failed to load. Live data is still streaming.</p>
+      <p class="map-error" role="status" i18n="@@map.failed">
+        Map failed to load. Live data is still streaming.
+      </p>
     }
   `,
   styles: `

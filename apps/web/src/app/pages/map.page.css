@@ -131,3 +131,28 @@
     left: calc(50% - 185px);
   }
 }
+
+.attribution {
+  position: absolute;
+  right: 10px;
+  bottom: calc(var(--tabbar-h, 0px) + 8px);
+  max-width: calc(100% - 20px);
+  z-index: 3;
+}
+
+@media (max-width: 767px) {
+  /* The sheet covers the bottom of the map; the info button sits under the search bar. */
+  .attribution {
+    top: 140px;
+    bottom: auto;
+    right: auto;
+    left: 14px;
+    max-width: calc(100% - 84px);
+  }
+}
+
+@media (min-width: 768px) {
+  .has-panel .attribution {
+    right: 392px;
+  }
+}

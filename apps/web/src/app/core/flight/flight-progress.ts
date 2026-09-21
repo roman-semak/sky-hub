@@ -37,7 +37,23 @@ export function flightProgress(
   };
 }
 
-export type FlightPhase = 'On ground' | 'Climbing' | 'Descending' | 'Cruising' | 'En route';
+export type FlightPhase = 'ground' | 'climbing' | 'descending' | 'cruising' | 'enroute';
+
+/** Display label of a {@link FlightPhase} in the current locale. */
+export function phaseLabel(p: FlightPhase): string {
+  switch (p) {
+    case 'ground':
+      return $localize`:@@phase.ground:On ground`;
+    case 'climbing':
+      return $localize`:@@phase.climbing:Climbing`;
+    case 'descending':
+      return $localize`:@@phase.descending:Descending`;
+    case 'cruising':
+      return $localize`:@@phase.cruising:Cruising`;
+    case 'enroute':
+      return $localize`:@@phase.enroute:En route`;
+  }
+}
 
 /** Coarse phase from vertical rate, as shown in the Following cards. */
 export function flightPhase(
@@ -45,9 +61,9 @@ export function flightPhase(
   baroRate: number | null,
   alt: number | null,
 ): FlightPhase {
-  if (onGround) return 'On ground';
-  if (baroRate !== null && baroRate > 500) return 'Climbing';
-  if (baroRate !== null && baroRate < -500) return 'Descending';
-  if (alt !== null && alt > 20_000) return 'Cruising';
-  return 'En route';
+  if (onGround) return 'ground';
+  if (baroRate !== null && baroRate > 500) return 'climbing';
+  if (baroRate !== null && baroRate < -500) return 'descending';
+  if (alt !== null && alt > 20_000) return 'cruising';
+  return 'enroute';
 }

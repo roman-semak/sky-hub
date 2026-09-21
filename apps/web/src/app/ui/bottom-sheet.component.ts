@@ -26,7 +26,7 @@ const ORDER: readonly SheetStop[] = ['collapsed', 'peek', 'full'];
       <button
         type="button"
         class="grabber-hit"
-        [attr.aria-label]="'Sheet position: ' + stop()"
+        [attr.aria-label]="sheetLabel()"
         (pointerdown)="onDown($event)"
         (pointermove)="onMove($event)"
         (pointerup)="onUp()"
@@ -89,6 +89,15 @@ export class BottomSheetComponent {
   private readonly dragPct = signal<number | null>(null);
   private startY = 0;
   private startPct = 0;
+
+  protected readonly sheetLabel = computed(() => {
+    const labels: Record<SheetStop, string> = {
+      collapsed: $localize`:@@sheet.collapsed:Sheet collapsed, press arrow up to expand`,
+      peek: $localize`:@@sheet.peek:Sheet half open`,
+      full: $localize`:@@sheet.full:Sheet fully open, press arrow down to shrink`,
+    };
+    return labels[this.stop()];
+  });
 
   protected readonly heightPct = computed(() => this.dragPct() ?? STOP_HEIGHT[this.stop()] * 100);
 

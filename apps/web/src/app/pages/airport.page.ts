@@ -57,9 +57,9 @@ interface AirportResponse {
 
 const REFRESH_MS = 15_000;
 const TABS: readonly { id: Role; label: string }[] = [
-  { id: 'arrival', label: 'Arrivals' },
-  { id: 'departure', label: 'Departures' },
-  { id: 'ground', label: 'On ground' },
+  { id: 'arrival', label: $localize`:@@airport.tab.arrival:Arrivals` },
+  { id: 'departure', label: $localize`:@@airport.tab.departure:Departures` },
+  { id: 'ground', label: $localize`:@@airport.tab.ground:On ground` },
 ];
 
 /** Airport page `/airport/{icao}` (SPEC § 5.3 screen 4). */

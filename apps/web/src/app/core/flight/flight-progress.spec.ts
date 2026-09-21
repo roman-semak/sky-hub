@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { FlightRoute } from '../api/api-types';
-import { flightPhase, flightProgress } from './flight-progress';
+import { flightPhase, flightProgress, phaseLabel, type FlightPhase } from './flight-progress';
 
 const route: FlightRoute = {
   callsign: 'TAP88TM',
@@ -52,10 +52,14 @@ describe('flightProgress', () => {
 
 describe('flightPhase', () => {
   it('classifies by vertical rate and altitude', () => {
-    expect(flightPhase(true, 0, 0)).toBe('On ground');
-    expect(flightPhase(false, 1500, 5000)).toBe('Climbing');
-    expect(flightPhase(false, -1200, 9000)).toBe('Descending');
-    expect(flightPhase(false, 0, 36000)).toBe('Cruising');
-    expect(flightPhase(false, null, null)).toBe('En route');
+    expect(flightPhase(true, 0, 0)).toBe('ground');
+    expect(flightPhase(false, 1500, 5000)).toBe('climbing');
+    expect(flightPhase(false, -1200, 9000)).toBe('descending');
+    expect(flightPhase(false, 0, 36000)).toBe('cruising');
+    expect(flightPhase(false, null, null)).toBe('enroute');
+    expect(phaseLabel('cruising')).toBe('Cruising');
+    expect(
+      ['ground', 'climbing', 'descending', 'enroute'].map((p) => phaseLabel(p as FlightPhase)),
+    ).toEqual(['On ground', 'Climbing', 'Descending', 'En route']);
   });
 });

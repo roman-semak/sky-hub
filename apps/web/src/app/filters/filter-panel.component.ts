@@ -43,9 +43,9 @@ export class FilterPanelComponent {
   protected readonly flightLevel = flightLevel;
   protected readonly knots = (v: number): string => (v >= SPEED_RANGE[1] ? `${v}+ kt` : `${v} kt`);
   protected readonly flags: readonly { key: FlagKey; label: string }[] = [
-    { key: 'militaryOnly', label: 'Military only' },
-    { key: 'emergencyOnly', label: 'Emergencies only' },
-    { key: 'laddOnly', label: 'LADD-blocked only' },
+    { key: 'militaryOnly', label: $localize`:@@filters.militaryOnly:Military only` },
+    { key: 'emergencyOnly', label: $localize`:@@filters.emergencyOnly:Emergencies only` },
+    { key: 'laddOnly', label: $localize`:@@filters.laddOnly:LADD-blocked only` },
   ];
   protected readonly lists: readonly {
     key: ListKey;
@@ -53,11 +53,16 @@ export class FilterPanelComponent {
     placeholder: string;
     max: number;
   }[] = [
-    { key: 'types', label: 'Aircraft types', placeholder: 'ICAO type, e.g. A20N', max: 4 },
+    {
+      key: 'types',
+      label: $localize`:@@filters.types:Aircraft types`,
+      placeholder: $localize`:@@filters.typesHint:ICAO type, e.g. A20N`,
+      max: 4,
+    },
     {
       key: 'countries',
-      label: 'Country of registration',
-      placeholder: 'ISO code, e.g. PT',
+      label: $localize`:@@filters.countries:Country of registration`,
+      placeholder: $localize`:@@filters.countriesHint:ISO code, e.g. PT`,
       max: 2,
     },
   ];
@@ -127,6 +132,14 @@ export class FilterPanelComponent {
   protected loadPreset(name: string): void {
     const p = this.filters.presets().find((x) => x.name === name);
     if (p !== undefined) this.draft.set(draftFromSpec(p.filter));
+  }
+
+  protected removeLabel(code: string): string {
+    return $localize`:@@filters.remove:Remove ${code}:code:`;
+  }
+
+  protected deleteLabel(name: string): string {
+    return $localize`:@@filters.deletePreset:Delete preset ${name}:name:`;
   }
 
   protected setName(e: Event): void {

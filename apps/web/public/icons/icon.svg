@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="g" cx="30%" cy="15%" r="95%">
+      <stop offset="0" stop-color="#1d2236"/>
+      <stop offset="0.7" stop-color="#10121d"/>
+    </radialGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d2cefd"/>
+      <stop offset="1" stop-color="#968ae0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#g)"/>
+  <!-- Radar rings inside the maskable safe zone (inner 80 %). -->
+  <g fill="none" stroke="#968ae0" stroke-opacity="0.35" stroke-width="6">
+    <circle cx="256" cy="256" r="170"/>
+    <circle cx="256" cy="256" r="112"/>
+    <circle cx="256" cy="256" r="54"/>
+  </g>
+  <path d="M256 256 L256 86 A170 170 0 0 1 403 171 Z" fill="#968ae0" fill-opacity="0.22"/>
+  <g transform="translate(256 256) rotate(35) scale(4.2) translate(-32 -32)">
+    <path fill="url(#a)" d="M32 4c1.8 0 2.8 2.4 2.8 6v14L56 36.5v4.2L34.8 34v14.5l6.2 5v3.5L32 54.3 23 57v-3.5l6.2-5V34L8 40.7v-4.2L29.2 24V10c0-3.6 1-6 2.8-6Z"/>
+  </g>
+</svg>

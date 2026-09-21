@@ -27,7 +27,7 @@ const BAND_LABELS = ['≤5 kt', '6–10', '11–20', '>20'];
       @for (b of bands; track b.label) {
         <li><span [class]="'swatch band-' + b.i"></span>{{ b.label }}</li>
       }
-      <li class="calm">calm {{ calmPct() }}%</li>
+      <li class="calm" i18n="@@rose.calm">calm {{ calmPct() }}%</li>
     </ul>
   `,
   styles: `
@@ -104,8 +104,8 @@ export class WindRoseComponent {
   protected readonly label = computed(() => {
     const top = [...this.rose().sectors].sort((a, b) => b.total - a.total)[0];
     return top === undefined || top.total === 0
-      ? 'Wind rose: no wind observations'
-      : `Wind rose over ${this.observations().length} observations, most often from ${Math.round(top.dir)}°`;
+      ? $localize`:@@rose.empty:Wind rose: no wind observations`
+      : $localize`:@@rose.label:Wind rose over ${this.observations().length}:count: observations, most often from ${Math.round(top.dir)}:dir:°`;
   });
 
   protected readonly wedges = computed(() => {

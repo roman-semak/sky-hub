@@ -1,35 +1,37 @@
 import type { Routes } from '@angular/router';
+import { MapPage } from './pages/map.page';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: async () => (await import('./pages/map.page')).MapPage,
-    title: 'SkyTrace — live flight map',
+    // The landing page: eager so its overlays paint with the first frame.
+    component: MapPage,
+    title: $localize`:@@title.map:SkyTrace — live flight map`,
   },
   {
     path: 'search',
     loadComponent: async () => (await import('./pages/search.page')).SearchPage,
-    title: 'Search — SkyTrace',
+    title: $localize`:@@title.search:Search — SkyTrace`,
   },
   {
     path: 'following',
     loadComponent: async () => (await import('./pages/following.page')).FollowingPage,
-    title: 'Following — SkyTrace',
+    title: $localize`:@@title.following:Following — SkyTrace`,
   },
   {
     path: 'stats',
     loadComponent: async () => (await import('./pages/stats.page')).StatsPage,
-    title: 'Statistics — SkyTrace',
+    title: $localize`:@@title.stats:Statistics — SkyTrace`,
   },
   {
     path: 'aircraft/:id',
     loadComponent: async () => (await import('./pages/aircraft.page')).AircraftPage,
-    title: 'Aircraft — SkyTrace',
+    title: $localize`:@@title.aircraft:Aircraft — SkyTrace`,
   },
   {
     path: 'airport/:icao',
     loadComponent: async () => (await import('./pages/airport.page')).AirportPage,
-    title: 'Airport — SkyTrace',
+    title: $localize`:@@title.airport:Airport — SkyTrace`,
   },
   { path: '**', redirectTo: '' },
 ];

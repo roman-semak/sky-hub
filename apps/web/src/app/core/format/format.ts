@@ -1,6 +1,6 @@
 /** Altitude as a flight level above the transition altitude, feet below it. */
 export function formatAltitude(altFt: number | null, onGround: boolean): string {
-  if (onGround) return 'ground';
+  if (onGround) return $localize`:@@fmt.ground:ground`;
   if (altFt === null) return '—';
   if (altFt >= 18_000) return `FL${Math.round(altFt / 100)}`;
   return `${Math.round(altFt / 25) * 25} ft`;

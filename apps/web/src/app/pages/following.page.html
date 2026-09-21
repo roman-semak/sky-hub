@@ -1,6 +1,6 @@
 <section class="page" aria-labelledby="following-title">
   <header>
-    <h1 id="following-title">Following</h1>
+    <h1 id="following-title" i18n="@@following.following">Following</h1>
     <span class="summary">{{ summary() }}</span>
   </header>
 
@@ -23,15 +23,24 @@
     }
     <div class="bottom">
       <span class="caption">{{ card.caption }}</span>
-      <button type="button" class="unfollow" (click)="unfollow(card.hex)">Unfollow</button>
+      <button
+        type="button"
+        class="unfollow"
+        (click)="unfollow(card.hex)"
+        i18n="@@following.unfollow"
+      >
+        Unfollow
+      </button>
     </div>
   </article>
   } @empty {
-  <p class="empty">Follow a flight from its detail panel to see it here, wherever it is.</p>
+  <p class="empty" i18n="@@following.followAFlightFromIts">
+    Follow a flight from its detail panel to see it here, wherever it is.
+  </p>
   }
 
   <label class="alerts">
-    <span>Alerts on takeoff &amp; landing</span>
+    <span i18n="@@following.alertsOnTakeoffAmpLanding">Alerts on takeoff &amp; landing</span>
     <input
       type="checkbox"
       role="switch"

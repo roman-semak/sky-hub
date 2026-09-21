@@ -8,6 +8,7 @@ import { MapViewComponent } from '../map/map-view.component';
 import { FeedStripComponent } from '../map/overlays/feed-strip.component';
 import { HoverTooltipComponent } from '../map/overlays/hover-tooltip.component';
 import { MapControlsComponent } from '../map/overlays/map-controls.component';
+import { AttributionComponent } from '../map/overlays/attribution.component';
 import { NearbyListComponent } from '../map/overlays/nearby-list.component';
 import { SearchBarComponent } from '../map/overlays/search-bar.component';
 import { FilterStore } from '../core/filters/filter.store';
@@ -23,6 +24,7 @@ import { ConnectionBannerComponent } from '../ui/connection-banner.component';
   selector: 'st-map-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AttributionComponent,
     BottomSheetComponent,
     ConnectionBannerComponent,
     FeedStripComponent,
@@ -51,7 +53,8 @@ import { ConnectionBannerComponent } from '../ui/connection-banner.component';
             data-testid="open-filters"
           >
             <st-icon name="sliders-horizontal" />
-            Filters{{ filters.activeCount() > 0 ? ' · ' + filters.activeCount() : '' }}
+            <ng-container i18n="@@map.filters">Filters</ng-container
+            >{{ filters.activeCount() > 0 ? ' · ' + filters.activeCount() : '' }}
           </button>
           <button
             type="button"
@@ -59,7 +62,7 @@ import { ConnectionBannerComponent } from '../ui/connection-banner.component';
             [attr.aria-pressed]="aboveFl200()"
             (click)="toggleAboveFl200()"
           >
-            Above FL200
+            <ng-container i18n="@@map.aboveFl200">Above FL200</ng-container>
           </button>
         </div>
         <st-connection-banner />
@@ -92,6 +95,8 @@ import { ConnectionBannerComponent } from '../ui/connection-banner.component';
           <st-flight-panel />
         </aside>
       }
+
+      <st-attribution class="attribution" />
 
       <st-bottom-sheet class="sheet">
         @if (selected() !== null) {

@@ -15,19 +15,29 @@ const clockTime = (ms: number): string =>
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent],
   template: `
-    <div class="bar glass" role="region" aria-label="History playback" data-testid="playback-bar">
+    <div
+      class="bar glass"
+      role="region"
+      aria-label="History playback"
+      i18n-aria-label="@@playback.historyPlayback"
+      data-testid="playback-bar"
+    >
       @switch (pb.state()) {
         @case ('loading') {
-          <span class="status" role="status">Loading the last hour…</span>
+          <span class="status" role="status" i18n="@@playback.loadingTheLastHour"
+            >Loading the last hour…</span
+          >
         }
         @case ('error') {
-          <span class="status" role="status">History is unavailable right now.</span>
+          <span class="status" role="status" i18n="@@playback.historyIsUnavailableRightNow"
+            >History is unavailable right now.</span
+          >
         }
         @default {
           <button
             type="button"
             class="play"
-            [attr.aria-label]="pb.playing() ? 'Pause' : 'Play'"
+            [attr.aria-label]="toggleLabel()"
             data-testid="playback-toggle"
             (click)="pb.playing() ? pb.pause() : pb.play()"
           >
@@ -38,23 +48,36 @@ const clockTime = (ms: number): string =>
             class="scrub"
             type="range"
             aria-label="Playback time"
+            i18n-aria-label="@@playback.playbackTime"
             [min]="pb.start()"
             [max]="pb.end()"
             [step]="1000"
             [value]="pb.time()"
             (input)="seek($event)"
           />
-          <div class="speeds" role="group" aria-label="Playback speed">
+          <div
+            class="speeds"
+            role="group"
+            aria-label="Playback speed"
+            i18n-aria-label="@@playback.playbackSpeed"
+          >
             @for (s of speeds; track s) {
               <button type="button" [attr.aria-pressed]="pb.speed() === s" (click)="pb.setSpeed(s)">
                 ×{{ s }}
               </button>
             }
           </div>
-          <span class="count tabular">{{ pb.aircraft() }} aircraft</span>
+          <span class="count tabular" i18n="@@playback.count">{{ pb.aircraft() }} aircraft</span>
         }
       }
-      <button type="button" class="close" aria-label="Back to live" (click)="pb.close()">
+      <button
+        type="button"
+        class="close"
+        aria-label="Back to live"
+        i18n-aria-label="@@playback.backToLive"
+        (click)="pb.close()"
+        i18n="@@playback.live"
+      >
         Live
       </button>
     </div>
@@ -133,6 +156,9 @@ const clockTime = (ms: number): string =>
 export class PlaybackBarComponent {
   protected readonly pb = inject(PlaybackService);
   protected readonly speeds: readonly PlaybackSpeed[] = [1, 10, 60];
+  protected readonly toggleLabel = computed(() =>
+    this.pb.playing() ? $localize`:@@playback.pause:Pause` : $localize`:@@playback.play:Play`,
+  );
   protected readonly label = computed(() => clockTime(this.pb.time()));
 
   protected seek(e: Event): void {

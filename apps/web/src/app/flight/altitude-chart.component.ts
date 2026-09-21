@@ -29,7 +29,9 @@ function cssVar(el: Element, name: string, fallback: string): string {
   template: `
     <div #host class="chart" role="img" [attr.aria-label]="label()"></div>
     @if (points().length < 2) {
-      <p class="hint">Collecting the track — the profile fills in as positions arrive.</p>
+      <p class="hint" i18n="@@chart.collecting">
+        Collecting the track — the profile fills in as positions arrive.
+      </p>
     }
   `,
   styles: `
@@ -66,8 +68,8 @@ export class AltitudeChartComponent {
     const pts = this.points();
     const alts = pts.map((p) => p.alt ?? 0);
     return pts.length === 0
-      ? 'Altitude profile: no data yet'
-      : `Altitude profile, ${pts.length} points, max ${Math.max(...alts)} ft`;
+      ? $localize`:@@chart.empty:Altitude profile: no data yet`
+      : $localize`:@@chart.label:Altitude profile, ${pts.length}:count: points, max ${Math.max(...alts)}:max: ft`;
   };
 
   constructor() {
