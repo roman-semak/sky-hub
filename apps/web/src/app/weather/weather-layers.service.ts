@@ -29,6 +29,8 @@ export class WeatherLayersService {
   private readonly fetchFn = inject(FETCH_FN);
   private readonly store = inject(MapUiStore);
   readonly radarOn = signal(false);
+  /** Paints military aircraft in their own colour and enlarges them. */
+  readonly militaryHighlight = signal(false);
   readonly windOn = signal(false);
   readonly windLevel = signal<WindLevel>(250);
   /** `{z}/{x}/{y}` tile template of the latest radar frame, or `null`. */

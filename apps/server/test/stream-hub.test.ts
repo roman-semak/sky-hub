@@ -106,6 +106,28 @@ describe('StreamHub', () => {
     expect(sock.text.some((m) => m.t === 'error' && m.message.includes('too many'))).toBe(true);
   });
 
+  it('pushes emergency alerts to every client, once per event', () => {
+    const { w, hub } = setup();
+    const a = new FakeSocket();
+    hub.connect(a);
+    w.put({ hex: 'e00001', emergency: 'general', squawk: '7700' });
+    hub.publish(w.rebuild().index, []);
+    const alert = a.text.find((m) => m.t === 'alerts');
+    expect(alert?.t === 'alerts' && alert.items[0]).toMatchObject({
+      hex: 'e00001',
+      squawk: '7700',
+    });
+
+    // A second publish with the same emergency says nothing new…
+    hub.publish(w.rebuild().index, []);
+    expect(a.text.filter((m) => m.t === 'alerts')).toHaveLength(1);
+    // …but a client joining now is told immediately.
+    const b = new FakeSocket();
+    hub.connect(b);
+    expect(b.text.filter((m) => m.t === 'alerts')).toHaveLength(1);
+    expect(hub.statistics.emergencies).toBe(1);
+  });
+
   it('answers filter previews', () => {
     const { w, hub } = setup();
     hub.publish(w.rebuild().index, []);

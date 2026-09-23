@@ -26,4 +26,4 @@ export {
 } from './frame-codec.js';
 export { toRecord } from './to-record.js';
 export { ClientMessageSchema, type ClientMessage } from './client-message.js';
-export type { ServerMessage } from './server-message.js';
+export type { ServerMessage, EmergencyAlert } from './server-message.js';

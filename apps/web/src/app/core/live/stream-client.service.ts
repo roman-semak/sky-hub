@@ -2,6 +2,8 @@ import { DestroyRef, inject, Injectable, InjectionToken, signal } from '@angular
 import type { FilterSpec } from '@skytrace/adsb-types';
 import type { BBox } from '@skytrace/geo';
 import { decodeFrame, type ClientMessage, type ServerMessage } from '@skytrace/protocol';
+import { EmergencyNotifier } from '../../alerts/emergency-notifier.service';
+import { EmergencyStore } from '../../alerts/emergency.store';
 import { apiOrigin, streamUrl } from '../config/api-origin';
 import { backoffDelay } from './backoff';
 import { LiveRegistry } from './live-registry';
@@ -48,6 +50,8 @@ export class StreamClient {
   readonly lastFrameAt = signal<number | null>(null);
   readonly aircraftCount = signal(0);
 
+  private readonly emergencies = inject(EmergencyStore);
+  private readonly notifier = inject(EmergencyNotifier);
   private readonly createSocket = inject(SOCKET_FACTORY);
   private readonly url = inject(STREAM_URL);
   private socket: SocketLike | null = null;
@@ -220,6 +224,11 @@ export class StreamClient {
         const done = this.previews.get(msg.id);
         this.previews.delete(msg.id);
         done?.(msg.count);
+        break;
+      }
+      case 'alerts': {
+        const fresh = this.emergencies.add(msg.items, now);
+        if (fresh.length > 0) this.notifier.publish(fresh);
         break;
       }
       case 'error':

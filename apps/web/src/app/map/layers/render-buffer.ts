@@ -5,7 +5,7 @@ import {
   type MutablePose,
 } from '@skytrace/geo';
 import type { LiveAircraft } from '../../core/live/live-aircraft';
-import { ALT_EMERGENCY, ALT_SELECTED, ALT_UNKNOWN } from './altitude-color';
+import { ALT_EMERGENCY, ALT_MILITARY, ALT_SELECTED, ALT_UNKNOWN } from './altitude-color';
 import { SILHOUETTE_SCALE, type SilhouetteId } from './silhouettes';
 
 const BASE_SIZE = 22;
@@ -25,6 +25,7 @@ export class RenderBuffer {
   hexes: string[] = [];
   icons: SilhouetteId[] = [];
   private readonly pose: MutablePose = { lat: 0, lon: 0, heading: 0 };
+  private highlightMilitary = false;
 
   private ensure(n: number): void {
     if (this.angles.length >= n) return;
@@ -45,7 +46,9 @@ export class RenderBuffer {
     nowMs: number,
     selected: string | null,
     dimmed: boolean,
+    highlightMilitary = false,
   ): void {
+    this.highlightMilitary = highlightMilitary;
     this.ensure(aircraft.size);
     this.hexes.length = 0;
     this.icons.length = 0;
@@ -81,11 +84,14 @@ export class RenderBuffer {
       ? ALT_SELECTED
       : r.emergency !== 'none'
         ? ALT_EMERGENCY
-        : r.onGround
-          ? 0
-          : (r.alt ?? ALT_UNKNOWN);
+        : this.highlightMilitary && r.military
+          ? ALT_MILITARY
+          : r.onGround
+            ? 0
+            : (r.alt ?? ALT_UNKNOWN);
     this.colors[i * 4 + 3] = Math.round(255 * opacity * (dimmed ? 0.3 : 1));
-    this.sizes[i] = selected ? SELECTED_SIZE : BASE_SIZE * SILHOUETTE_SCALE[ac.silhouette];
+    const scale = this.highlightMilitary && r.military ? 1.35 : 1;
+    this.sizes[i] = selected ? SELECTED_SIZE : BASE_SIZE * SILHOUETTE_SCALE[ac.silhouette] * scale;
     this.hexes[i] = ac.hex;
     this.icons[i] = ac.silhouette;
     return true;

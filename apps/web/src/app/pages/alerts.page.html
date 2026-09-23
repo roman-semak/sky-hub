@@ -1,0 +1,42 @@
+<section class="page" aria-labelledby="alerts-title">
+  <a routerLink="/" class="back" i18n="@@common.backToMap">← Map</a>
+  <header>
+    <h1 id="alerts-title" i18n="@@alerts.title">Emergency monitor</h1>
+    <span class="muted" i18n="@@alerts.subtitle"
+      >Squawk 7500, 7600 and 7700 anywhere in coverage</span
+    >
+  </header>
+
+  @if (notifier.available) {
+  <label class="notify">
+    <span i18n="@@alerts.notify">Notify me when a new emergency squawk appears</span>
+    <input
+      type="checkbox"
+      role="switch"
+      [checked]="store.notify()"
+      (change)="toggleNotifications()"
+    />
+  </label>
+  }
+
+  <ul class="list">
+    @for (a of rows(); track a.hex) {
+    <li [class.military]="a.military">
+      <button type="button" (click)="open(a.hex, a.lat, a.lon)" data-testid="alert-row">
+        <span class="main">
+          <span class="title">{{ a.title }}</span>
+          <span class="meta">{{ a.meaning }}</span>
+        </span>
+        <span class="right tabular">
+          <span class="squawk">{{ a.squawk }}</span>
+          <span class="meta">{{ a.when }}</span>
+        </span>
+      </button>
+    </li>
+    } @empty {
+    <li class="empty muted" i18n="@@alerts.empty">
+      No emergency squawks right now. This page stays open and updates itself.
+    </li>
+    }
+  </ul>
+</section>

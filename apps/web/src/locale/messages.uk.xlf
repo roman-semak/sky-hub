@@ -28,6 +28,42 @@
         <target>Роза вітрів за <ph id="0" equiv="count" disp="this.observations().length"/> спостережень, найчастіше з <ph id="1" equiv="dir" disp="Math.round(top.dir)"/>°</target>
       </segment>
     </unit>
+    <unit id="common.dismiss">
+      <notes>
+        <note category="location">src/app/alerts/alert-toasts.component.ts:30</note>
+      </notes>
+      <segment>
+        <source>Dismiss</source>
+        <target>Сховати</target>
+      </segment>
+    </unit>
+    <unit id="alert.toastTitle">
+      <notes>
+        <note category="location">src/app/alerts/alert-toasts.component.ts:107</note>
+      </notes>
+      <segment>
+        <source>Squawk <ph id="0" equiv="squawk" disp="a.squawk ?? &apos;—&apos;"/> · <ph id="1" equiv="flight" disp="a.callsign ?? a.hex.toUpperCase()"/></source>
+        <target>Squawk <ph id="0" equiv="squawk" disp="a.squawk ?? &apos;—&apos;"/> · <ph id="1" equiv="flight" disp="a.callsign ?? a.hex.toUpperCase()"/></target>
+      </segment>
+    </unit>
+    <unit id="alert.title">
+      <notes>
+        <note category="location">src/app/alerts/emergency-notifier.service.ts:68</note>
+      </notes>
+      <segment>
+        <source>Emergency squawk <ph id="0" equiv="squawk" disp="a.squawk ?? &apos;—&apos;"/></source>
+        <target>Аварійний код <ph id="0" equiv="squawk" disp="a.squawk ?? &apos;—&apos;"/></target>
+      </segment>
+    </unit>
+    <unit id="alert.body">
+      <notes>
+        <note category="location">src/app/alerts/emergency-notifier.service.ts:69</note>
+      </notes>
+      <segment>
+        <source><ph id="0" equiv="flight" disp="a.callsign ?? a.hex.toUpperCase()"/> · <ph id="1" equiv="meaning" disp="meaning"/></source>
+        <target><ph id="0" equiv="flight" disp="a.callsign ?? a.hex.toUpperCase()"/> · <ph id="1" equiv="meaning" disp="meaning"/></target>
+      </segment>
+    </unit>
     <unit id="title.map">
       <notes>
         <note category="location">src/app/app.routes.ts:9</note>
@@ -64,9 +100,18 @@
         <target>Статистика — SkyTrace</target>
       </segment>
     </unit>
-    <unit id="title.aircraft">
+    <unit id="title.alerts">
       <notes>
         <note category="location">src/app/app.routes.ts:29</note>
+      </notes>
+      <segment>
+        <source>Emergency monitor — SkyTrace</source>
+        <target>Монітор аварійних ситуацій — SkyTrace</target>
+      </segment>
+    </unit>
+    <unit id="title.aircraft">
+      <notes>
+        <note category="location">src/app/app.routes.ts:34</note>
       </notes>
       <segment>
         <source>Aircraft — SkyTrace</source>
@@ -75,7 +120,7 @@
     </unit>
     <unit id="title.airport">
       <notes>
-        <note category="location">src/app/app.routes.ts:34</note>
+        <note category="location">src/app/app.routes.ts:39</note>
       </notes>
       <segment>
         <source>Airport — SkyTrace</source>
@@ -691,7 +736,7 @@
     <unit id="feed.stream">
       <notes>
         <note category="location">src/app/map/overlays/feed-strip.component.ts:26,27</note>
-        <note category="location">src/app/ui/nav-rail.component.ts:50</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:54</note>
       </notes>
       <segment>
         <source>Stream</source>
@@ -1016,6 +1061,51 @@
       <segment>
         <source>On ground</source>
         <target>На землі</target>
+      </segment>
+    </unit>
+    <unit id="common.backToMap">
+      <notes>
+        <note category="location">src/app/pages/alerts.page.html:2,4</note>
+      </notes>
+      <segment>
+        <source>← Map</source>
+        <target>← Карта</target>
+      </segment>
+    </unit>
+    <unit id="alerts.title">
+      <notes>
+        <note category="location">src/app/pages/alerts.page.html:4,5</note>
+      </notes>
+      <segment>
+        <source>Emergency monitor</source>
+        <target>Монітор аварійних ситуацій</target>
+      </segment>
+    </unit>
+    <unit id="alerts.subtitle">
+      <notes>
+        <note category="location">src/app/pages/alerts.page.html:6,10</note>
+      </notes>
+      <segment>
+        <source>Squawk 7500, 7600 and 7700 anywhere in coverage</source>
+        <target>Коди 7500, 7600 і 7700 у всій зоні покриття</target>
+      </segment>
+    </unit>
+    <unit id="alerts.notify">
+      <notes>
+        <note category="location">src/app/pages/alerts.page.html:12,14</note>
+      </notes>
+      <segment>
+        <source>Notify me when a new emergency squawk appears</source>
+        <target>Сповіщати про нові аварійні коди</target>
+      </segment>
+    </unit>
+    <unit id="alerts.empty">
+      <notes>
+        <note category="location">src/app/pages/alerts.page.html:38,41</note>
+      </notes>
+      <segment>
+        <source> No emergency squawks right now. This page stays open and updates itself. </source>
+        <target>Зараз аварійних кодів немає. Сторінка оновлюється сама.</target>
       </segment>
     </unit>
     <unit id="following.following">
@@ -1462,7 +1552,7 @@
     </unit>
     <unit id="nav.main">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:16</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:17</note>
         <note category="location">src/app/ui/tab-bar.component.ts:12</note>
       </notes>
       <segment>
@@ -1472,7 +1562,7 @@
     </unit>
     <unit id="nav.filters">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:37,38</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:41,42</note>
       </notes>
       <segment>
         <source>Filters</source>
@@ -1481,7 +1571,7 @@
     </unit>
     <unit id="feed.title">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:45,46</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:49,50</note>
       </notes>
       <segment>
         <source>Feed</source>
@@ -1490,7 +1580,7 @@
     </unit>
     <unit id="feed.aircraft">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:47</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:51</note>
       </notes>
       <segment>
         <source>Aircraft</source>
@@ -1499,7 +1589,7 @@
     </unit>
     <unit id="feed.latency">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:53</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:57</note>
       </notes>
       <segment>
         <source>WS latency</source>
@@ -1508,7 +1598,7 @@
     </unit>
     <unit id="nav.lightTheme">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:68,70</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:72,74</note>
       </notes>
       <segment>
         <source>Light theme</source>
@@ -1517,7 +1607,7 @@
     </unit>
     <unit id="nav.darkTheme">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:70,72</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:74,76</note>
       </notes>
       <segment>
         <source>Dark theme</source>
@@ -1526,7 +1616,7 @@
     </unit>
     <unit id="nav.map">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:94</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:99</note>
         <note category="location">src/app/ui/tab-bar.component.ts:51</note>
       </notes>
       <segment>
@@ -1536,7 +1626,7 @@
     </unit>
     <unit id="nav.search">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:95</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:100</note>
         <note category="location">src/app/ui/tab-bar.component.ts:52</note>
       </notes>
       <segment>
@@ -1546,7 +1636,7 @@
     </unit>
     <unit id="nav.following">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:96</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:101</note>
         <note category="location">src/app/ui/tab-bar.component.ts:53</note>
       </notes>
       <segment>
@@ -1554,9 +1644,18 @@
         <target>Відстеження</target>
       </segment>
     </unit>
+    <unit id="nav.alerts">
+      <notes>
+        <note category="location">src/app/ui/nav-rail.component.ts:102</note>
+      </notes>
+      <segment>
+        <source>Alerts</source>
+        <target>Сповіщення</target>
+      </segment>
+    </unit>
     <unit id="nav.stats">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:97</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:103</note>
         <note category="location">src/app/ui/tab-bar.component.ts:54</note>
       </notes>
       <segment>
@@ -1566,7 +1665,7 @@
     </unit>
     <unit id="conn.live">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:104</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:110</note>
       </notes>
       <segment>
         <source>live</source>
@@ -1575,7 +1674,7 @@
     </unit>
     <unit id="conn.offline">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:106</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:112</note>
       </notes>
       <segment>
         <source>offline</source>
@@ -1584,7 +1683,7 @@
     </unit>
     <unit id="conn.reconnecting">
       <notes>
-        <note category="location">src/app/ui/nav-rail.component.ts:107</note>
+        <note category="location">src/app/ui/nav-rail.component.ts:113</note>
       </notes>
       <segment>
         <source>reconnecting</source>
@@ -1645,9 +1744,27 @@
         <target>Прогноз Open-Meteo, поточна година</target>
       </segment>
     </unit>
+    <unit id="layers.military">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:47,48</note>
+      </notes>
+      <segment>
+        <source>Highlight military</source>
+        <target>Підсвітити військові</target>
+      </segment>
+    </unit>
+    <unit id="layers.militarySub">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:48,50</note>
+      </notes>
+      <segment>
+        <source>Aircraft flagged military by the feed</source>
+        <target>Борти, позначені як військові у фіді</target>
+      </segment>
+    </unit>
     <unit id="layers.windLevel">
       <notes>
-        <note category="location">src/app/weather/layers-panel.component.ts:44,45</note>
+        <note category="location">src/app/weather/layers-panel.component.ts:55,56</note>
       </notes>
       <segment>
         <source>Wind level</source>
@@ -1656,7 +1773,7 @@
     </unit>
     <unit id="layers.done">
       <notes>
-        <note category="location">src/app/weather/layers-panel.component.ts:59,62</note>
+        <note category="location">src/app/weather/layers-panel.component.ts:70,73</note>
       </notes>
       <segment>
         <source>Done</source>
@@ -1665,7 +1782,7 @@
     </unit>
     <unit id="layers.radarIdle">
       <notes>
-        <note category="location">src/app/weather/layers-panel.component.ts:126</note>
+        <note category="location">src/app/weather/layers-panel.component.ts:137</note>
       </notes>
       <segment>
         <source>RainViewer, updated every 10 min</source>
@@ -1674,7 +1791,7 @@
     </unit>
     <unit id="layers.loading">
       <notes>
-        <note category="location">src/app/weather/layers-panel.component.ts:127</note>
+        <note category="location">src/app/weather/layers-panel.component.ts:138</note>
       </notes>
       <segment>
         <source>Loading…</source>
@@ -1683,7 +1800,7 @@
     </unit>
     <unit id="layers.radarTime">
       <notes>
-        <note category="location">src/app/weather/layers-panel.component.ts:129</note>
+        <note category="location">src/app/weather/layers-panel.component.ts:140</note>
       </notes>
       <segment>
         <source>RainViewer, <ph id="0" equiv="time" disp="time"/></source>
