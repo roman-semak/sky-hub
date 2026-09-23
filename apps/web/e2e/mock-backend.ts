@@ -36,11 +36,28 @@ const MINIMAL_STYLE = {
   layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#1a1e2e' } }],
 };
 
+/** One entry of the stream's `alerts` message (SPEC phase 8). */
+export interface MockAlert {
+  readonly hex: string;
+  readonly callsign: string | null;
+  readonly squawk: string;
+  readonly kind: string;
+  readonly lat: number;
+  readonly lon: number;
+  readonly military: boolean;
+  readonly at: number;
+}
+
+export interface MockOptions {
+  /** Pushed over the stream right after the snapshot. */
+  readonly alerts?: readonly MockAlert[];
+}
+
 /**
  * Replaces the server and third-party tiles with deterministic fixtures:
  * REST via `page.route`, the binary stream via `page.routeWebSocket`.
  */
-export async function mockBackend(page: Page): Promise<void> {
+export async function mockBackend(page: Page, opts: MockOptions = {}): Promise<void> {
   await page.route('https://basemaps.cartocdn.com/**', (route) =>
     route.fulfill({ json: MINIMAL_STYLE }),
   );
@@ -49,6 +66,7 @@ export async function mockBackend(page: Page): Promise<void> {
     const now = Date.now();
     ws.send(JSON.stringify({ t: 'hello', version: 1, serverTime: now }));
     ws.send(Buffer.from(encodeAircraftFrame(FrameType.Snapshot, Math.floor(now / 1000), [record])));
+    if (opts.alerts !== undefined) ws.send(JSON.stringify({ t: 'alerts', items: opts.alerts }));
     ws.onMessage((msg) => {
       if (typeof msg !== 'string') return;
       const m = JSON.parse(msg) as { t: string; id?: number };
