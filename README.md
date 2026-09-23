@@ -117,6 +117,7 @@ Details and trade-offs: [ADR-009](docs/decisions/009-performance-and-lighthouse.
 apps/
   web/            Angular 20 client (zoneless, signals) — MapLibre GL + deck.gl
   server/         Fastify API, WebSocket stream, ingest worker, history
+  mcp/            Model Context Protocol server over the same REST API
 packages/
   adsb-types/     Zod schemas, normalized Aircraft, filter matching
   protocol/       28-byte binary codec shared by web and server
@@ -128,6 +129,38 @@ docs/decisions/   architecture decision records
 ```
 
 Architecture overview: [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Model Context Protocol server
+
+`apps/mcp` exposes the same REST API to an LLM over MCP (stdio), so an
+assistant can answer "what is flying over me", "how is LPPT doing" or "where
+was this aircraft an hour ago" against live data. Nine read-only tools:
+`search_flights`, `get_flight`, `get_route`, `flights_overhead`,
+`airport_status`, `flight_track`, `export_track`, `busiest_areas`,
+`traffic_stats`.
+
+```bash
+pnpm mcp                      # builds, then serves on stdio
+SKYTRACE_API_URL=http://127.0.0.1:8080 node apps/mcp/dist/main.js
+```
+
+Register it with any MCP client, for example in `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "skytrace": {
+      "command": "node",
+      "args": ["/path/to/flyhub/apps/mcp/dist/main.js"],
+      "env": { "SKYTRACE_API_URL": "http://127.0.0.1:8080" }
+    }
+  }
+}
+```
+
+Every tool is a GET against the running API, so the server cannot change any
+state, and answers carry the same caveats as the UI (community coverage, not
+a navigation source). See [ADR-012](docs/decisions/012-mcp-server.md).
 
 ## Deployment
 

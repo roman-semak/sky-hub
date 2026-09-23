@@ -89,6 +89,15 @@ skip row groups by min/max statistics and merge the unflushed buffer and the
 30-minute in-memory track. Playback reuses the stream codec: the client
 replays frames into its own registry on a virtual clock.
 
+## MCP server (ADR-012)
+
+`apps/mcp` is a separate process that speaks the Model Context Protocol over
+stdio and calls the same public REST endpoints as the browser. Tools are plain
+data (`name`, description, a Zod argument shape and a handler returning text),
+which keeps them testable without the SDK; `server.ts` adapts them and maps
+API failures to readable tool errors. Responses are Zod-validated, so a
+changed payload surfaces as an error instead of a confident wrong answer.
+
 ## Shared packages
 
 | package       | role                                                                                                  |
@@ -103,4 +112,4 @@ replays frames into its own registry on a virtual clock.
 See [docs/decisions](docs/decisions): toolchain (001), providers (002),
 demand-driven polling (003), wire format (004), lazy map (005), routes and
 datasets (006), history (007), weather (008), performance (009),
-deployment (010), MapLibre 5 (011).
+deployment (010), MapLibre 5 (011), MCP server (012).

@@ -19,7 +19,8 @@
     "format:check": "prettier --check .",
     "data:refresh": "tsx scripts/fetch-static-data.ts",
     "prepare": "husky",
-    "e2e": "pnpm --filter @skytrace/web e2e"
+    "e2e": "pnpm --filter @skytrace/web e2e",
+    "mcp": "pnpm --filter @skytrace/mcp build && pnpm --filter @skytrace/mcp start"
   },
   "lint-staged": {
     "*.{ts,js,mjs,json,md,html,css,scss,yml,yaml}": "prettier --write"
