@@ -14,7 +14,12 @@ export interface DensityGridOptions {
   readonly hours: number;
 }
 
-export const DEFAULT_DENSITY_OPTIONS: DensityGridOptions = { cellDeg: 0.25, hours: 24 };
+/**
+ * Half a degree (~30 nm) keeps a day of global traffic at tens of thousands of
+ * cells; a quarter degree quadruples that for no visual gain, because the
+ * client's blur radius already follows the cell size.
+ */
+export const DEFAULT_DENSITY_OPTIONS: DensityGridOptions = { cellDeg: 0.5, hours: 24 };
 
 const HOUR_MS = 3_600_000;
 

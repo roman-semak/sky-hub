@@ -77,7 +77,7 @@ current zoom, so binned cells read as a field rather than a dot pattern.
 
 ## History (ADR-007)
 
-A rolling density grid counts airborne fixes per 0.25° cell per hour over a
+A rolling density grid counts airborne fixes per 0.5° cell per hour over a
 24 h window (one `Uint32Array` per populated cell), which `/api/heatmap`
 serves without re-reading a day of Parquet. An emergency watch scans the whole
 index each publish for squawk 7500/7600/7700 and pushes new alerts to every
