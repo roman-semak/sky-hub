@@ -1,0 +1,24 @@
+{
+  "name": "@skytrace/mcp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/main.js",
+  "bin": {
+    "skytrace-mcp": "./dist/main.js"
+  },
+  "scripts": {
+    "start": "node dist/main.js",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.6.5"
+  },
+  "files": [
+    "dist"
+  ]
+}
