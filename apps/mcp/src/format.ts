@@ -27,7 +27,9 @@ export function formatFlight(f: Flight): string {
     `Position: ${f.lat.toFixed(4)}, ${f.lon.toFixed(4)} at ${iso(f.posTime)}`,
     f.onGround
       ? 'On ground'
-      : `Altitude ${ft(f.altBaro)}, ${kt(f.gs)}, track ${deg(f.track)}, vertical rate ${f.baroRate ?? 0} ft/min`,
+      : `Altitude ${ft(f.altBaro)}, ${kt(f.gs)}, track ${deg(f.track)}, ${
+          f.baroRate === null ? 'vertical rate unknown' : `vertical rate ${f.baroRate} ft/min`
+        }`,
     `Squawk: ${f.squawk ?? 'none'}${f.emergency === 'none' ? '' : ` · emergency: ${f.emergency}`}`,
   ];
   if (f.military) lines.push('Flagged military by the feed.');

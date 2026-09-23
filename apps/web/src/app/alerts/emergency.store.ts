@@ -28,18 +28,23 @@ export class EmergencyStore {
   /** Whether the user asked for system notifications. */
   readonly notify = signal(this.loadNotify());
 
+  /**
+   * One row per aircraft. An escalation (7600 → 7700) replaces the row and
+   * counts as new, so the toast and the badge fire again — keeping two rows
+   * for one hex would let `dismiss(hex)` clear the newer alert as well.
+   */
   add(items: readonly EmergencyAlert[], now = Date.now()): SeenAlert[] {
+    const current = new Map(this.alerts().map((a) => [a.hex, a]));
     const fresh: SeenAlert[] = [];
-    const byHex = new Map(this.alerts().map((a) => [`${a.hex}:${a.kind}`, a]));
     for (const item of items) {
-      const key = `${item.hex}:${item.kind}`;
-      if (byHex.has(key)) continue;
-      const seen: SeenAlert = { ...item, receivedAt: now, acknowledged: false };
-      byHex.set(key, seen);
-      fresh.push(seen);
+      if (current.get(item.hex)?.kind === item.kind) continue;
+      fresh.push({ ...item, receivedAt: now, acknowledged: false });
     }
     if (fresh.length === 0) return [];
-    this.alerts.set([...fresh, ...this.alerts()].slice(0, MAX_ALERTS));
+    const replaced = new Set(fresh.map((a) => a.hex));
+    this.alerts.set(
+      [...fresh, ...this.alerts().filter((a) => !replaced.has(a.hex))].slice(0, MAX_ALERTS),
+    );
     return fresh;
   }
 

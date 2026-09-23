@@ -29,13 +29,24 @@ describe('EmergencyStore', () => {
     TestBed.resetTestingModule();
   });
 
-  it('keeps one entry per aircraft and code, newest first', () => {
+  it('keeps one entry per aircraft, and an escalation replaces it', () => {
     const s = TestBed.inject(EmergencyStore);
     expect(s.add([alert('a00001')])).toHaveLength(1);
     expect(s.add([alert('a00001')])).toHaveLength(0);
+    // 7700 after 7600 is news again, but it is still one aircraft.
     expect(s.add([alert('a00001', 'unlawful', '7500')])).toHaveLength(1);
+    expect(s.alerts()).toHaveLength(1);
     expect(s.alerts()[0]?.squawk).toBe('7500');
-    expect(s.unread()).toBe(2);
+    expect(s.unread()).toBe(1);
+  });
+
+  it('dismisses the escalated row, not a stale one', () => {
+    const s = TestBed.inject(EmergencyStore);
+    s.add([alert('a00001', 'nordo', '7600')]);
+    s.add([alert('a00001', 'general', '7700')]);
+    s.dismiss('a00001');
+    expect(s.alerts()).toEqual([]);
+    expect(s.unread()).toBe(0);
   });
 
   it('acknowledges and dismisses', () => {

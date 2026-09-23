@@ -90,6 +90,13 @@ export class DensityGrid {
       this.currentHour = hour;
       return;
     }
+    // A clock stepping backwards (NTP correction, a restored snapshot) would
+    // leave counts in slots the window no longer covers: start over.
+    if (hour < this.currentHour) {
+      this.cells.clear();
+      this.currentHour = hour;
+      return;
+    }
     const elapsed = Math.min(this.opts.hours, hour - this.currentHour);
     for (let i = 1; i <= elapsed; i++) {
       const slot = (this.currentHour + i) % this.opts.hours;
@@ -102,8 +109,12 @@ export class DensityGrid {
   }
 
   private key(lat: number, lon: number): number {
-    const row = Math.floor((lat + 90) / this.opts.cellDeg);
-    const col = Math.floor((lon + 180) / this.opts.cellDeg);
+    const rows = Math.ceil(180 / this.opts.cellDeg);
+    // The poles and the antimeridian land exactly on the far edge: without
+    // clamping, lat 90 invents a row past the top and lon 180 aliases onto
+    // the first cell of the next row.
+    const row = Math.min(rows - 1, Math.floor((lat + 90) / this.opts.cellDeg));
+    const col = Math.min(this.cols - 1, Math.floor((lon + 180) / this.opts.cellDeg));
     return row * this.cols + col;
   }
 

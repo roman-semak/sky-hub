@@ -71,8 +71,9 @@ function toGpx(points: readonly TrackPoint[], name: string): string {
       (p) =>
         `      <trkpt lat="${p.lat.toFixed(6)}" lon="${p.lon.toFixed(6)}">\n` +
         `        <ele>${((p.alt ?? 0) * FEET_TO_M).toFixed(1)}</ele>\n` +
+        // GPX 1.1 dropped <speed> from a trackpoint; readers derive it from
+        // consecutive fixes, and keeping it would fail schema validation.
         `        <time>${new Date(p.t).toISOString()}</time>\n` +
-        (p.gs === null ? '' : `        <speed>${(p.gs * 0.514444).toFixed(2)}</speed>\n`) +
         `      </trkpt>`,
     )
     .join('\n');

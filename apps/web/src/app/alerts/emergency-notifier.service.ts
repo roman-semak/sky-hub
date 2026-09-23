@@ -64,11 +64,18 @@ export class EmergencyNotifier {
     if (n === null || !this.store.notify() || n.permission !== 'granted') return;
     for (const a of alerts) {
       const meaning = a.squawk === null ? a.kind : (SQUAWK_MEANING[a.squawk] ?? a.kind);
-      n.show(
-        $localize`:@@alert.title:Emergency squawk ${a.squawk ?? '—'}:squawk:`,
-        $localize`:@@alert.body:${a.callsign ?? a.hex.toUpperCase()}:flight: · ${meaning}:meaning:`,
-        a.hex,
-      );
+      try {
+        n.show(
+          $localize`:@@alert.title:Emergency squawk ${a.squawk ?? '—'}:squawk:`,
+          $localize`:@@alert.body:${a.callsign ?? a.hex.toUpperCase()}:flight: · ${meaning}:meaning:`,
+          a.hex,
+        );
+      } catch {
+        // `new Notification()` is an illegal constructor where only the
+        // service worker may notify (Android Chrome). The in-app toast is
+        // already on screen; this must not escape into the stream handler.
+        this.notifier = null;
+      }
     }
   }
 
