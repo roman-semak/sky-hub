@@ -100,9 +100,18 @@
         <target>Статистика — SkyTrace</target>
       </segment>
     </unit>
-    <unit id="title.alerts">
+    <unit id="title.me">
       <notes>
         <note category="location">src/app/app.routes.ts:29</note>
+      </notes>
+      <segment>
+        <source>Above me — SkyTrace</source>
+        <target>Наді мною — SkyTrace</target>
+      </segment>
+    </unit>
+    <unit id="title.alerts">
+      <notes>
+        <note category="location">src/app/app.routes.ts:34</note>
       </notes>
       <segment>
         <source>Emergency monitor — SkyTrace</source>
@@ -111,7 +120,7 @@
     </unit>
     <unit id="title.aircraft">
       <notes>
-        <note category="location">src/app/app.routes.ts:34</note>
+        <note category="location">src/app/app.routes.ts:39</note>
       </notes>
       <segment>
         <source>Aircraft — SkyTrace</source>
@@ -120,7 +129,7 @@
     </unit>
     <unit id="title.airport">
       <notes>
-        <note category="location">src/app/app.routes.ts:39</note>
+        <note category="location">src/app/app.routes.ts:44</note>
       </notes>
       <segment>
         <source>Airport — SkyTrace</source>
@@ -515,10 +524,30 @@
         <target>Відстежувати</target>
       </segment>
     </unit>
+    <unit id="flight.exportKml">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:140,141</note>
+        <note category="location">src/app/flight/flight-panel.component.html:142,143</note>
+      </notes>
+      <segment>
+        <source>Export track as KML</source>
+        <target>Експорт треку в KML</target>
+      </segment>
+    </unit>
+    <unit id="flight.exportGpx">
+      <notes>
+        <note category="location">src/app/flight/flight-panel.component.html:151,152</note>
+        <note category="location">src/app/flight/flight-panel.component.html:153,156</note>
+      </notes>
+      <segment>
+        <source>Export track as GPX</source>
+        <target>Експорт треку в GPX</target>
+      </segment>
+    </unit>
     <unit id="flight.history">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:138,139</note>
-        <note category="location">src/app/flight/flight-panel.component.html:140,141</note>
+        <note category="location">src/app/flight/flight-panel.component.html:159,160</note>
+        <note category="location">src/app/flight/flight-panel.component.html:161,162</note>
       </notes>
       <segment>
         <source>Flight history</source>
@@ -527,8 +556,8 @@
     </unit>
     <unit id="flight.photos">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:150,151</note>
-        <note category="location">src/app/flight/flight-panel.component.html:152,153</note>
+        <note category="location">src/app/flight/flight-panel.component.html:171,172</note>
+        <note category="location">src/app/flight/flight-panel.component.html:173,174</note>
       </notes>
       <segment>
         <source>Photos on planespotters.net</source>
@@ -537,7 +566,7 @@
     </unit>
     <unit id="common.close">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.html:166,167</note>
+        <note category="location">src/app/flight/flight-panel.component.html:187,188</note>
       </notes>
       <segment>
         <source>Close</source>
@@ -546,7 +575,7 @@
     </unit>
     <unit id="flight.linkCopied">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:62</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:63</note>
       </notes>
       <segment>
         <source>Link copied</source>
@@ -555,7 +584,7 @@
     </unit>
     <unit id="flight.share">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:62</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:63</note>
       </notes>
       <segment>
         <source>Share</source>
@@ -564,7 +593,7 @@
     </unit>
     <unit id="flight.emergency">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:126</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:127</note>
       </notes>
       <segment>
         <source>Emergency · <ph id="0" equiv="kind" disp="r.emergency"/></source>
@@ -573,7 +602,7 @@
     </unit>
     <unit id="flight.altitude">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:131</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:132</note>
       </notes>
       <segment>
         <source>Altitude</source>
@@ -582,7 +611,7 @@
     </unit>
     <unit id="flight.groundSpeed">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:132</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:133</note>
       </notes>
       <segment>
         <source>Ground speed</source>
@@ -591,7 +620,7 @@
     </unit>
     <unit id="flight.track">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:133</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:134</note>
       </notes>
       <segment>
         <source>Track</source>
@@ -600,7 +629,7 @@
     </unit>
     <unit id="flight.vertical">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:134</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:135</note>
       </notes>
       <segment>
         <source>Vertical</source>
@@ -609,7 +638,7 @@
     </unit>
     <unit id="flight.registration">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:138</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:139</note>
       </notes>
       <segment>
         <source>Registration</source>
@@ -618,7 +647,7 @@
     </unit>
     <unit id="flight.country">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:139</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:140</note>
       </notes>
       <segment>
         <source>Country</source>
@@ -627,7 +656,7 @@
     </unit>
     <unit id="flight.squawk">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:140</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:141</note>
       </notes>
       <segment>
         <source>Squawk</source>
@@ -636,7 +665,7 @@
     </unit>
     <unit id="flight.category">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:141</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:142</note>
       </notes>
       <segment>
         <source>Category</source>
@@ -645,7 +674,7 @@
     </unit>
     <unit id="flight.source">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:142</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:143</note>
       </notes>
       <segment>
         <source>Source</source>
@@ -654,7 +683,7 @@
     </unit>
     <unit id="flight.position">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:143</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:144</note>
       </notes>
       <segment>
         <source>Position</source>
@@ -663,7 +692,7 @@
     </unit>
     <unit id="flight.lastFix">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:145</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:146</note>
       </notes>
       <segment>
         <source>Last fix</source>
@@ -672,7 +701,7 @@
     </unit>
     <unit id="flight.secondsAgo">
       <notes>
-        <note category="location">src/app/flight/flight-panel.component.ts:146</note>
+        <note category="location">src/app/flight/flight-panel.component.ts:147</note>
       </notes>
       <segment>
         <source><ph id="0" equiv="seconds" disp="ageSec"/> s ago</source>
@@ -1066,6 +1095,7 @@
     <unit id="common.backToMap">
       <notes>
         <note category="location">src/app/pages/alerts.page.html:2,4</note>
+        <note category="location">src/app/pages/me.page.html:2,4</note>
       </notes>
       <segment>
         <source>← Map</source>
@@ -1205,6 +1235,151 @@
       <segment>
         <source>Above FL200</source>
         <target>Вище FL200</target>
+      </segment>
+    </unit>
+    <unit id="me.title">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:4,5</note>
+      </notes>
+      <segment>
+        <source>Above me</source>
+        <target>Наді мною</target>
+      </segment>
+    </unit>
+    <unit id="me.updated">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:6,8</note>
+      </notes>
+      <segment>
+        <source>updated <ph id="0" equiv="INTERPOLATION" disp="{{ seconds }}"/> s ago</source>
+        <target>оновлено <ph id="0" equiv="INTERPOLATION" disp="{{ seconds }}"/> с тому</target>
+      </segment>
+    </unit>
+    <unit id="me.locating">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:11,12</note>
+      </notes>
+      <segment>
+        <source>Asking your browser for a position…</source>
+        <target>Запитую позицію у браузера…</target>
+      </segment>
+    </unit>
+    <unit id="me.denied">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:14,16</note>
+      </notes>
+      <segment>
+        <source> Location permission was declined. You can use the centre of the map instead. </source>
+        <target>Доступ до геопозиції відхилено. Можна взяти центр карти.</target>
+      </segment>
+    </unit>
+    <unit id="me.unavailable">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:17,18</note>
+      </notes>
+      <segment>
+        <source>This browser cannot share a position.</source>
+        <target>Цей браузер не може передати позицію.</target>
+      </segment>
+    </unit>
+    <unit id="me.highest">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:25,26</note>
+      </notes>
+      <segment>
+        <source>Highest in your sky</source>
+        <target>Найвище у вашому небі</target>
+      </segment>
+    </unit>
+    <unit id="me.look">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:28,29</note>
+      </notes>
+      <segment>
+        <source>Look <ph id="0" equiv="INTERPOLATION" disp="{{ h.bearing }}"/>, <ph id="1" equiv="INTERPOLATION_1" disp="{{ h.elevation }}"/>° up</source>
+        <target>Дивіться <ph id="0" equiv="INTERPOLATION" disp="{{ h.bearing }}"/>, <ph id="1" equiv="INTERPOLATION_1" disp="{{ h.elevation }}"/>° вгору</target>
+      </segment>
+    </unit>
+    <unit id="me.emptySky">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:49,53</note>
+      </notes>
+      <segment>
+        <source>Nothing above the horizon here right now.</source>
+        <target>Зараз над горизонтом тут нічого немає.</target>
+      </segment>
+    </unit>
+    <unit id="me.useCentre">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:54,57</note>
+      </notes>
+      <segment>
+        <source> Use the centre of the map </source>
+        <target>Взяти центр карти</target>
+      </segment>
+    </unit>
+    <unit id="me.settings">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:57,58</note>
+      </notes>
+      <segment>
+        <source>Preferences</source>
+        <target>Налаштування</target>
+      </segment>
+    </unit>
+    <unit id="me.theme">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:59,60</note>
+        <note category="location">src/app/pages/me.page.html:61</note>
+      </notes>
+      <segment>
+        <source>Theme</source>
+        <target>Тема</target>
+      </segment>
+    </unit>
+    <unit id="me.alerts">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:75,77</note>
+      </notes>
+      <segment>
+        <source>Notify me about emergency squawks</source>
+        <target>Сповіщати про аварійні коди</target>
+      </segment>
+    </unit>
+    <unit id="me.language">
+      <notes>
+        <note category="location">src/app/pages/me.page.html:85,86</note>
+      </notes>
+      <segment>
+        <source>Language</source>
+        <target>Мова</target>
+      </segment>
+    </unit>
+    <unit id="me.themeSystem">
+      <notes>
+        <note category="location">src/app/pages/me.page.ts:39</note>
+      </notes>
+      <segment>
+        <source>System</source>
+        <target>Системна</target>
+      </segment>
+    </unit>
+    <unit id="me.themeDark">
+      <notes>
+        <note category="location">src/app/pages/me.page.ts:40</note>
+      </notes>
+      <segment>
+        <source>Dark</source>
+        <target>Темна</target>
+      </segment>
+    </unit>
+    <unit id="me.themeLight">
+      <notes>
+        <note category="location">src/app/pages/me.page.ts:41</note>
+      </notes>
+      <segment>
+        <source>Light</source>
+        <target>Світла</target>
       </segment>
     </unit>
     <unit id="search.search">
@@ -1656,7 +1831,6 @@
     <unit id="nav.stats">
       <notes>
         <note category="location">src/app/ui/nav-rail.component.ts:103</note>
-        <note category="location">src/app/ui/tab-bar.component.ts:54</note>
       </notes>
       <segment>
         <source>Stats</source>
@@ -1706,6 +1880,15 @@
       <segment>
         <source><ph id="0" equiv="label" disp="this.label()"/> maximum</source>
         <target><ph id="0" equiv="label" disp="this.label()"/>, максимум</target>
+      </segment>
+    </unit>
+    <unit id="nav.me">
+      <notes>
+        <note category="location">src/app/ui/tab-bar.component.ts:54</note>
+      </notes>
+      <segment>
+        <source>Me</source>
+        <target>Я</target>
       </segment>
     </unit>
     <unit id="layers.mapLayers">

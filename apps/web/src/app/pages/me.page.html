@@ -1,0 +1,90 @@
+<section class="page" aria-labelledby="me-title">
+  <a routerLink="/" class="back" i18n="@@common.backToMap">← Map</a>
+  <header>
+    <h1 id="me-title" i18n="@@me.title">Above me</h1>
+    @if (age(); as seconds) {
+    <span class="muted" i18n="@@me.updated">updated {{ seconds }} s ago</span>
+    }
+  </header>
+
+  @switch (overhead.state()) { @case ('locating') {
+  <p class="muted" role="status" i18n="@@me.locating">Asking your browser for a position…</p>
+  } @case ('denied') {
+  <p class="muted" i18n="@@me.denied">
+    Location permission was declined. You can use the centre of the map instead.
+  </p>
+  } @case ('unavailable') {
+  <p class="muted" i18n="@@me.unavailable">This browser cannot share a position.</p>
+  } } @if (headline(); as h) {
+  <button
+    type="button"
+    class="headline"
+    (click)="show(h.hex, h.lat, h.lon)"
+    data-testid="overhead-top"
+  >
+    <span class="eyebrow" i18n="@@me.highest">Highest in your sky</span>
+    <span class="call">{{ h.title }}</span>
+    <span class="facts tabular">
+      <span i18n="@@me.look">Look {{ h.bearing }}, {{ h.elevation }}° up</span>
+    </span>
+    <span class="muted tabular">{{ h.altitude }} · {{ h.distance }}</span>
+  </button>
+  }
+
+  <ul class="list">
+    @for (a of rows(); track a.hex) {
+    <li>
+      <button type="button" (click)="show(a.hex, a.lat, a.lon)" data-testid="overhead-row">
+        <span class="main">
+          <span class="title">{{ a.title }}</span>
+          <span class="muted">{{ a.sub }}</span>
+        </span>
+        <span class="right tabular">
+          <span>{{ a.bearing }} · {{ a.elevation }}</span>
+          <span class="muted">{{ a.distance }}</span>
+        </span>
+      </button>
+    </li>
+    } @empty { @if (overhead.state() === 'ready') {
+    <li class="muted empty" i18n="@@me.emptySky">Nothing above the horizon here right now.</li>
+    } }
+  </ul>
+
+  <button type="button" class="secondary" (click)="useMapCentre()" i18n="@@me.useCentre">
+    Use the centre of the map
+  </button>
+
+  <h2 class="eyebrow" i18n="@@me.settings">Preferences</h2>
+  <div class="setting">
+    <span i18n="@@me.theme">Theme</span>
+    <div class="segmented" role="radiogroup" i18n-aria-label="@@me.theme" aria-label="Theme">
+      @for (t of themes; track t.id) {
+      <button
+        type="button"
+        role="radio"
+        [attr.aria-checked]="theme.preference() === t.id"
+        (click)="theme.preference.set(t.id)"
+      >
+        {{ t.label }}
+      </button>
+      }
+    </div>
+  </div>
+  @if (notifier.available) {
+  <label class="setting">
+    <span i18n="@@me.alerts">Notify me about emergency squawks</span>
+    <input
+      type="checkbox"
+      role="switch"
+      [checked]="alerts.notify()"
+      (change)="toggleNotifications()"
+    />
+  </label>
+  }
+  <div class="setting">
+    <span i18n="@@me.language">Language</span>
+    <a class="lang" [href]="locale.startsWith('uk') ? '/' : '/uk/'">
+      {{ locale.startsWith('uk') ? 'English' : 'Українська' }}
+    </a>
+  </div>
+</section>

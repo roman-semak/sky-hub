@@ -177,6 +177,25 @@ describe('REST', () => {
     expect((await app.inject('/api/track/abcdef?from=10&to=5')).statusCode).toBe(400);
   });
 
+  it('GET /api/track/:hex?format= exports KML and GPX', async () => {
+    const kml = await app.inject('/api/track/abcdef?format=kml');
+    expect(kml.statusCode).toBe(200);
+    expect(kml.headers['content-type']).toContain('vnd.google-earth.kml');
+    expect(kml.headers['content-disposition']).toContain('skytrace-abcdef.kml');
+    expect(kml.body).toContain('<gx:Track>');
+    const gpx = await app.inject('/api/track/abcdef?format=gpx');
+    expect(gpx.body).toContain('<trkpt');
+    expect((await app.inject('/api/track/999999?format=gpx')).statusCode).toBe(404);
+    expect((await app.inject('/api/track/abcdef?format=csv')).statusCode).toBe(400);
+  });
+
+  it('GET /api/overhead ranks what is above a point', async () => {
+    const res = await app.inject('/api/overhead?lat=38.77&lon=-9.13&limit=3');
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({ observer: { lat: 38.77, lon: -9.13 } });
+    expect((await app.inject('/api/overhead?lat=100&lon=0')).statusCode).toBe(400);
+  });
+
   it('GET /api/flights/:hex', async () => {
     const res = (await app.inject('/api/flights/abcdef')).json<{ flights: unknown[] }>();
     expect(res.flights).toHaveLength(1);

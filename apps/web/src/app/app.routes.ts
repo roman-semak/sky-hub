@@ -24,6 +24,11 @@ export const routes: Routes = [
     title: $localize`:@@title.stats:Statistics — SkyTrace`,
   },
   {
+    path: 'me',
+    loadComponent: async () => (await import('./pages/me.page')).MePage,
+    title: $localize`:@@title.me:Above me — SkyTrace`,
+  },
+  {
     path: 'alerts',
     loadComponent: async () => (await import('./pages/alerts.page')).AlertsPage,
     title: $localize`:@@title.alerts:Emergency monitor — SkyTrace`,

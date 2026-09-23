@@ -133,6 +133,27 @@
         }
       </button>
       <a
+        class="icon-action text"
+        [href]="f.kmlUrl"
+        download
+        i18n-title="@@flight.exportKml"
+        title="Export track as KML"
+        i18n-aria-label="@@flight.exportKml"
+        aria-label="Export track as KML"
+        data-testid="export-kml"
+        >KML</a
+      >
+      <a
+        class="icon-action text"
+        [href]="f.gpxUrl"
+        download
+        i18n-title="@@flight.exportGpx"
+        title="Export track as GPX"
+        i18n-aria-label="@@flight.exportGpx"
+        aria-label="Export track as GPX"
+        >GPX</a
+      >
+      <a
         class="icon-action"
         [routerLink]="['/aircraft', f.hex]"
         title="Flight history"

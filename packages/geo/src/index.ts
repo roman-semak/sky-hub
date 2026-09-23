@@ -38,5 +38,6 @@ export {
   STALE_FADE_START_SEC,
   STALE_REMOVE_SEC,
 } from './dead-reckoning.js';
+export { lookAngles, compassPoint, FEET_TO_M, type LookAngles } from './look-angles.js';
 export { simplifyRdp } from './ramer-douglas-peucker.js';
 export { worldCoverageGrid, type CoverageCircle } from './coverage-grid.js';

@@ -29,6 +29,7 @@ import { StreamClient } from '../core/live/stream-client.service';
 import { MapUiStore } from '../core/state/map-ui.store';
 import { IconComponent } from '../ui/icon/icon.component';
 import { AltitudeChartComponent } from './altitude-chart.component';
+import { trackExportUrl } from './track-export-url';
 
 /** Readouts refresh at 4 Hz; nothing else in the DOM changes per frame. */
 const TICK_MS = 250;
@@ -147,6 +148,8 @@ export class FlightPanelComponent {
         ],
       ] as const,
       photoUrl: `https://www.planespotters.net/hex/${hex.replace('~', '').toUpperCase()}`,
+      kmlUrl: trackExportUrl(hex, 'kml'),
+      gpxUrl: trackExportUrl(hex, 'gpx'),
     };
   });
 

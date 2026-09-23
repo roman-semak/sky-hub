@@ -51,6 +51,6 @@ export class TabBarComponent {
     { path: '/', icon: 'globe', label: $localize`:@@nav.map:Map` },
     { path: '/search', icon: 'magnifying-glass', label: $localize`:@@nav.search:Search` },
     { path: '/following', icon: 'bookmark-simple', label: $localize`:@@nav.following:Following` },
-    { path: '/stats', icon: 'user', label: $localize`:@@nav.stats:Stats` },
+    { path: '/me', icon: 'user', label: $localize`:@@nav.me:Me` },
   ] as const;
 }

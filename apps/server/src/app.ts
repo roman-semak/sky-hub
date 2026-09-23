@@ -3,7 +3,9 @@ import websocket from '@fastify/websocket';
 import Fastify, { type FastifyBaseLogger, type FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { computeLiveStats, type LiveStats } from './api/live-stats.js';
+import { overhead } from './api/overhead.js';
 import { searchAircraft } from './api/search.js';
+import { exportTrack, MIME, type TrackFormat } from './api/track-export.js';
 import { airportTraffic } from './airport/airport-traffic.js';
 import type { HistoryService } from './history/history-service.js';
 import type { AviationWeather } from './weather/aviation-weather.js';
@@ -73,6 +75,13 @@ const WindQuery = z.object({
 });
 /** Playback windows are capped so one request cannot scan the whole archive. */
 const MAX_PLAYBACK_MS = 2 * HOUR_MS;
+const OverheadQuery = z.object({
+  lat: z.coerce.number().min(-90).max(90),
+  lon: z.coerce.number().min(-180).max(180),
+  limit: z.coerce.number().int().min(1).max(20).default(8),
+  elevationFt: z.coerce.number().min(-1400).max(30_000).default(0),
+});
+const TrackFormatQuery = z.object({ format: z.enum(['kml', 'gpx']).optional() });
 const CallsignParams = z.object({ callsign: z.string().min(2).max(8) });
 const CodeParams = z.object({ code: z.string().regex(/^[A-Za-z0-9]{3,4}$/) });
 
@@ -177,14 +186,35 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   app.get('/api/track/:hex', async (req, reply) => {
     const params = HexParams.safeParse(req.params);
     const query = TrackQuery.safeParse(req.query);
-    if (!params.success || !query.success)
+    const wanted = TrackFormatQuery.safeParse(req.query);
+    if (!params.success || !query.success || !wanted.success) {
       return reply.code(400).send({ error: 'invalid request' });
+    }
     const hex = params.data.hex.toLowerCase();
     const to = query.data.to ?? now();
     const from = query.data.from ?? to - HOUR_MS;
     if (from > to) return reply.code(400).send({ error: 'from must be <= to' });
     const { points, raw } = await deps.history.track(hex, from, to);
-    return { hex, points, raw };
+    const format: TrackFormat | undefined = wanted.data.format;
+    if (format === undefined) return { hex, points, raw };
+    if (points.length === 0) return reply.code(404).send({ error: 'no recorded track' });
+    const callsign = deps.store.get(hex)?.ac.callsign ?? null;
+    const name = `${callsign ?? hex.toUpperCase()} ${new Date(from).toISOString().slice(0, 16)}Z`;
+    return reply
+      .type(MIME[format])
+      .header('content-disposition', `attachment; filename="skytrace-${hex}.${format}"`)
+      .send(exportTrack(points, format, name));
+  });
+
+  app.get('/api/overhead', (req, reply) => {
+    const q = OverheadQuery.safeParse(req.query);
+    if (!q.success) return reply.code(400).send({ error: 'invalid request' });
+    const { lat, lon, limit, elevationFt } = q.data;
+    return {
+      observer: { lat, lon, elevationFt },
+      generatedAt: now(),
+      aircraft: overhead(deps.worker.currentIndex, lat, lon, limit, undefined, elevationFt),
+    };
   });
 
   app.get('/api/flights/:hex', async (req, reply) => {

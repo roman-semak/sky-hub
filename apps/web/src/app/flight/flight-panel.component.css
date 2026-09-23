@@ -211,3 +211,13 @@ h1 {
 .follow[aria-pressed='true'] {
   background: rgba(var(--acc), 0.24);
 }
+
+.icon-action.text {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.actions {
+  flex-wrap: wrap;
+}
