@@ -1,4 +1,4 @@
-import { mkdir, rename, writeFile } from 'node:fs/promises';
+import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { zstdCompressSync } from 'node:zlib';
 import type { Aircraft } from '@skytrace/adsb-types';
@@ -128,7 +128,10 @@ export class HistoryWriter {
       this.written.bytes += bytes.byteLength;
       this.log.debug({ path, rows: batch.length, bytes: bytes.byteLength }, 'history flushed');
     } catch (err) {
-      // Losing five minutes of history beats crashing the ingest.
+      // Losing five minutes of history beats crashing the ingest. Drop the
+      // half-written temp file: on a full volume it would never be reused,
+      // and it is what filled the volume in the first place.
+      await rm(`${path}.tmp`, { force: true }).catch(() => undefined);
       this.log.error({ path, rows: batch.length, err: String(err) }, 'history flush failed');
     }
   }
