@@ -2,8 +2,8 @@
   <a routerLink="/" class="back" i18n="@@common.backToMap">← Map</a>
   <header>
     <h1 id="me-title" i18n="@@me.title">Above me</h1>
-    @if (age(); as seconds) {
-    <span class="muted" i18n="@@me.updated">updated {{ seconds }} s ago</span>
+    @if (age() !== null) {
+    <span class="muted" i18n="@@me.updated">updated {{ age() }} s ago</span>
     }
   </header>
 

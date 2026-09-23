@@ -103,6 +103,8 @@ export class WeatherLayersService {
         return;
       }
       const body = (await res.json()) as { cellDeg: number; cells: HeatCell[] };
+      // The layer may have been switched off while this was in flight.
+      if (!this.heatmapOn()) return;
       this.heatmap.set({ cellDeg: body.cellDeg, cells: body.cells });
     } catch {
       this.heatmap.set(null);
@@ -115,7 +117,7 @@ export class WeatherLayersService {
       if (!res.ok) return;
       const maps = (await res.json()) as RainViewerMaps;
       const latest = maps.radar.past.at(-1);
-      if (latest === undefined) return;
+      if (latest === undefined || !this.radarOn()) return;
       // Colour scheme 2 (universal blue), smoothed, snow shown.
       this.radarTiles.set(`${maps.host}${latest.path}/256/{z}/{x}/{y}/2/1_1.png`);
       this.radarTime.set(latest.time * 1000);
@@ -134,7 +136,9 @@ export class WeatherLayersService {
     });
     try {
       const res = await this.fetchFn(`/api/wind?${params.toString()}`);
-      this.wind.set(res.ok ? ((await res.json()) as WindGrid) : null);
+      const grid = res.ok ? ((await res.json()) as WindGrid) : null;
+      if (!this.windOn()) return;
+      this.wind.set(grid);
     } catch {
       this.wind.set(null);
     }

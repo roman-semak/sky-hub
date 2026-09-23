@@ -56,8 +56,10 @@ export class MePage {
     this.overhead.aircraft().map((a) => ({
       hex: a.hex,
       title: a.callsign ?? a.registration ?? a.hex.toUpperCase(),
+      // The formatters render an unknown value as an em dash; an empty
+      // column reads better than `A20N · FL340 · —`.
       sub: [a.typeCode, formatAltitude(a.altitude, false), formatSpeed(a.gs)]
-        .filter(Boolean)
+        .filter((part) => part !== null && part !== '—')
         .join(' · '),
       bearing: bearingLabel(a.azimuth),
       elevation: `${Math.round(a.elevation)}°`,
