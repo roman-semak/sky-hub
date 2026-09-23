@@ -1,10 +1,11 @@
 import {
+  METERS_PER_NM,
   bboxAroundPoint,
+  bboxContains,
   bboxIntersects,
   bboxWidth,
   encodeGeohash,
   haversineDistance,
-  METERS_PER_NM,
   type BBox,
   type CoverageCircle,
 } from '@skytrace/geo';
@@ -28,6 +29,11 @@ export interface SchedulerSnapshot {
 /** How much more often a watched circle is refreshed than an unwatched one. */
 const DEMAND_WEIGHT = 30;
 const MAX_RADIUS_NM = 250;
+
+/** Samples per axis used to estimate how much of a viewport the grid covers. */
+const COVERAGE_SAMPLES = 5;
+/** Below this, the viewport also gets a dynamic circle for the rest of it. */
+const COVERED_FRACTION = 0.6;
 
 interface Slot {
   circle: CoverageCircle;
@@ -73,22 +79,25 @@ export class CoverageScheduler {
   }
 
   /**
-   * Replaces the set of viewports clients are looking at. Viewports that no
-   * grid circle touches get a dynamic circle (served by fallback providers).
+   * Replaces the set of viewports clients are looking at. A viewport the
+   * static grid barely covers also gets a dynamic circle, served by the
+   * fallback providers.
    */
   setDemand(viewports: readonly BBox[]): void {
     const wanted = new Set<string>();
     for (const slot of this.slots.values()) slot.demanded = false;
     for (const vp of viewports) {
-      let covered = false;
+      const grid: BBox[] = [];
       for (const slot of this.slots.values()) {
         if (slot.dynamic) continue;
         if (bboxIntersects(slot.circle.bbox, vp)) {
           slot.demanded = true;
-          covered = true;
+          grid.push(slot.circle.bbox);
         }
       }
-      if (covered) continue;
+      // Touching one circle is not coverage: a view of the mid-Atlantic that
+      // clips the European grid would otherwise never get a fallback circle.
+      if (coveredFraction(vp, grid) >= COVERED_FRACTION) continue;
       const dyn = dynamicCircle(vp);
       wanted.add(dyn.id);
       const existing = this.slots.get(dyn.id);
@@ -177,3 +186,25 @@ function dynamicCircle(vp: BBox): CoverageCircle {
   const id = `dyn-${encodeGeohash(lat, lon, 3)}`;
   return { id, lat, lon, radiusNm, bbox: bboxAroundPoint(lat, lon, radiusNm * METERS_PER_NM) };
 }
+
+/**
+ * Fraction of `vp` that the given grid boxes cover, estimated on a lattice of
+ * {@link COVERAGE_SAMPLES}² points. Sampling handles overlapping circles and
+ * the antimeridian without any area arithmetic.
+ */
+function coveredFraction(vp: BBox, boxes: readonly BBox[]): number {
+  if (boxes.length === 0) return 0;
+  const [w, s, e, n] = vp;
+  const width = e >= w ? e - w : e + 360 - w;
+  let inside = 0;
+  for (let i = 0; i < COVERAGE_SAMPLES; i++) {
+    const lon = normalizeLon(w + (width * (i + 0.5)) / COVERAGE_SAMPLES);
+    for (let j = 0; j < COVERAGE_SAMPLES; j++) {
+      const lat = s + ((n - s) * (j + 0.5)) / COVERAGE_SAMPLES;
+      if (boxes.some((b) => bboxContains(b, lat, lon))) inside++;
+    }
+  }
+  return inside / (COVERAGE_SAMPLES * COVERAGE_SAMPLES);
+}
+
+const normalizeLon = (lon: number): number => ((((lon + 180) % 360) + 360) % 360) - 180;

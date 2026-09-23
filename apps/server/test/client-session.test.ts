@@ -6,12 +6,8 @@ import { World } from './world.js';
 
 const LISBON: [number, number, number, number] = [-11, 37, -8, 40];
 
-function frames(
-  session: ClientSession,
-  view: ReturnType<World['rebuild']>,
-  removed: string[] = [],
-): Frame[] {
-  const p = session.buildFrames(view, removed);
+function frames(session: ClientSession, view: ReturnType<World['rebuild']>): Frame[] {
+  const p = session.buildFrames(view);
   p.commit();
   return p.frames.map((f) => decodeFrame(f));
 }
@@ -38,7 +34,7 @@ describe('ClientSession', () => {
     const w = new World().put({ hex: '000001' });
     const s = new ClientSession();
     expect(s.isDue(w.now)).toBe(false);
-    expect(s.buildFrames(w.rebuild(), []).frames).toHaveLength(0);
+    expect(s.buildFrames(w.rebuild()).frames).toHaveLength(0);
   });
 
   it('sends a snapshot first, then only changes and removals', () => {
@@ -70,13 +66,13 @@ describe('ClientSession', () => {
     expect(hexes(next[1])).toEqual(['000001']);
   });
 
-  it('forwards global removals of aircraft the client has', () => {
+  it('removes an evicted aircraft the client had been sent', () => {
     const w = new World().put({ hex: '000001' });
     const s = new ClientSession();
     s.subscribe({ bbox: LISBON, zoom: 9 });
     frames(s, w.rebuild());
     w.store.evictStale(w.now + 1_000_000, 1);
-    const out = frames(s, w.rebuild(), ['000001', 'ffffff']);
+    const out = frames(s, w.rebuild());
     expect(out[0]?.type === FrameType.Removals && out[0].removals).toHaveLength(1);
   });
 
@@ -84,7 +80,7 @@ describe('ClientSession', () => {
     const w = new World().put({ hex: '000001' });
     const s = new ClientSession();
     s.subscribe({ bbox: LISBON, zoom: 9 });
-    s.buildFrames(w.rebuild(), []);
+    s.buildFrames(w.rebuild());
     const again = frames(s, w.rebuild());
     expect(again[0]?.type).toBe(FrameType.Snapshot);
   });

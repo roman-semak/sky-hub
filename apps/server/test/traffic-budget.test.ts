@@ -16,7 +16,7 @@ describe('traffic budget', () => {
     for (let t = 0; t < seconds; t++) {
       w.now += 1000;
       w.put(...World.grid(600, w.now));
-      const p = s.buildFrames(w.rebuild(), []);
+      const p = s.buildFrames(w.rebuild());
       p.commit();
       if (t > 0) bytes += p.frames.reduce((a, f) => a + f.byteLength, 0);
     }

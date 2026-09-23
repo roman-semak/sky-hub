@@ -60,6 +60,26 @@ describe('StreamHub', () => {
     expect(demand.at(-1)).toEqual([]);
   });
 
+  it('will not let a client force a frame per message', () => {
+    const { w, hub } = setup();
+    hub.publish(w.rebuild().index, []);
+    const sock = new FakeSocket();
+    const h = hub.connect(sock);
+
+    // Alternating viewports each force a fresh snapshot. In one second the
+    // first is answered and the rest wait for the floor, so the per-client
+    // traffic budget holds even against a client that spams `sub`.
+    const pan = (i: number): string =>
+      JSON.stringify({ t: 'sub', bbox: [-11 + i * 0.5, 37, -8 + i * 0.5, 40], zoom: 9 });
+    for (let i = 0; i < 12; i++) h.onMessage(pan(i));
+    expect(sock.binary).toHaveLength(1);
+
+    // Once the floor has passed, the next pan is answered at once.
+    w.now += 300;
+    h.onMessage(pan(20));
+    expect(sock.binary).toHaveLength(2);
+  });
+
   it('does not count low-zoom viewports as demand', () => {
     const { hub, demand } = setup();
     const h = hub.connect(new FakeSocket());

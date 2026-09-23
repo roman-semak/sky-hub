@@ -91,6 +91,49 @@ describe('OpenSkyProvider', () => {
     ).toMatchObject({ kind: 'error', message: 'down' });
   });
 
+  it('skips a state vector whose address is not six hex digits', async () => {
+    const bad = [...sv];
+    bad[0] = '3c64';
+    const fetchFn = vi
+      .fn<FetchFn>()
+      .mockResolvedValue(jsonResponse({ time: 1_700_000_001, states: [bad, sv] }));
+    const provider = new OpenSkyProvider(1, 1, fetchFn, () => 0);
+
+    const out = await provider.fetchCircle(circle, new AbortController().signal);
+    expect(out).toMatchObject({ kind: 'ok', invalid: 1 });
+    expect(out.kind === 'ok' && out.aircraft).toHaveLength(1);
+  });
+
+  it('releases the body of a rate-limited response', async () => {
+    const body = new Response('too many', { status: 429 });
+    const provider = new OpenSkyProvider(
+      1,
+      1,
+      async () => body,
+      () => 0,
+    );
+
+    await provider.fetchCircle(circle, new AbortController().signal);
+    // Undici holds the connection open until the body is read or cancelled.
+    expect(body.bodyUsed || body.body === null || body.body.locked).toBe(true);
+  });
+
+  it('queries the wider half of an area that crosses the antimeridian', async () => {
+    const fetchFn = vi
+      .fn<FetchFn>()
+      .mockResolvedValue(jsonResponse({ time: 1_700_000_001, states: [] }));
+    const provider = new OpenSkyProvider(1, 1, fetchFn, () => 0);
+    // 10° east of the line, 30° west of it: OpenSky cannot take the whole
+    // box, and dropping the wider half loses three quarters of the area.
+    const pacific = { ...makeCircle('pac', 25, 170), bbox: [170, 10, -150, 40] as const };
+
+    await provider.fetchCircle(pacific, new AbortController().signal);
+
+    const url = new URL(String(fetchFn.mock.calls[0]?.[0]));
+    expect(Number(url.searchParams.get('lomin'))).toBe(-180);
+    expect(Number(url.searchParams.get('lomax'))).toBe(-150);
+  });
+
   it('handles null callsign and ground state', async () => {
     const ground = [...sv];
     ground[1] = null;

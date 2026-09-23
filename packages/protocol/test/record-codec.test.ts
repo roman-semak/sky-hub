@@ -63,6 +63,30 @@ describe('record codec', () => {
     );
   });
 
+  it('saturates an impossible position instead of wrapping the hemisphere', () => {
+    const r = roundTrip({
+      icao: 1,
+      nonIcao: false,
+      lat: 2500,
+      lon: -4000,
+      alt: 1000,
+      gs: 100,
+      track: 0,
+      baroRate: 0,
+      squawk: '1000',
+      onGround: false,
+      mlat: false,
+      tisb: false,
+      military: false,
+      special: false,
+      emergency: 'none',
+      category: 'A3',
+      age: 0,
+    });
+    expect(r.lat).toBe(90);
+    expect(r.lon).toBe(-180);
+  });
+
   it('saturates out-of-range values instead of wrapping', () => {
     const base = roundTrip({
       icao: 1,

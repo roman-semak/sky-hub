@@ -16,6 +16,9 @@ export interface StreamSocket {
 
 const OPEN = 1;
 
+/** Floor between two frames sent outside the publish tick, ms. */
+const MIN_IMMEDIATE_MS = 250;
+
 export interface StreamHubOptions {
   /** Skip a client's tick while this many bytes are still queued (backpressure). */
   readonly maxBufferedBytes: number;
@@ -35,6 +38,8 @@ interface Conn {
   readonly session: ClientSession;
   msgWindowStart: number;
   msgCount: number;
+  /** Unix ms of the last frame sent outside the publish tick. */
+  lastImmediateAt: number;
   rttMs: number | null;
   skippedTicks: number;
   bytesSent: number;
@@ -92,6 +97,7 @@ export class StreamHub {
       session: new ClientSession(this.countryOf),
       msgWindowStart: this.now(),
       msgCount: 0,
+      lastImmediateAt: 0,
       rttMs: null,
       skippedTicks: 0,
       bytesSent: 0,
@@ -115,7 +121,9 @@ export class StreamHub {
   }
 
   /** Called once per spatial-index rebuild. */
-  publish(index: SpatialIndex, removed: readonly string[]): void {
+  /** `_removed` is part of the worker's listener contract; sessions derive
+   * their own removals from what they have actually sent. */
+  publish(index: SpatialIndex, _removed: readonly string[]): void {
     const t0 = performance.now();
     const now = this.now();
     this.index = index;
@@ -129,12 +137,12 @@ export class StreamHub {
       for (const conn of this.conns) this.sendJson(conn, { t: 'alerts', items: alerts });
     }
     for (const conn of this.conns) {
-      if (conn.session.isDue(now)) this.flush(conn, view, removed);
+      if (conn.session.isDue(now)) this.flush(conn, view);
     }
     this.stats.lastFanoutMs = Math.round((performance.now() - t0) * 10) / 10;
   }
 
-  private flush(conn: Conn, view: WorldView, removed: readonly string[]): void {
+  private flush(conn: Conn, view: WorldView): void {
     if (conn.socket.readyState !== OPEN) return;
     if (conn.socket.bufferedAmount > this.opts.maxBufferedBytes) {
       // Slow consumer: skip; the next delta still covers everything missed.
@@ -142,7 +150,7 @@ export class StreamHub {
       this.stats.skippedTicks++;
       return;
     }
-    const pending = conn.session.buildFrames(view, removed);
+    const pending = conn.session.buildFrames(view);
     for (const frame of pending.frames) {
       conn.socket.send(frame);
       conn.bytesSent += frame.byteLength;
@@ -205,9 +213,18 @@ export class StreamHub {
     }
   }
 
+  /**
+   * Answers a subscription change straight away, but no faster than
+   * {@link MIN_IMMEDIATE_MS}. A client may send up to `maxMessagesPerSec`
+   * messages per second; without this floor each one could force a full
+   * frame and blow the per-client traffic budget (SPEC § 7).
+   */
   private flushNow(conn: Conn): void {
     if (this.index === null) return;
-    this.flush(conn, { index: this.index, now: this.now() }, []);
+    const now = this.now();
+    if (now - conn.lastImmediateAt < MIN_IMMEDIATE_MS) return;
+    conn.lastImmediateAt = now;
+    this.flush(conn, { index: this.index, now });
   }
 
   private publishDemand(): void {

@@ -3,7 +3,7 @@ import type { Logger } from '../logger.js';
 import { SpatialIndex } from '../state/spatial-index.js';
 import type { StateStore } from '../state/state-store.js';
 import type { CoverageScheduler } from './coverage-scheduler.js';
-import type { ProviderPool } from './provider-pool.js';
+import type { PooledProvider, ProviderPool } from './provider-pool.js';
 import type { Provider, ProviderOutcome } from './provider.js';
 
 export interface IngestWorkerOptions {
@@ -110,34 +110,56 @@ export class IngestWorker {
         member.health.begin(now);
         const p = this.safeFetch(member.provider, job.circle).then((outcome) => {
           const done = this.now();
-          if (outcome.kind === 'ok') {
-            member.health.succeed(done, done - now);
-            const accepted = this.store.upsertMany(outcome.aircraft);
-            this.stats.fetches++;
-            this.stats.acceptedUpdates += accepted;
-            this.stats.invalidEntries += outcome.invalid;
-            if (outcome.invalid > 0) {
-              this.log.warn(
-                { provider: member.provider.id, invalid: outcome.invalid },
-                'skipped invalid aircraft',
-              );
-            }
-            this.scheduler.complete(job.circle.id, done, true);
-          } else {
-            const msg =
-              outcome.kind === 'rate-limited' ? `HTTP ${outcome.status}` : outcome.message;
-            member.health.fail(done, outcome.kind, msg);
-            this.scheduler.complete(job.circle.id, done, false);
-            this.log.debug(
-              { provider: member.provider.id, circle: job.circle.id, msg },
-              'fetch failed',
+          try {
+            this.settle(member, job, outcome, now, done);
+          } catch (err) {
+            // Bookkeeping must happen even if the store or the index throws:
+            // otherwise the provider stays "in flight" and its circle is
+            // never rescheduled, and the rejection would take the process
+            // down with it.
+            this.log.error(
+              { provider: member.provider.id, circle: job.circle.id, err },
+              'ingest bookkeeping failed',
             );
+            member.health.fail(done, 'error', String(err));
+            this.scheduler.complete(job.circle.id, done, false);
           }
         });
         this.pending.add(p);
-        void p.finally(() => this.pending.delete(p));
+        void p.finally(() => {
+          this.pending.delete(p);
+        });
       }
     }
+  }
+
+  /** The bookkeeping half of a fetch: health, stats and scheduling. */
+  private settle(
+    member: PooledProvider,
+    job: { circle: CoverageCircle },
+    outcome: ProviderOutcome,
+    now: number,
+    done: number,
+  ): void {
+    if (outcome.kind === 'ok') {
+      member.health.succeed(done, done - now);
+      const accepted = this.store.upsertMany(outcome.aircraft);
+      this.stats.fetches++;
+      this.stats.acceptedUpdates += accepted;
+      this.stats.invalidEntries += outcome.invalid;
+      if (outcome.invalid > 0) {
+        this.log.warn(
+          { provider: member.provider.id, invalid: outcome.invalid },
+          'skipped invalid aircraft',
+        );
+      }
+      this.scheduler.complete(job.circle.id, done, true);
+      return;
+    }
+    const msg = outcome.kind === 'rate-limited' ? `HTTP ${outcome.status}` : outcome.message;
+    member.health.fail(done, outcome.kind, msg);
+    this.scheduler.complete(job.circle.id, done, false);
+    this.log.debug({ provider: member.provider.id, circle: job.circle.id, msg }, 'fetch failed');
   }
 
   /** Evicts stale aircraft and rebuilds the index. Exposed for tests. */
