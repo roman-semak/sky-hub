@@ -6,16 +6,16 @@ const HOUR = 3_600_000;
 const T = Date.UTC(2026, 8, 23, 10, 0, 0);
 
 describe('DensityGrid', () => {
-  it('counts airborne positions into quarter-degree cells', () => {
+  it('counts airborne positions into half-degree cells', () => {
     const g = new DensityGrid();
     // Three fixes inside one cell, one in the next cell east.
-    g.record(makeAircraft({ lat: 38.6, lon: -9.4 }), T);
-    g.record(makeAircraft({ lat: 38.7, lon: -9.35 }), T);
-    g.record(makeAircraft({ lat: 38.72, lon: -9.3 }), T);
-    g.record(makeAircraft({ lat: 38.7, lon: -9.1 }), T);
+    g.record(makeAircraft({ lat: 38.7, lon: -9.4 }), T);
+    g.record(makeAircraft({ lat: 38.9, lon: -9.2 }), T);
+    g.record(makeAircraft({ lat: 38.6, lon: -9.1 }), T);
+    g.record(makeAircraft({ lat: 38.7, lon: -8.4 }), T);
     const cells = g.query([-11, 37, -8, 40], 100, T);
     expect(cells).toHaveLength(2);
-    expect(cells[0]).toMatchObject({ count: 3, lat: 38.625, lon: -9.375 });
+    expect(cells[0]).toMatchObject({ count: 3, lat: 38.75, lon: -9.25 });
     expect(cells[1]?.count).toBe(1);
     expect(g.size).toBe(2);
   });

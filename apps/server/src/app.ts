@@ -320,6 +320,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       stream: deps.hub.statistics,
       routesCached: deps.routes.size,
       history: deps.historyStats?.() ?? null,
+      density: { cells: deps.density.size, cellDeg: deps.density.cellDeg },
       staticData: deps.staticIndex !== null,
       scheduler: deps.scheduler.snapshot(t),
       providers: deps.pool.snapshot(t),

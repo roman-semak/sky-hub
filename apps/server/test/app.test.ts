@@ -194,7 +194,7 @@ describe('REST', () => {
   it('GET /api/heatmap returns density cells', async () => {
     const res = await app.inject('/api/heatmap?bbox=-11,37,-8,40');
     expect(res.statusCode).toBe(200);
-    expect(res.json()).toMatchObject({ windowHours: 24, cellDeg: 0.25 });
+    expect(res.json()).toMatchObject({ windowHours: 24, cellDeg: 0.5 });
     expect((await app.inject('/api/heatmap?bbox=nope')).statusCode).toBe(400);
   });
 
