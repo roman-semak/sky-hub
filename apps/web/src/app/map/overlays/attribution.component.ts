@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { WeatherLayersService } from '../../weather/weather-layers.service';
 
 /**
  * Data attribution and disclaimer (SPEC § 9: ODbL attribution in the footer,
@@ -29,7 +30,11 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
         <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener"
           >OpenStreetMap</a
         >
-        · © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a> ·
+        · © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>
+        @for (s of layerSources(); track s.name) {
+          · <a [href]="s.href" target="_blank" rel="noopener">{{ s.name }}</a>
+        }
+        ·
         <span i18n="@@attr.disclaimer">Non-commercial, not for navigation</span>
       </p>
     </div>
@@ -80,5 +85,29 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
   `,
 })
 export class AttributionComponent {
+  private readonly weather = inject(WeatherLayersService);
   protected readonly open = signal(false);
+
+  /**
+   * Credits for the optional layers, shown only while they are on: the
+   * licences (RainViewer's terms, Open-Meteo CC BY 4.0, the terrain tiles'
+   * mixed sources) require naming them wherever the data is displayed, and
+   * MapLibre's own attribution control is off (ADR-009).
+   */
+  protected readonly layerSources = computed(() => {
+    const out: { name: string; href: string }[] = [];
+    if (this.weather.radarOn()) {
+      out.push({ name: 'RainViewer', href: 'https://www.rainviewer.com' });
+    }
+    if (this.weather.windOn()) {
+      out.push({ name: 'Open-Meteo', href: 'https://open-meteo.com' });
+    }
+    if (this.weather.threeD()) {
+      out.push({
+        name: 'Mapzen / AWS Open Data',
+        href: 'https://registry.opendata.aws/terrain-tiles/',
+      });
+    }
+    return out;
+  });
 }
