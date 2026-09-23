@@ -44,6 +44,36 @@ describe('WeatherLayersService', () => {
     expect(w.radarTiles()).toBeNull();
   });
 
+  it('drops a radar answer that lands after the layer was switched off', async () => {
+    const pending: { release: ((r: Response) => void) | null } = { release: null };
+    const fetchFn = vi.fn().mockReturnValue(
+      new Promise<Response>((resolve) => {
+        pending.release = resolve;
+      }),
+    );
+    const w = setup(fetchFn);
+    w.radarOn.set(true);
+    TestBed.tick();
+    await vi.waitFor(() => {
+      expect(fetchFn).toHaveBeenCalled();
+    });
+
+    w.radarOn.set(false);
+    TestBed.tick();
+    pending.release?.(
+      new Response(
+        JSON.stringify({
+          host: 'https://tiles.example',
+          radar: { past: [{ time: 3, path: '/c' }] },
+        }),
+      ),
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(w.radarTiles()).toBeNull();
+  });
+
   it('loads the wind grid for the viewport and level, debounced', async () => {
     vi.useFakeTimers();
     const fetchFn = vi

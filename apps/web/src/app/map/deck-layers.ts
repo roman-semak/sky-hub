@@ -43,6 +43,23 @@ type Path = readonly (readonly [number, number])[];
 const toPath = (p: Path): [number, number][] => p.map(([lon, lat]) => [lon, lat]);
 
 /**
+ * Caches a derived value against the identity of its source. The frame loop
+ * rebuilds the layer list 60×/s; handing deck.gl a fresh array each time
+ * makes it re-tessellate paths and re-lay out glyphs that never changed.
+ */
+function memoizeByRef<In, Out>(derive: (value: In) => Out): (value: In) => Out {
+  let lastIn: In | undefined;
+  let lastOut: Out | undefined;
+  return (value) => {
+    if (value !== lastIn || lastOut === undefined) {
+      lastIn = value;
+      lastOut = derive(value);
+    }
+    return lastOut;
+  };
+}
+
+/**
  * The deck.gl half of the map (ADR-005, ADR-009). Kept in its own lazy chunk
  * so MapLibre can paint the basemap before deck.gl's ~0.5 MB is evaluated.
  */
@@ -52,6 +69,13 @@ export function createDeckOverlay(map: MlMap, scene: DeckScene, cb: DeckCallback
   const overlay = new MapboxOverlay({ interleaved: false, layers: [] });
   map.addControl(overlay);
   let hovered: string | null = null;
+
+  const trailData = memoizeByRef((p: Path) => [{ path: toPath(p) }]);
+  const hoverTrailData = memoizeByRef((p: Path) => [{ path: toPath(p) }]);
+  const clusterLabels = memoizeByRef((list: readonly Cluster[]) => ({
+    labelled: list.filter((c) => c.count >= 5),
+    maxCount: list.reduce((m, c) => Math.max(m, c.count), 1),
+  }));
 
   const pickHex = (info: PickingInfo): string | null =>
     info.layer?.id === 'aircraft' && info.index >= 0
@@ -68,8 +92,9 @@ export function createDeckOverlay(map: MlMap, scene: DeckScene, cb: DeckCallback
           data: heat.cells,
           getPosition: (c) => [c.lon, c.lat],
           getWeight: (c) => c.count,
-          radiusPixels: heatRadiusPixels(heat.cellDeg, map.getZoom()),
-          updateTriggers: { radiusPixels: Math.round(map.getZoom() * 4) },
+          // Quantized: a radius that changes by a fraction of a pixel on
+          // every zoom frame rebuilds the layer's weight texture for nothing.
+          radiusPixels: heatRadiusPixels(heat.cellDeg, Math.round(map.getZoom() * 2) / 2),
           intensity: 1,
           threshold: 0.03,
           aggregation: 'SUM',
@@ -95,7 +120,7 @@ export function createDeckOverlay(map: MlMap, scene: DeckScene, cb: DeckCallback
       );
     }
     if (clusters.length > 0) {
-      const maxCount = Math.max(...clusters.map((c) => c.count));
+      const { labelled, maxCount } = clusterLabels(clusters);
       out.push(
         new ScatterplotLayer<Cluster>({
           id: 'clusters',
@@ -110,7 +135,7 @@ export function createDeckOverlay(map: MlMap, scene: DeckScene, cb: DeckCallback
         }),
         new TextLayer<Cluster>({
           id: 'cluster-counts',
-          data: clusters.filter((c) => c.count >= 5),
+          data: labelled,
           getPosition: (c) => [c.lon, c.lat],
           getText: (c) => (c.count >= 1000 ? `${(c.count / 1000).toFixed(1)}k` : String(c.count)),
           getSize: 11,
@@ -124,7 +149,7 @@ export function createDeckOverlay(map: MlMap, scene: DeckScene, cb: DeckCallback
       out.push(
         new PathLayer<{ path: [number, number][] }>({
           id: 'hover-trail',
-          data: [{ path: toPath(hoverTrail) }],
+          data: hoverTrailData(hoverTrail),
           getPath: (d) => d.path,
           getColor: [233, 233, 237, 90],
           getWidth: 1.5,
@@ -136,7 +161,7 @@ export function createDeckOverlay(map: MlMap, scene: DeckScene, cb: DeckCallback
       out.push(
         new PathLayer<{ path: [number, number][] }>({
           id: 'trail',
-          data: [{ path: toPath(trail) }],
+          data: trailData(trail),
           getPath: (d) => d.path,
           getColor: [150, 138, 224, 200],
           getWidth: 2,
@@ -167,7 +192,10 @@ export function createDeckOverlay(map: MlMap, scene: DeckScene, cb: DeckCallback
         pickable: true,
         autoHighlight: false,
         extensions: [extension],
-        updateTriggers: { getIcon: scene.iconVersion, billboard: scene.threeD },
+        // The binary attributes are a fresh object each frame, so deck.gl
+        // re-reads every accessor anyway; `iconVersion` only documents when
+        // the icon assignment actually changed.
+        updateTriggers: { getIcon: scene.iconVersion },
         onClick: (info: PickingInfo) => {
           cb.onSelect(pickHex(info));
         },

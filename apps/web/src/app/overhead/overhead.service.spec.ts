@@ -38,6 +38,48 @@ describe('OverheadService', () => {
     TestBed.resetTestingModule();
   });
 
+  it('ignores a permission answered after the page is gone', async () => {
+    const fetchFn = vi.fn().mockResolvedValue(ok());
+    // A holder, so the assignment inside the callback is visible to the type.
+    const pending: { answer: (() => void) | null } = { answer: null };
+    const geo = {
+      getCurrentPosition: (cb: PositionCallback) => {
+        pending.answer = () => {
+          cb({ coords: { latitude: 38.7, longitude: -9.1, accuracy: 25 } } as GeolocationPosition);
+        };
+      },
+    };
+    const s = setup(geo, fetchFn);
+    s.start();
+    s.stop();
+    pending.answer?.();
+    await Promise.resolve();
+
+    expect(fetchFn).not.toHaveBeenCalled();
+    expect(s.position()).toBeNull();
+  });
+
+  it('keeps a point picked on the map when the device answers late', async () => {
+    const fetchFn = vi.fn().mockResolvedValue(ok());
+    // A holder, so the assignment inside the callback is visible to the type.
+    const pending: { answer: (() => void) | null } = { answer: null };
+    const geo = {
+      getCurrentPosition: (cb: PositionCallback) => {
+        pending.answer = () => {
+          cb({ coords: { latitude: 38.7, longitude: -9.1, accuracy: 25 } } as GeolocationPosition);
+        };
+      },
+    };
+    const s = setup(geo, fetchFn);
+    s.start();
+    s.useManual(50.45, 30.52);
+    pending.answer?.();
+    await Promise.resolve();
+
+    expect(s.position()).toMatchObject({ lat: 50.45, lon: 30.52 });
+    s.stop();
+  });
+
   it('locates, asks the server and ranks what is above', async () => {
     const fetchFn = vi.fn().mockResolvedValue(ok());
     const geo = {

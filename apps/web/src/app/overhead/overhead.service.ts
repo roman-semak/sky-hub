@@ -36,6 +36,12 @@ export class OverheadService {
   readonly updatedAt = signal<number | null>(null);
   readonly top = computed(() => this.aircraft()[0] ?? null);
   private timer: ReturnType<typeof setInterval> | null = null;
+  /**
+   * Bumped by `stop()` and `useManual()`. A geolocation prompt can be
+   * answered long after the page is gone, or after a point was picked on the
+   * map; the late callback must not start polling or move the observer.
+   */
+  private run = 0;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -52,8 +58,10 @@ export class OverheadService {
       return;
     }
     this.state.set('locating');
+    const run = ++this.run;
     geo.getCurrentPosition(
       (pos) => {
+        if (run !== this.run) return;
         this.position.set({
           lat: pos.coords.latitude,
           lon: pos.coords.longitude,
@@ -64,6 +72,7 @@ export class OverheadService {
         this.timer ??= setInterval(() => void this.refresh(), REFRESH_MS);
       },
       (err) => {
+        if (run !== this.run) return;
         this.state.set(err.code === err.PERMISSION_DENIED ? 'denied' : 'unavailable');
       },
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 },
@@ -71,12 +80,14 @@ export class OverheadService {
   }
 
   stop(): void {
+    this.run++;
     if (this.timer !== null) clearInterval(this.timer);
     this.timer = null;
   }
 
   /** Uses a point picked on the map instead of the device position. */
   useManual(lat: number, lon: number): void {
+    this.run++;
     this.position.set({ lat, lon, accuracyM: 0 });
     this.state.set('ready');
     void this.refresh();

@@ -168,9 +168,14 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
       return;
     }
     const onData = (e: { sourceId?: string }): void => {
+      // Also give up once 3D is off again: the toggle can outrun the tiles.
+      if (!threeD) {
+        map.off('sourcedata', onData);
+        return;
+      }
       if (e.sourceId !== 'terrain' || !map.isSourceLoaded('terrain')) return;
       map.off('sourcedata', onData);
-      if (threeD) enable();
+      enable();
     };
     map.on('sourcedata', onData);
   };
@@ -260,7 +265,14 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
       scene.iconVersion++;
       scene.clusters = reg.clusters;
     }
-    if (deck === null) return;
+    if (deck === null) {
+      // Still waiting for the deck.gl chunk: this is not a rendered frame,
+      // and counting it would report a 1 fps first second.
+      samples.length = 0;
+      frames = 0;
+      statsAt = t0;
+      return;
+    }
     // In 3D one metre of altitude is one metre on the map.
     scene.buffer.fill(
       reg.aircraft,
