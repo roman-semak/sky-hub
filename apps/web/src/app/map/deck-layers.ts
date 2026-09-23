@@ -1,10 +1,13 @@
 import type { Layer, PickingInfo } from '@deck.gl/core';
+import { HeatmapLayer } from '@deck.gl/aggregation-layers';
 import { IconLayer, LineLayer, PathLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import type { Cluster } from '@skytrace/protocol';
 import type { Map as MlMap } from 'maplibre-gl';
+import type { HeatCell, HeatGrid } from '../weather/weather-layers.service';
 import type { WindParticles } from '../weather/wind-field';
 import { AltitudeColorExtension } from './layers/altitude-color-extension';
+import { heatRadiusPixels } from './layers/heat-radius';
 import { buildIconAtlas } from './layers/icon-atlas';
 import type { RenderBuffer } from './layers/render-buffer';
 
@@ -15,6 +18,10 @@ export interface DeckScene {
   clusters: readonly Cluster[];
   trail: readonly (readonly [number, number])[];
   hoverTrail: readonly (readonly [number, number])[];
+  /** 24 h density cells, or `null` when the heatmap is off. */
+  heat: HeatGrid | null;
+  /** Icons billboard and sit at altitude when the 3D view is on. */
+  threeD: boolean;
   iconVersion: number;
 }
 
@@ -53,7 +60,23 @@ export function createDeckOverlay(map: MlMap, scene: DeckScene, cb: DeckCallback
 
   const layers = (): Layer[] => {
     const out: Layer[] = [];
-    const { buffer, particles, clusters, trail, hoverTrail } = scene;
+    const { buffer, particles, clusters, trail, hoverTrail, heat } = scene;
+    if (heat !== null && heat.cells.length > 0) {
+      out.push(
+        new HeatmapLayer<HeatCell>({
+          id: 'density',
+          data: heat.cells,
+          getPosition: (c) => [c.lon, c.lat],
+          getWeight: (c) => c.count,
+          radiusPixels: heatRadiusPixels(heat.cellDeg, map.getZoom()),
+          updateTriggers: { radiusPixels: Math.round(map.getZoom() * 4) },
+          intensity: 1,
+          threshold: 0.03,
+          aggregation: 'SUM',
+          opacity: 0.55,
+        }),
+      );
+    }
     if (particles !== null) {
       out.push(
         new LineLayer({
@@ -129,7 +152,7 @@ export function createDeckOverlay(map: MlMap, scene: DeckScene, cb: DeckCallback
         data: {
           length: buffer.count,
           attributes: {
-            getPosition: { value: buffer.positions, size: 2 },
+            getPosition: { value: buffer.positions, size: 3 },
             getAngle: { value: buffer.angles, size: 1 },
             getColor: { value: buffer.colors, size: 4, normalized: true },
             getSize: { value: buffer.sizes, size: 1 },
@@ -140,11 +163,11 @@ export function createDeckOverlay(map: MlMap, scene: DeckScene, cb: DeckCallback
         iconMapping: atlas.mapping,
         getIcon: (_: unknown, { index }: { index: number }) => buffer.icons[index] ?? 'generic',
         sizeUnits: 'pixels',
-        billboard: false,
+        billboard: scene.threeD,
         pickable: true,
         autoHighlight: false,
         extensions: [extension],
-        updateTriggers: { getIcon: scene.iconVersion },
+        updateTriggers: { getIcon: scene.iconVersion, billboard: scene.threeD },
         onClick: (info: PickingInfo) => {
           cb.onSelect(pickHex(info));
         },

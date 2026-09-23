@@ -12,6 +12,7 @@ import { IngestWorker } from '../src/ingest/ingest-worker.js';
 import { ProviderPool } from '../src/ingest/provider-pool.js';
 import { silentLogger } from '../src/logger.js';
 import { SpatialIndex } from '../src/state/spatial-index.js';
+import { DensityGrid } from '../src/state/density-grid.js';
 import { StateStore } from '../src/state/state-store.js';
 import { StreamHub } from '../src/stream/stream-hub.js';
 import { StaticIndex } from '@skytrace/static-data';
@@ -96,6 +97,7 @@ const app = await buildApp({
   staticIndex,
   routes,
   history: new HistoryService(null, null, history),
+  density: new DensityGrid(),
   weather: null,
   wind: null,
   retentionMs: 3_600_000,
@@ -187,6 +189,13 @@ describe('REST', () => {
     expect(gpx.body).toContain('<trkpt');
     expect((await app.inject('/api/track/999999?format=gpx')).statusCode).toBe(404);
     expect((await app.inject('/api/track/abcdef?format=csv')).statusCode).toBe(400);
+  });
+
+  it('GET /api/heatmap returns density cells', async () => {
+    const res = await app.inject('/api/heatmap?bbox=-11,37,-8,40');
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({ windowHours: 24, cellDeg: 0.25 });
+    expect((await app.inject('/api/heatmap?bbox=nope')).statusCode).toBe(400);
   });
 
   it('GET /api/overhead ranks what is above a point', async () => {

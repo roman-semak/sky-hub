@@ -14,7 +14,7 @@
       "installMode": "lazy",
       "updateMode": "prefetch",
       "resources": {
-        "files": ["/icons/**", "/maplibre/**", "/**/*.(svg|png|webp|woff|woff2)"]
+        "files": ["/icons/**", "/**/*.(svg|png|webp|woff|woff2)"]
       }
     }
   ],

@@ -1,6 +1,7 @@
 import type { BBox } from '@skytrace/geo';
-import { Map as MlMap, setWorkerUrl } from 'maplibre-gl';
+import { Map as MlMap } from 'maplibre-gl';
 import type { LiveRegistry } from '../core/live/live-registry';
+import type { HeatGrid } from '../weather/weather-layers.service';
 import { WindParticles, type WindGrid } from '../weather/wind-field';
 import type { DeckOverlay, DeckScene } from './deck-layers';
 import { RenderBuffer } from './layers/render-buffer';
@@ -58,14 +59,13 @@ export interface MapEngine {
   setRadar(tiles: string | null, maxZoom: number): void;
   setWind(grid: WindGrid | null): void;
   setMilitaryHighlight(on: boolean): void;
+  setHeatmap(grid: HeatGrid | null): void;
+  /** Terrain, a tilted camera and aircraft drawn at altitude (SPEC phase 8). */
+  setThreeD(on: boolean): void;
   flyTo(lat: number, lon: number, zoom?: number): void;
   zoomBy(delta: number): void;
   destroy(): void;
 }
-
-// MapLibre resolves its worker next to its own module; after bundling that
-// file does not exist, so the worker is shipped as an asset (angular.json).
-setWorkerUrl(new URL('maplibre/maplibre-gl-worker.mjs', document.baseURI).href);
 
 /** Lets the browser paint and handle input between two heavy steps. */
 const yieldToMain = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
@@ -87,7 +87,7 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
     attributionControl: false,
     dragRotate: false,
     pitchWithRotate: false,
-    maxPitch: 0,
+    maxPitch: 75,
     fadeDuration: 0,
   });
   map.touchZoomRotate.disableRotation();
@@ -98,6 +98,8 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
     clusters: [],
     trail: [],
     hoverTrail: [],
+    heat: null,
+    threeD: false,
     iconVersion: 0,
   };
   let deck: DeckOverlay | null = null;
@@ -105,6 +107,7 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
   let selected: string | null = null;
   let dimmed = false;
   let militaryHighlight = false;
+  let threeD = false;
   let lastRegistry: LiveRegistry | null = null;
   let lastVersion = -1;
   let radar: { tiles: string; maxZoom: number } | null = null;
@@ -119,6 +122,57 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
       Math.min(180, b.getEast()),
       Math.min(85, b.getNorth()),
     ];
+  };
+
+  /**
+   * Free global DEM tiles (AWS Open Data, Mapzen/Terrarium encoding). Added
+   * and removed with the 3D toggle, and re-added after a style change.
+   */
+  const applyTerrain = (): void => {
+    const has = map.getSource('terrain') !== undefined;
+    if (!threeD) {
+      if (has) {
+        map.setTerrain(null);
+        if (map.getLayer('hillshade') !== undefined) map.removeLayer('hillshade');
+        map.removeSource('terrain');
+      }
+      return;
+    }
+    const enable = (): void => {
+      if (map.getTerrain() !== null) return;
+      map.setTerrain({ source: 'terrain', exaggeration: 1.2 });
+      // Relief is invisible on a flat-shaded basemap without a hillshade.
+      if (map.getLayer('hillshade') === undefined) {
+        map.addLayer({
+          id: 'hillshade',
+          type: 'hillshade',
+          source: 'terrain',
+          paint: { 'hillshade-exaggeration': 0.4, 'hillshade-shadow-color': '#0b0d16' },
+        });
+      }
+    };
+    if (!has) {
+      map.addSource('terrain', {
+        type: 'raster-dem',
+        tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+        encoding: 'terrarium',
+        tileSize: 256,
+        maxzoom: 12,
+        attribution: 'Terrain: Mapzen / AWS Open Data',
+      });
+    }
+    // MapLibre reads elevations as soon as terrain is set; doing that before
+    // the DEM source has tiles throws on every frame.
+    if (map.isSourceLoaded('terrain')) {
+      enable();
+      return;
+    }
+    const onData = (e: { sourceId?: string }): void => {
+      if (e.sourceId !== 'terrain' || !map.isSourceLoaded('terrain')) return;
+      map.off('sourcedata', onData);
+      if (threeD) enable();
+    };
+    map.on('sourcedata', onData);
   };
 
   // Raster sources vanish with setStyle (theme switch); re-add them each time.
@@ -139,7 +193,10 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
       paint: { 'raster-opacity': 0.55 },
     });
   };
-  map.on('style.load', applyRadar);
+  map.on('style.load', () => {
+    applyRadar();
+    applyTerrain();
+  });
   map.on('moveend', () => {
     scene.particles?.setView(viewBox());
   });
@@ -160,7 +217,8 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
     });
   };
   map.on('moveend', emitViewport);
-  map.once('load', () => {
+  // MapLibre 5 types `once` as promise-returning when no listener is passed.
+  void map.once('load', () => {
     emitViewport();
     void (async () => {
       await yieldToMain();
@@ -203,7 +261,15 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
       scene.clusters = reg.clusters;
     }
     if (deck === null) return;
-    scene.buffer.fill(reg.aircraft, source.now, selected, dimmed, militaryHighlight);
+    // In 3D one metre of altitude is one metre on the map.
+    scene.buffer.fill(
+      reg.aircraft,
+      source.now,
+      selected,
+      dimmed,
+      militaryHighlight,
+      threeD ? 1 : 0,
+    );
     deck.render();
     samples.push(performance.now() - t0);
     frames++;
@@ -244,6 +310,20 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
     },
     setMilitaryHighlight(on) {
       militaryHighlight = on;
+    },
+    setHeatmap(grid) {
+      scene.heat = grid;
+    },
+    setThreeD(on) {
+      if (on === threeD) return;
+      threeD = on;
+      scene.threeD = on;
+      scene.iconVersion++;
+      // Pitch first, then terrain: MapLibre recentres the camera on the
+      // terrain as soon as it is set, and an in-flight easeTo trips it up.
+      map.setPitch(on ? 55 : 0);
+      if (map.loaded()) applyTerrain();
+      else void map.once('idle', applyTerrain);
     },
     setWind(grid) {
       windGrid = grid;

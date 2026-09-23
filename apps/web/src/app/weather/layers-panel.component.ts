@@ -40,6 +40,30 @@ import { WeatherLayersService, WIND_LEVELS, type WindLevel } from './weather-lay
       <label class="row">
         <input
           type="checkbox"
+          [checked]="weather.heatmapOn()"
+          (change)="weather.heatmapOn.set(checked($event))"
+        />
+        <span class="text">
+          <span class="title" i18n="@@layers.heatmap">Traffic density</span>
+          <span class="sub" i18n="@@layers.heatmapSub">Positions recorded in the last 24 h</span>
+        </span>
+      </label>
+      <label class="row">
+        <input
+          type="checkbox"
+          [checked]="weather.threeD()"
+          (change)="weather.threeD.set(checked($event))"
+        />
+        <span class="text">
+          <span class="title" i18n="@@layers.threeD">3D terrain</span>
+          <span class="sub" i18n="@@layers.threeDSub"
+            >Tilted camera, aircraft at their real altitude</span
+          >
+        </span>
+      </label>
+      <label class="row">
+        <input
+          type="checkbox"
           [checked]="weather.militaryHighlight()"
           (change)="weather.militaryHighlight.set(checked($event))"
         />

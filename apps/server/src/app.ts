@@ -8,6 +8,7 @@ import { searchAircraft } from './api/search.js';
 import { exportTrack, MIME, type TrackFormat } from './api/track-export.js';
 import { airportTraffic } from './airport/airport-traffic.js';
 import type { HistoryService } from './history/history-service.js';
+import type { DensityGrid } from './state/density-grid.js';
 import type { AviationWeather } from './weather/aviation-weather.js';
 import { WIND_LEVELS, type WindAloft, type WindLevel } from './weather/wind-aloft.js';
 import { RouteService } from './routes/route-service.js';
@@ -28,6 +29,7 @@ export interface AppDeps {
   readonly staticIndex: StaticIndex | null;
   readonly routes: RouteService;
   readonly history: HistoryService;
+  readonly density: DensityGrid;
   readonly weather: AviationWeather | null;
   readonly wind: WindAloft | null;
   /** How far back `/api/flights` looks, ms. */
@@ -80,6 +82,10 @@ const OverheadQuery = z.object({
   lon: z.coerce.number().min(-180).max(180),
   limit: z.coerce.number().int().min(1).max(20).default(8),
   elevationFt: z.coerce.number().min(-1400).max(30_000).default(0),
+});
+const HeatmapQuery = z.object({
+  bbox: PlaybackQuery.shape.bbox,
+  limit: z.coerce.number().int().min(100).max(20_000).default(8000),
 });
 const TrackFormatQuery = z.object({ format: z.enum(['kml', 'gpx']).optional() });
 const CallsignParams = z.object({ callsign: z.string().min(2).max(8) });
@@ -204,6 +210,18 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       .type(MIME[format])
       .header('content-disposition', `attachment; filename="skytrace-${hex}.${format}"`)
       .send(exportTrack(points, format, name));
+  });
+
+  app.get('/api/heatmap', (req, reply) => {
+    const q = HeatmapQuery.safeParse(req.query);
+    if (!q.success) return reply.code(400).send({ error: 'invalid request' });
+    const cells = deps.density.query(q.data.bbox, q.data.limit, now());
+    return {
+      windowHours: 24,
+      cellDeg: deps.density.cellDeg,
+      max: cells.reduce((m, c) => Math.max(m, c.count), 0),
+      cells,
+    };
   });
 
   app.get('/api/overhead', (req, reply) => {

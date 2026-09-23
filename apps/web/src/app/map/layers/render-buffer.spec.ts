@@ -51,6 +51,7 @@ describe('RenderBuffer', () => {
     expect(b.count).toBe(1);
     expect(b.positions[0]).toBeCloseTo(-9.1, 4);
     expect(b.positions[1]).toBeCloseTo(38.7, 4);
+    expect(b.positions[2]).toBe(0);
     // deck.gl angles are counter-clockwise.
     expect(b.angles[0]).toBe(-90);
     expect(b.hexes[0]).toBe('a');
@@ -103,6 +104,15 @@ describe('RenderBuffer', () => {
     expect(b.altitudes[0]).toBe(30_000);
   });
 
+  it('lifts aircraft to their altitude in the 3D view', () => {
+    const b = new RenderBuffer();
+    b.fill(new Map([['a', ac('a', { alt: 30_000 })]]), T, null, false, false, 1);
+    // 30 000 ft ≈ 9144 m.
+    expect(b.positions[2]).toBeCloseTo(9144, 0);
+    b.fill(new Map([['a', ac('a', { alt: null })]]), T, null, false, false, 1);
+    expect(b.positions[2]).toBe(0);
+  });
+
   it('dims everything when the stream is stale', () => {
     const b = new RenderBuffer();
     b.fill(new Map([['a', ac('a')]]), T, null, true);
@@ -116,6 +126,6 @@ describe('RenderBuffer', () => {
     );
     b.fill(many, T, null, false);
     expect(b.count).toBe(3000);
-    expect(b.positions.length).toBeGreaterThanOrEqual(6000);
+    expect(b.positions.length).toBeGreaterThanOrEqual(9000);
   });
 });
