@@ -42,9 +42,18 @@ export class WindAloft {
     bbox: readonly [number, number, number, number],
     level: WindLevel,
   ): Promise<WindGrid | null> {
-    // Snap to 0.5° so nearby viewports share cache entries and requests.
+    // Snap to 0.5° so nearby viewports share cache entries and requests, but
+    // never to a zero-area box: a city-sized viewport would collapse to one
+    // point sampled 64 times, and the client divides by the box's size.
     const snap = (v: number): number => Math.round(v * 2) / 2;
-    const box = [snap(bbox[0]), snap(bbox[1]), snap(bbox[2]), snap(bbox[3])] as const;
+    const w = snap(bbox[0]);
+    const s0 = snap(bbox[1]);
+    const box = [
+      w,
+      s0,
+      Math.max(snap(bbox[2]), w + 0.5),
+      Math.max(snap(bbox[3]), s0 + 0.5),
+    ] as const;
     const key = `${box.join(',')}:${level}`;
     const hit = this.cache.get(key);
     if (hit !== undefined && this.now() - hit.at < 30 * 60_000) return hit.grid;
@@ -83,10 +92,14 @@ export class WindAloft {
     const hourIso = new Date(Math.floor(this.now() / 3_600_000) * 3_600_000)
       .toISOString()
       .slice(0, 16);
+    // Every point shares the same hourly axis. If this hour is missing, the
+    // answer is not for now, and serving 00:00 UTC labelled as the current
+    // hour is worse than serving nothing.
+    const idx = points.data[0]?.hourly.time.indexOf(hourIso) ?? -1;
+    if (idx < 0) return hit?.grid ?? null;
     const u: number[] = [];
     const v: number[] = [];
     for (const p of points.data) {
-      const idx = Math.max(0, p.hourly.time.indexOf(hourIso));
       const speed = (p.hourly[`wind_speed_${level}hPa`]?.[idx] ?? 0) * KMH_TO_MS;
       const dir = ((p.hourly[`wind_direction_${level}hPa`]?.[idx] ?? 0) * Math.PI) / 180;
       u.push(-speed * Math.sin(dir));

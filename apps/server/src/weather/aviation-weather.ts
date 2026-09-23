@@ -120,8 +120,10 @@ export class AviationWeather {
         headers: { 'user-agent': USER_AGENT, accept: 'application/json' },
         signal: AbortSignal.timeout(8000),
       });
-      // 204 = no data for this station.
-      const value: unknown = res.ok && res.status !== 204 ? await res.json() : [];
+      // 204 = no data for this station, which is an answer worth caching.
+      // Anything else upstream is a hiccup: keep whatever we had.
+      if (!res.ok && res.status !== 204) return hit?.value ?? [];
+      const value: unknown = res.status === 204 ? [] : await res.json();
       if (this.cache.size > 2000) this.cache.clear();
       this.cache.set(key, { at: this.now(), value });
       return value;

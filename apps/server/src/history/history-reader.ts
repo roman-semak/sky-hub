@@ -49,6 +49,9 @@ function spansOf(md: FileMetaData): RowGroupSpan[] {
  * Reads history part files. Part files are immutable, so their bytes and
  * metadata are cached (bounded) — repeated track requests hit memory.
  */
+/** How far back a part file's rows can reach from the hour in its name. */
+const PART_SPAN_MS = 10 * 60_000;
+
 export class HistoryReader {
   private readonly cache = new Map<string, { buffer: ArrayBuffer; spans: RowGroupSpan[] }>();
 
@@ -68,7 +71,9 @@ export class HistoryReader {
     for (const entry of entries) {
       const hour = hourOfPart(relative('.', entry));
       if (hour === null) continue;
-      if (hour + HOUR_MS < from || hour > to) continue;
+      // A part named 14:00 holds the rows written from 13:55 onwards, so a
+      // window that ends before the hour still needs it.
+      if (hour + HOUR_MS < from || hour - PART_SPAN_MS > to) continue;
       parts.push({ path: join(this.dir, entry), hour });
     }
     return parts.sort((a, b) => a.path.localeCompare(b.path));

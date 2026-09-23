@@ -1,4 +1,4 @@
-import { simplifyRdp, type BBox } from '@skytrace/geo';
+import { bboxContains, simplifyRdp, type BBox } from '@skytrace/geo';
 import { encodeAircraftFrame, FrameType, hexToId, type AircraftRecord } from '@skytrace/protocol';
 import type { HistoryFix } from './history-codec.js';
 import type { HistoryReader } from './history-reader.js';
@@ -88,8 +88,8 @@ export class HistoryService {
     return this.cached(key, async () => {
       const stored =
         this.reader === null ? [] : await this.reader.readWindow(bbox, from, to, spacingMs);
-      const pending = (this.writer?.pendingInWindow(from, to) ?? []).filter(
-        (f) => bbox[1] <= f.lat && f.lat <= bbox[3],
+      const pending = (this.writer?.pendingInWindow(from, to) ?? []).filter((f) =>
+        bboxContains(bbox, f.lat, f.lon),
       );
       return encodePlayback(thin([...stored, ...pending], spacingMs));
     });

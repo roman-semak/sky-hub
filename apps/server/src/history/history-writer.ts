@@ -105,7 +105,9 @@ export class HistoryWriter {
   }
 
   async flush(): Promise<void> {
-    if (this.flushing !== null) return this.flushing;
+    // Wait out an in-flight write, then write what arrived during it —
+    // returning the in-flight promise would drop those fixes on shutdown.
+    if (this.flushing !== null) await this.flushing;
     if (this.buffer.length === 0) return;
     const batch = this.buffer;
     this.buffer = [];
