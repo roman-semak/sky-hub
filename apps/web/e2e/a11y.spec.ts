@@ -41,6 +41,31 @@ test.beforeEach(async ({ page }) => {
       },
     }),
   );
+  await page.route('**/api/overhead?**', (route) =>
+    route.fulfill({
+      json: {
+        observer: { lat: 38.78, lon: -9.13, elevationFt: 0 },
+        generatedAt: Date.now(),
+        aircraft: [
+          {
+            hex: TAP_FLIGHT.hex,
+            callsign: TAP_FLIGHT.callsign,
+            registration: TAP_FLIGHT.registration,
+            typeCode: 'A20N',
+            altitude: 21_000,
+            gs: 390,
+            track: 190,
+            lat: TAP_FLIGHT.lat,
+            lon: TAP_FLIGHT.lon,
+            azimuth: 12.5,
+            elevation: 41.2,
+            slantRangeNm: 8.4,
+            groundRangeNm: 6.3,
+          },
+        ],
+      },
+    }),
+  );
   await page.route('**/api/airport/LPPT', (route) =>
     route.fulfill({
       json: {
@@ -78,7 +103,27 @@ for (const theme of ['dark', 'light'] as const) {
       await audit(page, `filters-${theme}`);
     });
 
-    for (const path of ['/search', '/following', '/stats', '/airport/LPPT']) {
+    test('layers panel', async ({ page }) => {
+      await page.goto('/?lat=40&lon=-8.6&z=7');
+      await page.getByRole('button', { name: 'Layers' }).click();
+      await expect(page.getByTestId('layers-panel')).toBeVisible();
+      await audit(page, `layers-${theme}`);
+    });
+
+    test.describe('with a position', () => {
+      test.use({
+        geolocation: { latitude: 38.78, longitude: -9.13 },
+        permissions: ['geolocation'],
+      });
+
+      test('page /me', async ({ page }) => {
+        await page.goto('/me');
+        await expect(page.getByTestId('overhead-top')).toBeVisible();
+        await audit(page, `/me-${theme}`);
+      });
+    });
+
+    for (const path of ['/search', '/following', '/stats', '/airport/LPPT', '/alerts']) {
       test(`page ${path}`, async ({ page }) => {
         await page.goto(path);
         await page.waitForLoadState('networkidle');
