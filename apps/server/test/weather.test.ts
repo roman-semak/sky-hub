@@ -53,6 +53,20 @@ describe('AviationWeather', () => {
     expect(fetchFn).toHaveBeenCalledTimes(2);
   });
 
+  it('keeps the last good answer when the upstream hiccups', async () => {
+    let now = 0;
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse([METAR]))
+      .mockResolvedValue(new Response('busy', { status: 503 }));
+    const w = new AviationWeather(fetchFn, () => now);
+
+    expect(await w.metars('LPPT', 1)).toHaveLength(1);
+    now += 10 * 60_000; // past the 5 min TTL
+    // A 503 must not blank the station for another TTL.
+    expect(await w.metars('LPPT', 1)).toHaveLength(1);
+  });
+
   it('parses a TAF', async () => {
     const w = new AviationWeather(async () =>
       jsonResponse([
@@ -128,6 +142,36 @@ describe('WindAloft', () => {
     expect(fetchFn).toHaveBeenCalledTimes(1);
   });
 
+  it('refuses to serve a forecast for another hour', async () => {
+    const stale = {
+      hourly: {
+        time: ['2026-09-20T13:00'],
+        wind_speed_250hPa: [100],
+        wind_direction_250hPa: [270],
+      },
+    };
+    const w = new WindAloft(
+      async () => jsonResponse(Array.from({ length: 64 }, () => stale)),
+      () => NOW,
+    );
+    expect(await w.grid([-10.2, 37.1, -8.1, 39.9], 250)).toBeNull();
+  });
+
+  it('never collapses a small viewport to a single point', async () => {
+    const fetchFn = vi
+      .fn()
+      .mockImplementation(async () =>
+        jsonResponse(Array.from({ length: 64 }, () => point(36, 270))),
+      );
+    const w = new WindAloft(fetchFn, () => NOW);
+    const grid = await w.grid([-9.15, 38.7, -9.1, 38.75], 250);
+
+    expect(grid?.bbox[2]).toBeGreaterThan(grid?.bbox[0] ?? 0);
+    expect(grid?.bbox[3]).toBeGreaterThan(grid?.bbox[1] ?? 0);
+    const url = new URL(String(fetchFn.mock.calls[0]?.[0]));
+    expect(new Set(url.searchParams.get('latitude')?.split(',')).size).toBeGreaterThan(1);
+  });
+
   it('returns null on bad upstream data', async () => {
     expect(
       await new WindAloft(
@@ -178,6 +222,18 @@ describe('airport traffic', () => {
     // Level cruise above.
     expect(at({ lat: 39.1, lon: -9.13, track: 90, altBaro: 36000, baroRate: 0 })).toBe(
       'overflight',
+    );
+  });
+
+  it('does not read an unknown altitude as sea level', () => {
+    const at = (o: Parameters<typeof makeAircraft>[0]) => classify(makeAircraft(o), lat, lon, 374);
+    // Level, heading at the field, altitude unknown: not an arrival.
+    expect(at({ lat: 39.1, lon: -9.13, track: 180, altBaro: null, baroRate: 0 })).toBe(
+      'overflight',
+    );
+    // Descending towards the field is still an arrival without an altitude.
+    expect(at({ lat: 39.1, lon: -9.13, track: 180, altBaro: null, baroRate: -900 })).toBe(
+      'arrival',
     );
   });
 

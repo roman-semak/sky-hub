@@ -122,9 +122,15 @@ if (config.INGEST_ENABLED) worker.start();
 historyWriter?.start();
 // Retention cron (SPEC § 6.1): every 10 minutes drop hours older than the window.
 const purge = (): void => {
-  void purgeHistory(config.HISTORY_DIR, Date.now() - retentionMs).then((deleted) => {
-    if (deleted.length > 0) logger.info({ deleted: deleted.length }, 'history retention purge');
-  });
+  void purgeHistory(config.HISTORY_DIR, Date.now() - retentionMs)
+    .then((deleted) => {
+      if (deleted.length > 0) logger.info({ deleted: deleted.length }, 'history retention purge');
+    })
+    .catch((err: unknown) => {
+      // A failed purge costs disk space; an unhandled rejection costs the
+      // process, every ten minutes.
+      logger.error({ err }, 'history retention purge failed');
+    });
 };
 purge();
 const purgeTimer = setInterval(purge, 10 * 60_000);

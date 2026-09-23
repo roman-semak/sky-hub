@@ -35,16 +35,12 @@ export async function purgeHistory(
         (s) => now - s.mtimeMs,
         () => 0,
       );
-      if (age > STALE_TMP_MS) {
-        await rm(path, { force: true });
-        deleted.push(path);
-      }
+      if (age > STALE_TMP_MS && (await remove(path))) deleted.push(path);
       continue;
     }
     const hour = hourOfPart(entry);
     if (hour === null || hour + HOUR_MS > cutoff) continue;
-    await rm(path, { force: true });
-    deleted.push(path);
+    if (await remove(path)) deleted.push(path);
   }
   for (const day of await readdir(dir).catch(() => [])) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) continue;
@@ -52,4 +48,12 @@ export async function purgeHistory(
     if (remaining.length === 0) await rmdir(join(dir, day)).catch(() => undefined);
   }
   return deleted;
+}
+
+/** A file we cannot delete (permissions, a racing purge) is not fatal. */
+async function remove(path: string): Promise<boolean> {
+  return rm(path, { force: true }).then(
+    () => true,
+    () => false,
+  );
 }

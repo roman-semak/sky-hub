@@ -151,6 +151,24 @@ describe('HistoryWriter + HistoryReader', () => {
     expect(writer.statistics.files).toBe(1);
     await writer.stop();
   });
+  it('writes rows that arrive while a flush is in flight', async () => {
+    const dir = tmp();
+    let at = H0 + 60_000;
+    const writer = new HistoryWriter(
+      { dir, flushMs: 1e9, maxBufferedRows: 1e9 },
+      silentLogger,
+      () => at,
+    );
+    writer.append(makeAircraft({ hex: '000001' }));
+    const first = writer.flush();
+    // Arrives while the first write is still running, as it would on SIGTERM.
+    writer.append(makeAircraft({ hex: '000002' }));
+    at += 60_000;
+    await Promise.all([first, writer.flush()]);
+
+    expect(writer.statistics).toMatchObject({ buffered: 0, files: 2, rows: 2 });
+  });
+
   it('drops the temp file when a flush fails, and keeps running', async () => {
     const dir = tmp();
     const at = H0 + 60_000;
@@ -171,6 +189,23 @@ describe('HistoryWriter + HistoryReader', () => {
     writer.append(makeAircraft());
     expect(writer.statistics.buffered).toBe(1);
   });
+
+  it('reads a part flushed after the hour for a window inside the previous one', async () => {
+    const dir = tmp();
+    // Flushed at 11:00:03, holding the rows recorded from 10:55 onwards.
+    const writer = new HistoryWriter(
+      { dir, flushMs: 1e9, maxBufferedRows: 1e9 },
+      silentLogger,
+      () => H0 + 3_603_000,
+    );
+    writer.append(makeAircraft({ hex: '000001', posTime: H0 + 3_360_000 }));
+    await writer.flush();
+    expect(readdirSync(join(dir, '2026-09-21'))).toEqual(['11-0003.parquet']);
+
+    const reader = new HistoryReader(dir);
+    const track = await reader.readTrack('000001', H0 + 3_300_000, H0 + 3_480_000);
+    expect(track).toHaveLength(1);
+  });
 });
 
 describe('purgeHistory', () => {
@@ -190,6 +225,15 @@ describe('purgeHistory', () => {
     expect(existsSync(join(newDay, '10-0500.parquet'))).toBe(true);
     expect(existsSync(join(dir, 'README'))).toBe(true);
     expect(await purgeHistory(join(dir, 'missing'), 0)).toEqual([]);
+  });
+
+  it('survives a part file it cannot delete', async () => {
+    const dir = tmp();
+    const day = join(dir, '2026-09-18');
+    mkdirSync(join(day, '10-0500.parquet'), { recursive: true });
+    // A directory where a part should be: rm without recursive refuses, and
+    // the purge runs every ten minutes — a rejection here ends the process.
+    await expect(purgeHistory(dir, H0)).resolves.toEqual([]);
   });
 
   it('sweeps abandoned temp files but never one being written', async () => {
@@ -259,6 +303,22 @@ describe('HistoryService', () => {
     expect(frames[0]?.type === FrameType.Delta && frames[0].records).toHaveLength(2);
     expect(frames[1]?.timestamp).toBe(Math.floor((H0 + 30_000) / 1000));
     expect(encodePlayback([])).toHaveLength(0);
+  });
+
+  it('keeps playback inside the box, longitude included', async () => {
+    const writer = new HistoryWriter(
+      { dir: tmp(), flushMs: 1e9, maxBufferedRows: 1e9 },
+      silentLogger,
+    );
+    // Same latitude band, half a world away.
+    writer.append(makeAircraft({ hex: '000001', posTime: H0, lat: 38.7, lon: -9.1 }));
+    writer.append(makeAircraft({ hex: '000002', posTime: H0, lat: 38.7, lon: 120 }));
+
+    const service = new HistoryService(null, writer, new TrackHistory(), () => H0);
+    const bytes = await service.playback([-10, 38, -8, 39], H0 - 1, H0 + 60_000, 5_000);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    const frame = decodeFrame(bytes.subarray(4, 4 + view.getUint32(0)));
+    expect(frame.type === FrameType.Delta && frame.records).toHaveLength(1);
   });
 
   it('splits flights at long gaps, newest first', () => {

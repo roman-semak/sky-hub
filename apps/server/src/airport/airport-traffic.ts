@@ -38,9 +38,13 @@ export function classify(ac: Aircraft, lat: number, lon: number, elevationFt: nu
   const toField = initialBearing(ac.lat, ac.lon, lat, lon);
   const heading = ac.track ?? toField;
   const towards = Math.abs(shortestAngleDelta(heading, toField)) < 90;
-  if (vr < -300) return towards || (ac.altBaro ?? 0) < 10_000 ? 'arrival' : 'overflight';
-  if (vr > 300) return towards && (ac.altBaro ?? 0) > 10_000 ? 'overflight' : 'departure';
-  if ((ac.altBaro ?? 0) < OVERFLIGHT_FT && towards) return 'arrival';
+  // An unknown altitude must not read as "on the deck": a level aircraft at
+  // an unknown level heading at the field is an overflight, not an arrival.
+  const low = ac.altBaro !== null && ac.altBaro < 10_000;
+  const high = ac.altBaro !== null && ac.altBaro > 10_000;
+  if (vr < -300) return towards || low ? 'arrival' : 'overflight';
+  if (vr > 300) return towards && high ? 'overflight' : 'departure';
+  if (ac.altBaro !== null && ac.altBaro < OVERFLIGHT_FT && towards) return 'arrival';
   return 'overflight';
 }
 

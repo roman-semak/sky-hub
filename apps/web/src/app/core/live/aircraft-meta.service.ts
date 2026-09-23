@@ -34,6 +34,20 @@ const TTL_MS = 30 * 24 * 3600_000;
 const FRESH_MS = 30 * 60_000;
 
 /**
+ * idb-keyval touches `indexedDB` as soon as it is called, and that throws
+ * outright where the API is missing (private windows, some webviews) — a
+ * rejection handler alone would never see it, and the metadata fetch below
+ * would be skipped with it.
+ */
+async function idb<T>(op: () => Promise<T>): Promise<T | undefined> {
+  try {
+    return await op();
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Lazily fetches `/api/ac/{hex}` and caches it in memory and IndexedDB, so a
  * callsign is fetched once per aircraft per browser.
  */
@@ -48,7 +62,12 @@ export class AircraftMetaService {
   /** Signal that fills in once the metadata arrives. */
   meta(hex: string): Signal<AircraftMeta | null> {
     const existing = this.memory.get(hex);
-    if (existing !== undefined) return existing.asReadonly();
+    if (existing !== undefined) {
+      // A fetch that failed (offline, a 5xx blip) left the signal empty;
+      // asking again is what the caller means by reading it.
+      if (existing() === null) void this.load(hex, existing);
+      return existing.asReadonly();
+    }
     const s = signal<AircraftMeta | null>(null);
     this.memory.set(hex, s);
     void this.load(hex, s);
@@ -62,13 +81,13 @@ export class AircraftMetaService {
     if (this.inFlight.has(hex)) return;
     this.inFlight.add(hex);
     try {
-      const cached = await get<AircraftMeta>(STORE_PREFIX + hex).catch(() => undefined);
+      const cached = await idb(() => get<AircraftMeta>(STORE_PREFIX + hex));
       const age = cached === undefined ? Infinity : this.now() - cached.fetchedAt;
       if (cached !== undefined && age < TTL_MS) {
         s.set(cached);
         if (age < FRESH_MS) return;
       } else if (cached !== undefined) {
-        await del(STORE_PREFIX + hex).catch(() => undefined);
+        await idb(() => del(STORE_PREFIX + hex));
       }
       const res = await this.fetchFn(`/api/ac/${encodeURIComponent(hex)}`);
       if (!res.ok) return;
@@ -84,7 +103,7 @@ export class AircraftMetaService {
         fetchedAt: this.now(),
       };
       s.set(meta);
-      await set(STORE_PREFIX + hex, meta).catch(() => undefined);
+      await idb(() => set(STORE_PREFIX + hex, meta));
     } catch {
       // Offline or 404: the UI falls back to the hex address.
     } finally {
