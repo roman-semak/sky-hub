@@ -65,8 +65,23 @@ arrays and hands them to deck.gl as binary attributes. Altitude colour is a
 reference. Only the selected aircraft's readouts touch the DOM (4 Hz).
 
 MapLibre and deck.gl (~1.5 MB) load as two lazy chunks after first paint.
+MapLibre is pinned to 5.x because deck.gl syncs its camera through
+`map.transform`, which MapLibre 6 made private (ADR-011).
+
+In 3D mode the basemap gets a `raster-dem` source (Mapzen terrarium tiles on
+AWS Open Data) with a hillshade layer, the camera pitches to 55°, and the
+render buffer writes each aircraft's altitude as metres of `z`, so deck.gl
+places it above the terrain. The traffic heatmap is a `HeatmapLayer` over the
+server's density grid; its blur radius is derived from the grid step and the
+current zoom, so binned cells read as a field rather than a dot pattern.
 
 ## History (ADR-007)
+
+A rolling density grid counts airborne fixes per 0.25° cell per hour over a
+24 h window (one `Uint32Array` per populated cell), which `/api/heatmap`
+serves without re-reading a day of Parquet. An emergency watch scans the whole
+index each publish for squawk 7500/7600/7700 and pushes new alerts to every
+client.
 
 Every accepted fix goes to a buffer flushed every 5 minutes into an immutable
 Parquet part (zstd via `node:zlib`, rows sorted by `(icao24, ts)`). Track reads
@@ -88,4 +103,4 @@ replays frames into its own registry on a virtual clock.
 See [docs/decisions](docs/decisions): toolchain (001), providers (002),
 demand-driven polling (003), wire format (004), lazy map (005), routes and
 datasets (006), history (007), weather (008), performance (009),
-deployment (010).
+deployment (010), MapLibre 5 (011).

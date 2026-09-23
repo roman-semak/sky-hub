@@ -9,6 +9,7 @@ import { DEFAULT_INGEST_OPTIONS, IngestWorker } from './ingest/ingest-worker.js'
 import { OpenSkyProvider } from './ingest/opensky-provider.js';
 import type { Provider } from './ingest/provider.js';
 import { ProviderPool } from './ingest/provider-pool.js';
+import { DensityGrid } from './state/density-grid.js';
 import { StateStore } from './state/state-store.js';
 import { StreamHub } from './stream/stream-hub.js';
 import { countryOfIcao24 } from '@skytrace/static-data';
@@ -58,8 +59,10 @@ const routes = new RouteService(
   staticIndex,
   logger,
 );
+const density = new DensityGrid();
 const store = new StateStore((ac) => {
   recentTracks.record(ac);
+  density.record(ac);
   historyWriter?.append(ac);
 });
 const pool = new ProviderPool(providers);
@@ -91,6 +94,7 @@ const app = await buildApp({
   staticIndex,
   routes,
   history,
+  density,
   weather: new AviationWeather(),
   wind: new WindAloft(),
   retentionMs,

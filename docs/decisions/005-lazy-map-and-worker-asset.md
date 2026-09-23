@@ -14,6 +14,8 @@ esbuild bundling — the map silently never fires `load`.
   ~100 KB gzip (checked by `size-limit`, file list read from `index.html`).
 - `maplibre-gl-worker.mjs` and `maplibre-gl-shared.mjs` are copied to
   `/maplibre/` as build assets; `setWorkerUrl()` points MapLibre at them.
+  **Superseded by [ADR-011](011-maplibre-5-for-terrain.md):** MapLibre 5
+  inlines its worker, so both the asset copy and `setWorkerUrl()` are gone.
 - Aircraft are drawn by one `IconLayer` fed with binary attributes. Colour by
   altitude is a `LayerExtension` that injects a GLSL ramp generated from the
   same stops as the CPU reference (`altitude-color.ts`); a unit test evaluates
@@ -24,5 +26,6 @@ esbuild bundling — the map silently never fires `load`.
 ## Consequences
 
 First paint of the map waits for the lazy chunk (~400 KB gzip, cached by the
-service worker in phase 7). Upgrading MapLibre must keep the asset glob in
-`angular.json` in sync with the worker file names.
+service worker in phase 7). Upgrading MapLibre back to 6 would mean
+restoring the asset glob in `angular.json` and keeping it in sync with the
+worker file names.

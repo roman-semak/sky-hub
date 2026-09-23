@@ -29,6 +29,22 @@ describe('EmergencyWatch', () => {
     expect(escalated.map((a) => a.kind)).toEqual(['unlawful']);
   });
 
+  it('ignores non-emergency status codes such as minimum fuel', () => {
+    const w = new EmergencyWatch();
+    expect(w.scan(index({ hex: '000001', emergency: 'minfuel', squawk: '1000' }), T0)).toEqual([]);
+    expect(w.scan(index({ hex: '000002', emergency: 'lifeguard', squawk: '1000' }), T0)).toEqual(
+      [],
+    );
+    // The squawk alone is enough, even if the status field says nothing.
+    expect(w.scan(index({ hex: '000003', emergency: 'none', squawk: '7700' }), T0)).toHaveLength(1);
+    // An emergency status with an ordinary code is stale data, not an event.
+    expect(w.scan(index({ hex: '000004', emergency: 'general', squawk: '1000' }), T0)).toEqual([]);
+    // With no code at all, the status is all we have.
+    expect(w.scan(index({ hex: '000005', emergency: 'general', squawk: null }), T0)).toHaveLength(
+      1,
+    );
+  });
+
   it('lists everything currently squawking, for clients that join late', () => {
     const w = new EmergencyWatch();
     const idx = index(

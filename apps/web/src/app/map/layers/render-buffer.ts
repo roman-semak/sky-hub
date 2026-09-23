@@ -1,5 +1,6 @@
 import {
   DEFAULT_DR_OPTIONS,
+  FEET_TO_M,
   renderPoseInto,
   stalenessOpacity,
   type MutablePose,
@@ -26,11 +27,13 @@ export class RenderBuffer {
   icons: SilhouetteId[] = [];
   private readonly pose: MutablePose = { lat: 0, lon: 0, heading: 0 };
   private highlightMilitary = false;
+  /** Metres of rendered height per foot of altitude; 0 draws everything flat. */
+  private altitudeScale = 0;
 
   private ensure(n: number): void {
     if (this.angles.length >= n) return;
     const cap = Math.max(1024, Math.ceil(n * 1.5));
-    this.positions = new Float32Array(cap * 2);
+    this.positions = new Float32Array(cap * 3);
     this.angles = new Float32Array(cap);
     this.altitudes = new Float32Array(cap);
     this.colors = new Uint8Array(cap * 4).fill(255);
@@ -47,8 +50,10 @@ export class RenderBuffer {
     selected: string | null,
     dimmed: boolean,
     highlightMilitary = false,
+    altitudeScale = 0,
   ): void {
     this.highlightMilitary = highlightMilitary;
+    this.altitudeScale = altitudeScale;
     this.ensure(aircraft.size);
     this.hexes.length = 0;
     this.icons.length = 0;
@@ -76,8 +81,10 @@ export class RenderBuffer {
     if (opacity === 0) return false;
     renderPoseInto(ac.track, nowMs, DEFAULT_DR_OPTIONS, this.pose);
     const r = ac.record;
-    this.positions[i * 2] = this.pose.lon;
-    this.positions[i * 2 + 1] = this.pose.lat;
+    this.positions[i * 3] = this.pose.lon;
+    this.positions[i * 3 + 1] = this.pose.lat;
+    this.positions[i * 3 + 2] =
+      this.altitudeScale === 0 ? 0 : (r.alt ?? 0) * FEET_TO_M * this.altitudeScale;
     // deck.gl angles are counter-clockwise; headings are clockwise from north.
     this.angles[i] = -this.pose.heading;
     this.altitudes[i] = selected

@@ -1927,9 +1927,45 @@
         <target>Прогноз Open-Meteo, поточна година</target>
       </segment>
     </unit>
-    <unit id="layers.military">
+    <unit id="layers.heatmap">
       <notes>
         <note category="location">src/app/weather/layers-panel.component.ts:47,48</note>
+      </notes>
+      <segment>
+        <source>Traffic density</source>
+        <target>Щільність трафіку</target>
+      </segment>
+    </unit>
+    <unit id="layers.heatmapSub">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:48,50</note>
+      </notes>
+      <segment>
+        <source>Positions recorded in the last 24 h</source>
+        <target>Позиції, записані за останні 24 год</target>
+      </segment>
+    </unit>
+    <unit id="layers.threeD">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:58,59</note>
+      </notes>
+      <segment>
+        <source>3D terrain</source>
+        <target>3D-рельєф</target>
+      </segment>
+    </unit>
+    <unit id="layers.threeDSub">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:60,62</note>
+      </notes>
+      <segment>
+        <source>Tilted camera, aircraft at their real altitude</source>
+        <target>Нахилена камера, борти на справжній висоті</target>
+      </segment>
+    </unit>
+    <unit id="layers.military">
+      <notes>
+        <note category="location">src/app/weather/layers-panel.component.ts:71,72</note>
       </notes>
       <segment>
         <source>Highlight military</source>
@@ -1938,7 +1974,7 @@
     </unit>
     <unit id="layers.militarySub">
       <notes>
-        <note category="location">src/app/weather/layers-panel.component.ts:48,50</note>
+        <note category="location">src/app/weather/layers-panel.component.ts:72,74</note>
       </notes>
       <segment>
         <source>Aircraft flagged military by the feed</source>
@@ -1947,7 +1983,7 @@
     </unit>
     <unit id="layers.windLevel">
       <notes>
-        <note category="location">src/app/weather/layers-panel.component.ts:55,56</note>
+        <note category="location">src/app/weather/layers-panel.component.ts:79,80</note>
       </notes>
       <segment>
         <source>Wind level</source>
@@ -1956,7 +1992,7 @@
     </unit>
     <unit id="layers.done">
       <notes>
-        <note category="location">src/app/weather/layers-panel.component.ts:70,73</note>
+        <note category="location">src/app/weather/layers-panel.component.ts:94,97</note>
       </notes>
       <segment>
         <source>Done</source>
@@ -1965,7 +2001,7 @@
     </unit>
     <unit id="layers.radarIdle">
       <notes>
-        <note category="location">src/app/weather/layers-panel.component.ts:137</note>
+        <note category="location">src/app/weather/layers-panel.component.ts:161</note>
       </notes>
       <segment>
         <source>RainViewer, updated every 10 min</source>
@@ -1974,7 +2010,7 @@
     </unit>
     <unit id="layers.loading">
       <notes>
-        <note category="location">src/app/weather/layers-panel.component.ts:138</note>
+        <note category="location">src/app/weather/layers-panel.component.ts:162</note>
       </notes>
       <segment>
         <source>Loading…</source>
@@ -1983,7 +2019,7 @@
     </unit>
     <unit id="layers.radarTime">
       <notes>
-        <note category="location">src/app/weather/layers-panel.component.ts:140</note>
+        <note category="location">src/app/weather/layers-panel.component.ts:164</note>
       </notes>
       <segment>
         <source>RainViewer, <ph id="0" equiv="time" disp="time"/></source>

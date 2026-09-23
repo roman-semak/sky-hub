@@ -5,6 +5,19 @@ import type { WindGrid } from './wind-field';
 
 export type WindLevel = 850 | 500 | 250;
 
+/** One cell of `/api/heatmap`. */
+export interface HeatCell {
+  readonly lat: number;
+  readonly lon: number;
+  readonly count: number;
+}
+
+/** Density cells plus the grid step they sit on, which sets the blur radius. */
+export interface HeatGrid {
+  readonly cellDeg: number;
+  readonly cells: readonly HeatCell[];
+}
+
 export const WIND_LEVELS: readonly { level: WindLevel; label: string }[] = [
   { level: 850, label: 'FL050' },
   { level: 500, label: 'FL180' },
@@ -31,6 +44,11 @@ export class WeatherLayersService {
   readonly radarOn = signal(false);
   /** Paints military aircraft in their own colour and enlarges them. */
   readonly militaryHighlight = signal(false);
+  /** 24 h traffic-density heatmap (SPEC phase 8). */
+  readonly heatmapOn = signal(false);
+  readonly heatmap = signal<HeatGrid | null>(null);
+  /** Terrain + tilted camera, aircraft drawn at their real altitude. */
+  readonly threeD = signal(false);
   readonly windOn = signal(false);
   readonly windLevel = signal<WindLevel>(250);
   /** `{z}/{x}/{y}` tile template of the latest radar frame, or `null`. */
@@ -39,6 +57,7 @@ export class WeatherLayersService {
   readonly wind = signal<WindGrid | null>(null);
   private radarTimer: ReturnType<typeof setInterval> | null = null;
   private windTimer: ReturnType<typeof setTimeout> | null = null;
+  private heatTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     effect(() => {
@@ -53,6 +72,16 @@ export class WeatherLayersService {
       this.radarTimer ??= setInterval(() => void this.loadRadar(), 10 * 60_000);
     });
     effect(() => {
+      const on = this.heatmapOn();
+      const bbox = this.store.bbox();
+      if (this.heatTimer !== null) clearTimeout(this.heatTimer);
+      if (!on || bbox === null) {
+        this.heatmap.set(null);
+        return;
+      }
+      this.heatTimer = setTimeout(() => void this.loadHeatmap(bbox), 400);
+    });
+    effect(() => {
       const on = this.windOn();
       const level = this.windLevel();
       const bbox = this.store.bbox();
@@ -63,6 +92,21 @@ export class WeatherLayersService {
       }
       this.windTimer = setTimeout(() => void this.loadWind(bbox, level), 400);
     });
+  }
+
+  private async loadHeatmap(bbox: readonly [number, number, number, number]): Promise<void> {
+    const params = new URLSearchParams({ bbox: bbox.map((v) => v.toFixed(3)).join(',') });
+    try {
+      const res = await this.fetchFn(`/api/heatmap?${params.toString()}`);
+      if (!res.ok) {
+        this.heatmap.set(null);
+        return;
+      }
+      const body = (await res.json()) as { cellDeg: number; cells: HeatCell[] };
+      this.heatmap.set({ cellDeg: body.cellDeg, cells: body.cells });
+    } catch {
+      this.heatmap.set(null);
+    }
   }
 
   private async loadRadar(): Promise<void> {

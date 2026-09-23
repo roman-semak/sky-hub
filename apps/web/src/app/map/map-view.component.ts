@@ -102,6 +102,16 @@ export class MapViewComponent {
       this.engine?.setRadar(tiles, RADAR_MAX_ZOOM);
     });
     effect(() => {
+      const cells = this.weather.heatmap();
+      this.engineReady();
+      this.engine?.setHeatmap(cells);
+    });
+    effect(() => {
+      const on = this.weather.threeD();
+      this.engineReady();
+      this.engine?.setThreeD(on);
+    });
+    effect(() => {
       const on = this.weather.militaryHighlight();
       this.engineReady();
       this.engine?.setMilitaryHighlight(on);

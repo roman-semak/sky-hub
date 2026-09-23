@@ -2,6 +2,21 @@ import type { Aircraft } from '@skytrace/adsb-types';
 import type { EmergencyAlert } from '@skytrace/protocol';
 import type { SpatialIndex } from '../state/spatial-index.js';
 
+/**
+ * Only the three emergency transponder codes raise an alert (SPEC phase 8).
+ * The ADS-B emergency/priority field also carries statuses like "minimum
+ * fuel" and "medical", which are not emergencies worth interrupting anyone.
+ */
+const ALERT_SQUAWKS = new Set(['7500', '7600', '7700']);
+const ALERT_KINDS = new Set(['general', 'unlawful', 'downed', 'nordo']);
+
+export function isAlertWorthy(ac: Pick<Aircraft, 'emergency' | 'squawk'>): boolean {
+  if (ac.squawk !== null) return ALERT_SQUAWKS.has(ac.squawk);
+  // Feeds do report an emergency status with an ordinary squawk, which is
+  // usually stale data; only trust the status when no code is known at all.
+  return ALERT_KINDS.has(ac.emergency);
+}
+
 /** An alert stays "current" while the aircraft keeps squawking, plus this grace period. */
 const FORGET_AFTER_MS = 15 * 60_000;
 
@@ -28,7 +43,7 @@ export class EmergencyWatch {
   scan(index: SpatialIndex, now: number): EmergencyAlert[] {
     const fresh: EmergencyAlert[] = [];
     for (const { ac } of index.all()) {
-      if (ac.emergency === 'none') continue;
+      if (!isAlertWorthy(ac)) continue;
       const previous = this.seen.get(ac.hex);
       this.seen.set(ac.hex, { kind: ac.emergency, at: now });
       // A changed code (7600 → 7700) is a new alert worth showing again.
@@ -44,7 +59,7 @@ export class EmergencyWatch {
   current(index: SpatialIndex): EmergencyAlert[] {
     return index
       .all()
-      .filter(({ ac }) => ac.emergency !== 'none')
+      .filter(({ ac }) => isAlertWorthy(ac))
       .map(({ ac }) => toAlert(ac));
   }
 

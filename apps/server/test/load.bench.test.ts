@@ -10,6 +10,7 @@ import { IngestWorker } from '../src/ingest/ingest-worker.js';
 import { ProviderPool } from '../src/ingest/provider-pool.js';
 import { silentLogger } from '../src/logger.js';
 import { SpatialIndex } from '../src/state/spatial-index.js';
+import { DensityGrid } from '../src/state/density-grid.js';
 import { StateStore } from '../src/state/state-store.js';
 import { StreamHub } from '../src/stream/stream-hub.js';
 import { makeAircraft } from './fixtures.js';
@@ -40,6 +41,7 @@ describe('load: 200 WebSocket clients', () => {
       staticIndex: null,
       routes: new RouteService([], null, silentLogger),
       history: new HistoryService(null, null, new TrackHistory()),
+      density: new DensityGrid(),
       weather: null,
       wind: null,
       retentionMs: 3_600_000,

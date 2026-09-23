@@ -40,6 +40,16 @@ community ADS-B data**, no receivers, no paid services.
 - **Airports** — METAR/TAF, 24 h wind rose, arrivals/departures within 50 nm.
 - **Weather layers** — RainViewer precipitation radar, Open-Meteo wind aloft
   as animated particles at FL050/FL180/FL340.
+- **Emergency watch** — every tracked aircraft, not just the viewport, is
+  checked for squawk 7500/7600/7700; alerts arrive over the same WebSocket,
+  with toasts, an `/alerts` page and optional system notifications.
+- **What's above me** — browser geolocation (or a manual point) gives azimuth,
+  elevation angle and slant range to the aircraft overhead, corrected for
+  Earth curvature; track export as KML (`gx:Track`) or GPX.
+- **Traffic density** — a rolling 24 h grid of recorded positions, drawn as a
+  deck.gl heatmap whose blur follows the grid step.
+- **3D terrain** — tilted camera over free Mapzen/AWS DEM tiles with
+  hillshade; aircraft are drawn at their real altitude.
 - **Polish** — PWA (installable, offline shell), English and Ukrainian,
   dark/light theme, keyboard shortcuts (`/` or ⌘K search, `f` filters, `Esc`),
   URL as state (`/?lat=38.77&lon=-9.13&z=9&sel=4951ab`).
