@@ -100,7 +100,7 @@ export class ClientSession {
    * they are handed to the socket, so a skipped tick (backpressure) is covered
    * by the next delta.
    */
-  buildFrames(view: WorldView, removedGlobally: readonly string[]): PendingFrames {
+  buildFrames(view: WorldView): PendingFrames {
     const sub = this.sub;
     if (sub === null) return EMPTY;
     const ts = Math.floor(view.now / 1000);
@@ -138,10 +138,10 @@ export class ClientSession {
 
     const frames: ArrayBuffer[] = [];
     if (!snapshot) {
+      // Everything this client was sent and no longer matches, evictions
+      // included: an evicted aircraft cannot be in `nextSent`.
       const gone: string[] = [];
       for (const hex of this.sent.keys()) if (!nextSent.has(hex)) gone.push(hex);
-      for (const hex of removedGlobally)
-        if (this.sent.has(hex) && !nextSent.has(hex) && !gone.includes(hex)) gone.push(hex);
       if (gone.length > 0)
         frames.push(...chunk(gone, (part) => encodeRemovals(ts, part.map(hexToId))));
     }

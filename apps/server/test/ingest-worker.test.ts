@@ -34,6 +34,31 @@ afterEach(() => {
 });
 
 describe('IngestWorker', () => {
+  it('keeps going when the store throws mid-tick', async () => {
+    const { worker, store, pool, advance } = setup(async () => ({
+      kind: 'ok',
+      aircraft: [makeAircraft({ seenTime: T0 })],
+      invalid: 0,
+    }));
+    vi.spyOn(store, 'upsertMany').mockImplementationOnce(() => {
+      throw new Error('boom');
+    });
+
+    worker.tick();
+    // The failure must be booked against the provider, or it stays "in
+    // flight" for good; an unhandled rejection would take the process down.
+    await vi.waitFor(() => {
+      expect(pool.snapshot(T0)['p']?.consecutiveFailures).toBe(1);
+    });
+
+    // The circle went back to the queue, so the next tick still works.
+    advance(1000);
+    worker.tick();
+    await vi.waitFor(() => {
+      expect(store.size).toBe(1);
+    });
+  });
+
   it('fetches, stores and publishes a spatial index', async () => {
     const { worker, store, pool } = setup(async () => ({
       kind: 'ok',

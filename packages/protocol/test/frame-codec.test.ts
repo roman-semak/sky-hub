@@ -109,6 +109,12 @@ describe('ids and helpers', () => {
     expect(idToHex(0x4951ab, false)).toBe('4951ab');
     expect(() => hexToId('zzzzzz')).toThrow(RangeError);
     expect(() => hexToId('1000000')).toThrow(RangeError);
+    // parseInt would happily read a prefix and file these under an address
+    // that belongs to a different aircraft.
+    expect(() => hexToId('12345g')).toThrow(RangeError);
+    expect(() => hexToId('4951a')).toThrow(RangeError);
+    expect(() => hexToId('')).toThrow(RangeError);
+    expect(() => hexToId('~')).toThrow(RangeError);
   });
 
   it('maps emergency kinds', () => {

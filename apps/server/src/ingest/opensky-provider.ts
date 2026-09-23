@@ -1,6 +1,6 @@
 import type { Aircraft } from '@skytrace/adsb-types';
 import { resolveEmergency } from '@skytrace/adsb-types';
-import { splitBBox, type CoverageCircle } from '@skytrace/geo';
+import { splitBBox, type BBox, type CoverageCircle } from '@skytrace/geo';
 import { z } from 'zod';
 import { USER_AGENT, type FetchFn, type Provider, type ProviderOutcome } from './provider.js';
 
@@ -8,7 +8,7 @@ import { USER_AGENT, type FetchFn, type Provider, type ProviderOutcome } from '.
 // https://openskynetwork.github.io/opensky-api/rest.html#all-state-vectors
 const StateVectorSchema = z
   .tuple([
-    z.string(), // 0 icao24
+    z.string().regex(/^[0-9a-fA-F]{6}$/), // 0 icao24
     z.string().nullable(), // 1 callsign
     z.string(), // 2 origin_country
     z.number().nullable(), // 3 time_position
@@ -113,8 +113,13 @@ export class OpenSkyProvider implements Provider {
   async fetchCircle(circle: CoverageCircle, signal: AbortSignal): Promise<ProviderOutcome> {
     const cached = this.cache.get(circle.id);
     if (cached !== undefined && this.now() - cached.at < this.cacheTtlMs) return cached.outcome;
-    // OpenSky bboxes cannot cross the antimeridian; take the larger half.
-    const [box] = splitBBox(circle.bbox);
+    // OpenSky bboxes cannot cross the antimeridian, so a circle that does is
+    // queried as its wider half — the narrow sliver is the cheaper loss.
+    const width = (b: BBox): number => b[2] - b[0];
+    const box = splitBBox(circle.bbox).reduce<BBox | undefined>(
+      (best, half) => (best === undefined || width(half) > width(best) ? half : best),
+      undefined,
+    );
     if (box === undefined) return { kind: 'ok', aircraft: [], invalid: 0 };
     const [w, s, e, n] = box;
     const url = `https://opensky-network.org/api/states/all?lamin=${s}&lomin=${w}&lamax=${n}&lomax=${e}`;
@@ -131,8 +136,13 @@ export class OpenSkyProvider implements Provider {
         message: err instanceof Error ? err.message : String(err),
       };
     }
-    if (res.status === 429) return { kind: 'rate-limited', status: 429 };
-    if (!res.ok) return { kind: 'error', status: res.status, message: `HTTP ${res.status}` };
+    if (res.status === 429 || !res.ok) {
+      // Undici keeps the connection until the body is read or cancelled.
+      await res.body?.cancel().catch(() => undefined);
+      return res.status === 429
+        ? { kind: 'rate-limited', status: 429 }
+        : { kind: 'error', status: res.status, message: `HTTP ${res.status}` };
+    }
     const parsed = ResponseSchema.safeParse(await res.json().catch(() => null));
     if (!parsed.success)
       return { kind: 'error', status: res.status, message: parsed.error.message };

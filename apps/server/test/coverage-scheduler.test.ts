@@ -54,6 +54,21 @@ describe('CoverageScheduler', () => {
     s.complete('missing', 0, true);
   });
 
+  it('adds a fallback circle when the grid only clips the viewport', () => {
+    const s = new CoverageScheduler(grid);
+    // Mostly open Atlantic, with Lisbon's circle at the eastern edge: the
+    // grid touches the view but covers almost none of it.
+    s.setDemand([[-30, 30, -8, 45]]);
+    expect(s.snapshot(0).dynamicCircles).toBe(1);
+    expect(s.snapshot(0).demandedCircles).toBeGreaterThan(1);
+  });
+
+  it('leaves a viewport inside the grid to the community feeds', () => {
+    const s = new CoverageScheduler(grid);
+    s.setDemand([[-9.5, 38.3, -8.7, 39]]);
+    expect(s.snapshot(0).dynamicCircles).toBe(0);
+  });
+
   it('handles antimeridian viewports', () => {
     const s = new CoverageScheduler(grid);
     s.setDemand([[175, -20, -175, -10]]);

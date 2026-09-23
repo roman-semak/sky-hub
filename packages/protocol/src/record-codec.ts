@@ -11,8 +11,10 @@ export function writeRecord(view: DataView, offset: number, r: AircraftRecord): 
   const o = offset;
   view.setUint16(o + OFF.icao, r.icao >>> 8);
   view.setUint8(o + OFF.icao + 2, r.icao & 0xff);
-  view.setInt32(o + OFF.lat, Math.round(r.lat * 1e6));
-  view.setInt32(o + OFF.lon, Math.round(r.lon * 1e6));
+  // Saturating, like every other field: a bad fix should land at the pole,
+  // not wrap to the opposite hemisphere.
+  view.setInt32(o + OFF.lat, clamp(Math.round(r.lat * 1e6), -90_000_000, 90_000_000));
+  view.setInt32(o + OFF.lon, clamp(Math.round(r.lon * 1e6), -180_000_000, 180_000_000));
   view.setInt16(
     o + OFF.alt,
     r.alt === null ? NULL_I16 : clamp(Math.round(r.alt / 25), -32767, 32767),
