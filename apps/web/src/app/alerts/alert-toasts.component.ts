@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { MapUiStore } from '../core/state/map-ui.store';
 import { IconComponent } from '../ui/icon/icon.component';
@@ -6,6 +13,9 @@ import { EmergencyStore, SQUAWK_MEANING } from './emergency.store';
 
 /** How long a new emergency stays on screen as a toast. */
 const VISIBLE_MS = 45_000;
+
+/** How often the expiry clock is re-read. */
+const TICK_MS = 5_000;
 
 /** Toasts for new emergency squawks (SPEC phase 8). */
 @Component({
@@ -94,11 +104,27 @@ export class AlertToastsComponent {
   protected readonly store = inject(EmergencyStore);
   private readonly map = inject(MapUiStore);
   private readonly router = inject(Router);
+  /** Zoneless: without this, the expiry below is only re-evaluated when a
+   * new alert arrives, and a lone toast would stay on screen for good. */
+  private readonly tick = signal(0);
 
-  protected readonly visible = computed(() =>
-    this.store
+  constructor() {
+    const timer = setInterval(() => {
+      if (this.store.alerts().some((a) => !a.acknowledged)) this.tick.update((n) => n + 1);
+    }, TICK_MS);
+    inject(DestroyRef).onDestroy(() => {
+      clearInterval(timer);
+    });
+  }
+
+  protected readonly visible = computed(() => {
+    // Read the tick so the expiry below re-runs on the clock, not only when
+    // the alert list changes.
+    this.tick();
+    const now = Date.now();
+    return this.store
       .alerts()
-      .filter((a) => !a.acknowledged && Date.now() - a.receivedAt < VISIBLE_MS)
+      .filter((a) => !a.acknowledged && now - a.receivedAt < VISIBLE_MS)
       .slice(0, 3)
       .map((a) => ({
         hex: a.hex,
@@ -106,8 +132,8 @@ export class AlertToastsComponent {
         lon: a.lon,
         title: $localize`:@@alert.toastTitle:Squawk ${a.squawk ?? '—'}:squawk: · ${a.callsign ?? a.hex.toUpperCase()}:flight:`,
         meta: a.squawk === null ? a.kind : (SQUAWK_MEANING[a.squawk] ?? a.kind),
-      })),
-  );
+      }));
+  });
 
   protected open(hex: string, lat: number, lon: number): void {
     this.store.acknowledge(hex);

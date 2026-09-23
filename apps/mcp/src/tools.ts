@@ -89,8 +89,14 @@ const flightsOverhead = define({
   input: {
     lat: z.number().min(-90).max(90),
     lon: z.number().min(-180).max(180),
-    elevationFt: z.number().default(0).describe("observer's ground elevation in feet"),
-    limit: z.number().int().min(1).max(50).default(10),
+    // Bounds mirror the API's own; a wider tool schema only buys a 400.
+    elevationFt: z
+      .number()
+      .min(-1400)
+      .max(30_000)
+      .default(0)
+      .describe("observer's ground elevation in feet"),
+    limit: z.number().int().min(1).max(20).default(8),
   },
   async run(api, { lat, lon, elevationFt, limit }) {
     return formatOverhead(

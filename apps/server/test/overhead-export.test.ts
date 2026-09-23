@@ -80,14 +80,14 @@ describe('exportTrack', () => {
     expect(kml).toContain('Not for navigation');
   });
 
-  it('writes GPX track points with elevation and optional speed', () => {
+  it('writes GPX track points with elevation and time', () => {
     const gpx = exportTrack(points, 'gpx', 'TAP1234');
     expect(gpx).toContain('<gpx version="1.1" creator="SkyTrace"');
     expect(gpx).toContain('<trkpt lat="38.700000" lon="-9.100000">');
     expect(gpx).toContain('<ele>3048.0</ele>');
-    expect(gpx).toContain('<speed>128.61</speed>');
-    // The second point has no ground speed: no <speed> element for it.
-    expect(gpx.match(/<speed>/g)).toHaveLength(1);
+    expect(gpx).toContain(`<time>${new Date(T0).toISOString()}</time>`);
+    // <speed> belongs to GPX 1.0; a 1.1 document with it fails validation.
+    expect(gpx).not.toContain('<speed>');
   });
 
   it('handles an empty track and missing altitudes', () => {

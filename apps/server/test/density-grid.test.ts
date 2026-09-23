@@ -28,6 +28,29 @@ describe('DensityGrid', () => {
     expect(g.query([7, 49, 9, 51], 100, T)).toHaveLength(1);
   });
 
+  it('keeps the poles and the antimeridian inside the grid', () => {
+    const g = new DensityGrid();
+    g.record(makeAircraft({ lat: 90, lon: 180 }), T);
+    g.record(makeAircraft({ lat: -90, lon: -180 }), T);
+    expect(g.size).toBe(2);
+    const north = g.query([179, 89, 180, 90], 10, T);
+    expect(north).toHaveLength(1);
+    expect(north[0]?.lat).toBeLessThanOrEqual(90);
+    expect(north[0]?.lon).toBeLessThanOrEqual(180);
+    // The far corner must not alias onto the next row's first cell.
+    expect(g.query([-180, 89, -179, 90], 10, T)).toEqual([]);
+  });
+
+  it('starts over when the clock steps back across an hour', () => {
+    const g = new DensityGrid({ cellDeg: 0.5, hours: 3 });
+    g.record(makeAircraft({ lat: 10, lon: 10 }), T);
+    expect(g.query([9, 9, 11, 11], 10, T)[0]?.count).toBe(1);
+    // An hour earlier: the window no longer covers what was counted.
+    g.record(makeAircraft({ lat: 10, lon: 10 }), T - HOUR);
+    expect(g.query([9, 9, 11, 11], 10, T - HOUR)[0]?.count).toBe(1);
+    expect(g.size).toBe(1);
+  });
+
   it('spans the antimeridian', () => {
     const g = new DensityGrid();
     g.record(makeAircraft({ lat: 0, lon: 179.7 }), T);

@@ -35,7 +35,32 @@ describe('formatting unknowns', () => {
     expect(text).toContain('Operator: unknown');
     expect(text).toContain('On ground');
     expect(text).toContain('Squawk: none · emergency: general');
+    expect(text).not.toContain('vertical rate 0 ft/min');
     expect(text).toContain('Flagged military');
+  });
+
+  it('says an unknown vertical rate is unknown, not level flight', () => {
+    const text = formatFlight({
+      hex: 'abc123',
+      callsign: 'TAP1',
+      registration: null,
+      typeCode: null,
+      lat: 0,
+      lon: 0,
+      altBaro: 30_000,
+      gs: 400,
+      track: 90,
+      baroRate: null,
+      squawk: null,
+      emergency: 'none',
+      military: false,
+      onGround: false,
+      posTime: Date.UTC(2026, 8, 23, 10, 0, 0),
+      country: null,
+      airline: null,
+      aircraftType: null,
+    });
+    expect(text).toContain('vertical rate unknown');
   });
 
   it('keeps rows readable when speeds and altitudes are missing', () => {
