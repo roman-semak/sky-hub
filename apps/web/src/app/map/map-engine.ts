@@ -57,6 +57,7 @@ export interface MapEngine {
   /** `{z}/{x}/{y}` raster tile template for precipitation radar, or `null`. */
   setRadar(tiles: string | null, maxZoom: number): void;
   setWind(grid: WindGrid | null): void;
+  setMilitaryHighlight(on: boolean): void;
   flyTo(lat: number, lon: number, zoom?: number): void;
   zoomBy(delta: number): void;
   destroy(): void;
@@ -103,6 +104,7 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
   let destroyed = false;
   let selected: string | null = null;
   let dimmed = false;
+  let militaryHighlight = false;
   let lastRegistry: LiveRegistry | null = null;
   let lastVersion = -1;
   let radar: { tiles: string; maxZoom: number } | null = null;
@@ -201,7 +203,7 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
       scene.clusters = reg.clusters;
     }
     if (deck === null) return;
-    scene.buffer.fill(reg.aircraft, source.now, selected, dimmed);
+    scene.buffer.fill(reg.aircraft, source.now, selected, dimmed, militaryHighlight);
     deck.render();
     samples.push(performance.now() - t0);
     frames++;
@@ -239,6 +241,9 @@ export async function createMapEngine(opts: MapEngineOptions): Promise<MapEngine
     setRadar(tiles, maxZoom) {
       radar = tiles === null ? null : { tiles, maxZoom };
       if (map.isStyleLoaded()) applyRadar();
+    },
+    setMilitaryHighlight(on) {
+      militaryHighlight = on;
     },
     setWind(grid) {
       windGrid = grid;

@@ -2,7 +2,7 @@ import { createTrackState } from '@skytrace/geo';
 import type { AircraftRecord } from '@skytrace/protocol';
 import { describe, expect, it } from 'vitest';
 import type { LiveAircraft } from '../../core/live/live-aircraft';
-import { ALT_EMERGENCY, ALT_SELECTED, ALT_UNKNOWN } from './altitude-color';
+import { ALT_EMERGENCY, ALT_MILITARY, ALT_SELECTED, ALT_UNKNOWN } from './altitude-color';
 import { RenderBuffer } from './render-buffer';
 
 const T = 1_700_000_000_000;
@@ -86,6 +86,21 @@ describe('RenderBuffer', () => {
     expect(b.colors[3]).toBeLessThan(200);
     b.fill(new Map([['a', ac('a', {}, T - 200_000)]]), T, null, false);
     expect(b.count).toBe(0);
+  });
+
+  it('paints and enlarges military aircraft when the highlight is on', () => {
+    const b = new RenderBuffer();
+    const map = new Map([
+      ['a', ac('a', { military: true })],
+      ['b', ac('b')],
+    ]);
+    b.fill(map, T, null, false, true);
+    expect(b.altitudes[0]).toBe(ALT_MILITARY);
+    expect(b.altitudes[1]).toBe(30_000);
+    expect(b.sizes[0]).toBeGreaterThan(b.sizes[1] ?? 0);
+    // Off by default.
+    b.fill(map, T, null, false);
+    expect(b.altitudes[0]).toBe(30_000);
   });
 
   it('dims everything when the stream is stale', () => {

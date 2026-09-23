@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular
 import { RouterOutlet } from '@angular/router';
 import { FilterStore } from './core/filters/filter.store';
 import { KeyboardShortcutsService } from './core/keyboard/keyboard-shortcuts.service';
+import { AlertToastsComponent } from './alerts/alert-toasts.component';
 import { FilterPanelComponent } from './filters/filter-panel.component';
 import { StreamClient } from './core/live/stream-client.service';
 import { ThemeService } from './core/theme/theme.service';
@@ -14,7 +15,13 @@ import { TabBarComponent } from './ui/tab-bar.component';
 @Component({
   selector: 'st-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FilterPanelComponent, NavRailComponent, RouterOutlet, TabBarComponent],
+  imports: [
+    AlertToastsComponent,
+    FilterPanelComponent,
+    NavRailComponent,
+    RouterOutlet,
+    TabBarComponent,
+  ],
   template: `
     <div class="shell">
       <st-nav-rail class="rail" />
@@ -23,6 +30,7 @@ import { TabBarComponent } from './ui/tab-bar.component';
       </main>
       <st-tab-bar class="tabs glass-strong" />
     </div>
+    <st-alert-toasts />
     @defer (when filters.open()) {
       @if (filters.open()) {
         <st-filter-panel />

@@ -37,6 +37,17 @@ import { WeatherLayersService, WIND_LEVELS, type WindLevel } from './weather-lay
           >
         </span>
       </label>
+      <label class="row">
+        <input
+          type="checkbox"
+          [checked]="weather.militaryHighlight()"
+          (change)="weather.militaryHighlight.set(checked($event))"
+        />
+        <span class="text">
+          <span class="title" i18n="@@layers.military">Highlight military</span>
+          <span class="sub" i18n="@@layers.militarySub">Aircraft flagged military by the feed</span>
+        </span>
+      </label>
       @if (weather.windOn()) {
         <div
           class="levels"

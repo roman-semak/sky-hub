@@ -18,10 +18,13 @@ export const ALTITUDE_STOPS: readonly (readonly [number, number, number, number]
 export const ALT_UNKNOWN = -9000;
 export const ALT_EMERGENCY = -9001;
 export const ALT_SELECTED = -9002;
+/** Used when the military highlight layer is on (SPEC phase 8). */
+export const ALT_MILITARY = -9003;
 
 export const UNKNOWN_RGB: readonly [number, number, number] = [160, 164, 180];
 export const EMERGENCY_RGB: readonly [number, number, number] = [255, 84, 84];
 export const SELECTED_RGB: readonly [number, number, number] = [210, 206, 253];
+export const MILITARY_RGB: readonly [number, number, number] = [138, 201, 38];
 
 /**
  * CPU reference implementation of the ramp (piecewise-linear in feet). The
@@ -31,6 +34,7 @@ export const SELECTED_RGB: readonly [number, number, number] = [210, 206, 253];
 export function altitudeColor(altFt: number): [number, number, number] {
   if (altFt === ALT_EMERGENCY) return [...EMERGENCY_RGB];
   if (altFt === ALT_SELECTED) return [...SELECTED_RGB];
+  if (altFt === ALT_MILITARY) return [...MILITARY_RGB];
   if (altFt <= ALT_UNKNOWN) return [...UNKNOWN_RGB];
   const first = ALTITUDE_STOPS[0];
   const last = ALTITUDE_STOPS[ALTITUDE_STOPS.length - 1];
@@ -57,6 +61,7 @@ export function altitudeColorGlsl(): string {
   const lines = ['vec3 altitudeColor(float altFt) {'];
   lines.push(`  if (altFt == ${f(ALT_EMERGENCY)}) return ${rgb(EMERGENCY_RGB)};`);
   lines.push(`  if (altFt == ${f(ALT_SELECTED)}) return ${rgb(SELECTED_RGB)};`);
+  lines.push(`  if (altFt == ${f(ALT_MILITARY)}) return ${rgb(MILITARY_RGB)};`);
   lines.push(`  if (altFt <= ${f(ALT_UNKNOWN)}) return ${rgb(UNKNOWN_RGB)};`);
   const [s0] = ALTITUDE_STOPS;
   if (s0 !== undefined)

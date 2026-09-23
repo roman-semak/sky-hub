@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, LOCALE_ID } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { StreamClient } from '../core/live/stream-client.service';
+import { EmergencyStore } from '../alerts/emergency.store';
 import { FilterStore } from '../core/filters/filter.store';
 import { ThemeService } from '../core/theme/theme.service';
 import { formatBytesPerSec, formatCount } from '../core/format/format';
@@ -28,6 +29,9 @@ import { IconComponent } from './icon/icon.component';
             >
               <st-icon [name]="item.icon" class="nav-icon" />
               <span class="label">{{ item.label }}</span>
+              @if (item.path === '/alerts' && emergencies.unread() > 0) {
+                <span class="badge alert">{{ emergencies.unread() }}</span>
+              }
             </a>
           </li>
         }
@@ -89,11 +93,13 @@ export class NavRailComponent {
       : { code: 'uk', label: 'Українська', href: `/uk${path}${search}` };
   })();
   protected readonly filters = inject(FilterStore);
+  protected readonly emergencies = inject(EmergencyStore);
   private readonly client = inject(StreamClient);
   protected readonly items = [
     { path: '/', icon: 'globe', label: $localize`:@@nav.map:Map` },
     { path: '/search', icon: 'magnifying-glass', label: $localize`:@@nav.search:Search` },
     { path: '/following', icon: 'bookmark-simple', label: $localize`:@@nav.following:Following` },
+    { path: '/alerts', icon: 'bell', label: $localize`:@@nav.alerts:Alerts` },
     { path: '/stats', icon: 'globe-line', label: $localize`:@@nav.stats:Stats` },
   ] as const;
 

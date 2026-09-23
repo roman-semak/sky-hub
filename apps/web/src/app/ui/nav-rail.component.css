@@ -113,3 +113,8 @@
   font-size: 11px;
   color: var(--color-accent-300);
 }
+
+.badge.alert {
+  color: #ff9d9d;
+  font-weight: 600;
+}

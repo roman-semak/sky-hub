@@ -4,6 +4,7 @@ import { ClientMessageSchema, type ServerMessage } from '@skytrace/protocol';
 import type { Logger } from '../logger.js';
 import type { SpatialIndex } from '../state/spatial-index.js';
 import { ClientSession, type WorldView } from './client-session.js';
+import { EmergencyWatch } from './emergency-watch.js';
 
 /** The subset of a `ws` WebSocket the hub needs; keeps tests socket-free. */
 export interface StreamSocket {
@@ -41,6 +42,7 @@ interface Conn {
 
 export interface HubStats {
   readonly clients: number;
+  readonly emergencies: number;
   readonly framesSent: number;
   readonly bytesSent: number;
   readonly skippedTicks: number;
@@ -53,6 +55,7 @@ export interface HubStats {
  */
 export class StreamHub {
   private readonly conns = new Set<Conn>();
+  private readonly emergencies = new EmergencyWatch();
   private index: SpatialIndex | null = null;
   private stats = { framesSent: 0, bytesSent: 0, skippedTicks: 0, lastFanoutMs: 0 };
   private pingTimer: NodeJS.Timeout | null = null;
@@ -79,7 +82,7 @@ export class StreamHub {
   }
 
   get statistics(): HubStats {
-    return { clients: this.conns.size, ...this.stats };
+    return { clients: this.conns.size, emergencies: this.emergencies.size, ...this.stats };
   }
 
   /** Registers a socket; returns handlers the transport must call. */
@@ -95,6 +98,11 @@ export class StreamHub {
     };
     this.conns.add(conn);
     this.sendJson(conn, { t: 'hello', version: 1, serverTime: this.now() });
+    // A client that joins mid-event still needs to know about it.
+    if (this.index !== null) {
+      const current = this.emergencies.current(this.index);
+      if (current.length > 0) this.sendJson(conn, { t: 'alerts', items: current });
+    }
     return {
       onMessage: (data) => {
         this.handleMessage(conn, data);
@@ -112,6 +120,14 @@ export class StreamHub {
     const now = this.now();
     this.index = index;
     const view = { index, now };
+    const alerts = this.emergencies.scan(index, now);
+    if (alerts.length > 0) {
+      this.log.info(
+        { alerts: alerts.map((a) => `${a.hex}:${a.squawk ?? '?'}`) },
+        'emergency squawk',
+      );
+      for (const conn of this.conns) this.sendJson(conn, { t: 'alerts', items: alerts });
+    }
     for (const conn of this.conns) {
       if (conn.session.isDue(now)) this.flush(conn, view, removed);
     }

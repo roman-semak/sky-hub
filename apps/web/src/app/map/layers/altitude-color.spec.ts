@@ -6,7 +6,9 @@ import {
   ALTITUDE_STOPS,
   altitudeColor,
   altitudeColorGlsl,
+  ALT_MILITARY,
   EMERGENCY_RGB,
+  MILITARY_RGB,
   SELECTED_RGB,
   UNKNOWN_RGB,
 } from './altitude-color';
@@ -30,6 +32,7 @@ describe('altitudeColor', () => {
   });
 
   it('uses sentinels for special states', () => {
+    expect(altitudeColor(ALT_MILITARY)).toEqual([...MILITARY_RGB]);
     expect(altitudeColor(ALT_EMERGENCY)).toEqual([...EMERGENCY_RGB]);
     expect(altitudeColor(ALT_SELECTED)).toEqual([...SELECTED_RGB]);
     expect(altitudeColor(ALT_UNKNOWN)).toEqual([...UNKNOWN_RGB]);
@@ -69,7 +72,17 @@ describe('altitudeColorGlsl', () => {
       }
       return [];
     };
-    for (const alt of [ALT_EMERGENCY, ALT_SELECTED, ALT_UNKNOWN, 0, 1500, 8000, 25_000, 39_000]) {
+    for (const alt of [
+      ALT_EMERGENCY,
+      ALT_SELECTED,
+      ALT_MILITARY,
+      ALT_UNKNOWN,
+      0,
+      1500,
+      8000,
+      25_000,
+      39_000,
+    ]) {
       const gpu = evaluate(alt);
       const cpu = altitudeColor(alt);
       expect(gpu.length).toBe(3);
