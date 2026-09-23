@@ -34,13 +34,23 @@ Results (Lighthouse 12, production build served by Fastify):
 | `/search` | mobile  | 95      | 100  | 96             | 100 |
 | `/stats`  | mobile  | 95      | 100  | 100            | 100 |
 
+Re-measured after preconnecting the basemap origins (2026-09-23): the mobile
+map page reads **93** (median of five runs: 77 / 82 / 93 / 93 / 95), with
+FCP 1.8 s, LCP 2.0 s, TBT 252 ms and CLS 0; accessibility, best practices and
+SEO stay at 100. The spread is the measuring machine, not the page — a
+developer laptop under other load. Treat the median as the number and the
+spread as the error bar; anything below 90 in a single run says more about
+the machine than the build.
+
 axe (WCAG 2.1 AA) reports zero violations on every screen in both themes.
 
 ## Consequences
 
-The mobile map score is bounded by two costs the mandated stack imposes on a
-4× throttled CPU over slow 4G: evaluating MapLibre (~190 ms TBT) and
-client-side bootstrap before the first real component paints (LCP ≈ 4 s).
-Closing that gap needs build-time prerendering of the shell (Angular SSR/SSG)
-or moving map work off the main thread once MapLibre supports it — tracked
-as a follow-up, not done by delaying the map.
+The mobile map score is bounded by the cost the mandated stack imposes on a
+4× throttled CPU over slow 4G: evaluating MapLibre and deck.gl. Preconnecting
+the two basemap origins removed the serial handshakes in front of the style
+and the tiles, which halved LCP (≈ 4 s → 2.0 s) and took the median from 83
+to 93. The remaining ~250 ms of blocking time is library evaluation, and the
+last few points need build-time prerendering of the shell (Angular SSR/SSG)
+or map work off the main thread once MapLibre supports it — a follow-up, not
+something to buy by delaying the map.
