@@ -1,4 +1,11 @@
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  utimesSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { decodeFrame, FrameType } from '@skytrace/protocol';
@@ -144,6 +151,26 @@ describe('HistoryWriter + HistoryReader', () => {
     expect(writer.statistics.files).toBe(1);
     await writer.stop();
   });
+  it('drops the temp file when a flush fails, and keeps running', async () => {
+    const dir = tmp();
+    const at = H0 + 60_000;
+    // A directory where the part file should go: the rename fails, the temp
+    // file is already on disk — the same shape as a volume filling up.
+    mkdirSync(partPath(dir, at), { recursive: true });
+    const writer = new HistoryWriter(
+      { dir, flushMs: 1e9, maxBufferedRows: 1e9 },
+      silentLogger,
+      () => at,
+    );
+    writer.append(makeAircraft());
+    await writer.flush();
+
+    expect(writer.statistics).toMatchObject({ buffered: 0, files: 0, rows: 0 });
+    expect(readdirSync(join(dir, '2026-09-21')).some((f) => f.endsWith('.tmp'))).toBe(false);
+    // The writer is still usable: the failure cost five minutes, not the run.
+    writer.append(makeAircraft());
+    expect(writer.statistics.buffered).toBe(1);
+  });
 });
 
 describe('purgeHistory', () => {
@@ -163,6 +190,22 @@ describe('purgeHistory', () => {
     expect(existsSync(join(newDay, '10-0500.parquet'))).toBe(true);
     expect(existsSync(join(dir, 'README'))).toBe(true);
     expect(await purgeHistory(join(dir, 'missing'), 0)).toEqual([]);
+  });
+
+  it('sweeps abandoned temp files but never one being written', async () => {
+    const dir = tmp();
+    const day = join(dir, '2026-09-21');
+    mkdirSync(day, { recursive: true });
+    const stale = join(day, '10-0500.parquet.tmp');
+    const inFlight = join(day, '10-1000.parquet.tmp');
+    writeFileSync(stale, 'half');
+    writeFileSync(inFlight, 'half');
+    const now = Date.now();
+    utimesSync(stale, new Date(now - 30 * 60_000), new Date(now - 30 * 60_000));
+
+    const deleted = await purgeHistory(dir, 0, now);
+    expect(deleted).toEqual([stale]);
+    expect(existsSync(inFlight)).toBe(true);
   });
 });
 
