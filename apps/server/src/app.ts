@@ -103,7 +103,15 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     done(null, payload);
   });
 
-  await app.register(rateLimit, { max: 120, timeWindow: '1 minute' });
+  await app.register(rateLimit, {
+    max: 120,
+    timeWindow: '1 minute',
+    // Only the API is metered. In a single-container deploy this process also
+    // serves the built site, where one page load is ~20 files and the service
+    // worker precaches dozens at once — enough to lock a visitor out on their
+    // first install (SPEC § 4: the limit is there for the API).
+    allowList: (req) => !req.url.startsWith('/api/'),
+  });
   await app.register(websocket, {
     options: { perMessageDeflate: { threshold: 256 }, maxPayload: 16 * 1024 },
   });
