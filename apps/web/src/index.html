@@ -12,6 +12,13 @@
     <meta name="theme-color" content="#161826" />
     <!-- API origin for static hosting; empty = same origin (ADR-010). -->
     <meta name="skytrace-api" content="" />
+    <!--
+      The basemap is the first thing the map chunk asks for, and it costs two
+      TLS handshakes on two origins: the style document, then the tiles, fonts
+      and sprite it points at.
+    -->
+    <link rel="preconnect" href="https://basemaps.cartocdn.com" crossorigin />
+    <link rel="preconnect" href="https://tiles.basemaps.cartocdn.com" crossorigin />
     <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
     <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
     <link rel="manifest" href="manifest.webmanifest" />
