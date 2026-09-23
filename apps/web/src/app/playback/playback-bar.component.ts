@@ -53,6 +53,10 @@ const clockTime = (ms: number): string =>
             [max]="pb.end()"
             [step]="1000"
             [value]="pb.time()"
+            [attr.aria-valuetext]="label()"
+            (pointerdown)="grab()"
+            (pointerup)="release()"
+            (pointercancel)="release()"
             (input)="seek($event)"
           />
           <div
@@ -160,6 +164,21 @@ export class PlaybackBarComponent {
     this.pb.playing() ? $localize`:@@playback.pause:Pause` : $localize`:@@playback.play:Play`,
   );
   protected readonly label = computed(() => clockTime(this.pb.time()));
+  private resume = false;
+
+  /**
+   * Playing while the thumb is held fights the user: at ×60 the clock moves
+   * the value 15 seconds on every UI tick, under their finger.
+   */
+  protected grab(): void {
+    this.resume = this.pb.playing();
+    this.pb.pause();
+  }
+
+  protected release(): void {
+    if (this.resume) this.pb.play();
+    this.resume = false;
+  }
 
   protected seek(e: Event): void {
     this.pb.seek((e.target as HTMLInputElement).valueAsNumber);

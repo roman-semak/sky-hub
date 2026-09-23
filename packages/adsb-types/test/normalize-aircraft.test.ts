@@ -104,4 +104,15 @@ describe('resolveEmergency', () => {
     expect(resolveEmergency('bogus', '1000')).toBe('none');
     expect(resolveEmergency(undefined, undefined)).toBe('none');
   });
+  it('handles padded provider strings', () => {
+    // The feed pads fixed-width fields; the squawk itself is trimmed
+    // elsewhere, so classifying the raw value would disagree with the UI.
+    expect(resolveEmergency(undefined, '7700 ')).toBe('general');
+    expect(resolveEmergency(' general ', '1000')).toBe('general');
+  });
+  it('does not resolve inherited object properties', () => {
+    for (const hostile of ['constructor', 'toString', '__proto__', 'hasOwnProperty']) {
+      expect(resolveEmergency(hostile, hostile)).toBe('none');
+    }
+  });
 });

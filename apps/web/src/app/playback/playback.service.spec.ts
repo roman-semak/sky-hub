@@ -57,6 +57,42 @@ describe('PlaybackService', () => {
     TestBed.resetTestingModule();
   });
 
+  it('ignores a window that arrives after the user went back to live', async () => {
+    const pending: { release: ((r: Response) => void) | null } = { release: null };
+    const fetchFn = vi.fn().mockReturnValue(
+      new Promise<Response>((resolve) => {
+        pending.release = resolve;
+      }),
+    );
+    const pb = setup(fetchFn);
+
+    const open = pb.open([-10, 37, -8, 40], T0 + 3_600_000);
+    pb.close();
+    pending.release?.(new Response(body()));
+    await open;
+
+    expect(pb.state()).toBe('off');
+    expect(pb.active()).toBe(false);
+    expect(pb.registry.aircraft.size).toBe(0);
+  });
+
+  it('drops the previous window when a reload fails', async () => {
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(body()))
+      .mockResolvedValue(new Response('nope', { status: 500 }));
+    const pb = setup(fetchFn);
+
+    await pb.open([-10, 37, -8, 40], T0 + 3_600_000);
+    expect(pb.registry.aircraft.size).toBe(1);
+
+    await pb.open([-10, 37, -8, 40], T0 + 3_600_000);
+    expect(pb.state()).toBe('error');
+    // The map must not keep drawing the window the bar says is unavailable.
+    expect(pb.registry.aircraft.size).toBe(0);
+    expect(pb.aircraft()).toBe(0);
+  });
+
   it('loads a window and replays it on a virtual clock', async () => {
     const fetchFn = vi.fn().mockResolvedValue(new Response(body()));
     const pb = setup(fetchFn);

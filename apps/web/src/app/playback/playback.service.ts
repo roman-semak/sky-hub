@@ -31,6 +31,8 @@ export class PlaybackService {
   readonly active = computed(() => this.state() !== 'off');
 
   private timeline: PlaybackTimeline | null = null;
+  /** Bumped by every `open()` and `close()`, so a late answer is ignored. */
+  private session = 0;
   private virtualAt = 0;
   private realAt = 0;
   private uiTimer: ReturnType<typeof setInterval> | null = null;
@@ -43,8 +45,11 @@ export class PlaybackService {
   }
 
   async open(bbox: BBox, to = Date.now(), windowMs = HOUR_MS): Promise<void> {
+    // Clear the previous window first: on a slow or failed load the map would
+    // otherwise keep drawing it while the bar says "loading" or "unavailable".
+    this.reset();
+    const session = ++this.session;
     this.state.set('loading');
-    this.playing.set(false);
     const from = to - windowMs;
     const params = new URLSearchParams({
       bbox: bbox.map((v) => v.toFixed(4)).join(','),
@@ -56,6 +61,8 @@ export class PlaybackService {
       const res = await this.fetchFn(`/api/history?${params.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const timeline = new PlaybackTimeline(parsePlaybackPayload(await res.arrayBuffer()));
+      // The user may have gone back to live while this was in flight.
+      if (session !== this.session) return;
       this.timeline = timeline;
       this.start.set(timeline.fixCount === 0 ? from : timeline.start);
       this.end.set(timeline.fixCount === 0 ? to : timeline.end);
@@ -64,15 +71,22 @@ export class PlaybackService {
       this.state.set('ready');
       this.startUiTimer();
     } catch {
-      this.state.set('error');
+      if (session === this.session) this.state.set('error');
     }
   }
 
   close(): void {
+    this.session++;
+    this.reset();
+    this.state.set('off');
+  }
+
+  /** Drops the current window without touching `state`. */
+  private reset(): void {
     this.playing.set(false);
     this.timeline = null;
     this.registry.clear();
-    this.state.set('off');
+    this.aircraft.set(0);
     if (this.uiTimer !== null) clearInterval(this.uiTimer);
     this.uiTimer = null;
   }
