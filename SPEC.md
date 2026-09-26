@@ -188,7 +188,7 @@ GET https://opensky-network.org/api/states/all?lamin=&lomin=&lamax=&lomax=
 
 <!-- agent-note -->
 > 2026-09-18: хостинг фронтенду змінено на **Vercel** за запитом власника
-> (див. `docs/decisions/001-vercel-frontend-hosting.md`). Бекенд — без змін,
+> (див. `docs/decisions/013-vercel-frontend-hosting.md`). Бекенд — без змін,
 > Fly.io / Render: Vercel не тримає постійний WS-процес.
 
 ### Структура монорепо
