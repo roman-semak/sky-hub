@@ -2,19 +2,28 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm turbo run build --filter=@skytrace/web",
+  "buildCommand": "pnpm turbo run build --filter=@skytrace/web && pnpm exec tsx scripts/set-api-origin.ts apps/web/dist/web/browser",
   "outputDirectory": "apps/web/dist/web/browser",
-  "ignoreCommand": "npx turbo-ignore @skytrace/web --fallback=HEAD^1",
-  "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/uk/(.*)", "destination": "/uk/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
   "headers": [
     {
-      "source": "/(.*)\\.(js|css|woff2|png|svg|webp)",
+      "source": "/(.*)-([A-Z0-9]{8}).(js|css)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     },
     {
-      "source": "/index.html",
+      "source": "/media/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/icons/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+    },
+    {
+      "source": "/(.*)(ngsw.json|ngsw-worker.js|safety-worker.js|worker-basic.min.js|index.html|manifest.webmanifest)",
       "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
     },
     {
