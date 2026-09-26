@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { encodeAircraftFrame, FrameType, type AircraftRecord } from '@skytrace/protocol';
 import { mockBackend } from './mock-backend';
+import { webglRenderer } from './webgl-renderer';
 
 const AIRCRAFT = 1500;
 const SPACING_S = 20;
@@ -95,10 +96,24 @@ test('plays an hour of history at ×60 without freezes', async ({ page }) => {
   const sorted = [...gaps].sort((a, b) => a - b);
   const p95 = sorted[Math.floor(sorted.length * 0.95)] ?? Infinity;
   const worst = sorted.at(-1) ?? Infinity;
+  const renderer = await webglRenderer(page);
   test.info().annotations.push({
     type: 'playback',
-    description: `frames ${gaps.length}, p95 gap ${p95.toFixed(1)} ms, worst ${worst.toFixed(1)} ms, long tasks ${long.map((d) => d.toFixed(0)).join('/') || 'none'}`,
+    description: `frames ${gaps.length}, p95 gap ${p95.toFixed(1)} ms, worst ${worst.toFixed(1)} ms, long tasks ${long.map((d) => d.toFixed(0)).join('/') || 'none'}, on ${renderer.name}`,
   });
+
+  // Everything above — an hour loaded, playback advancing, a scrub that
+  // rebuilds the registry — is asserted on every host. The frame timing below
+  // is not: a software rasterizer presents frames an order of magnitude slower
+  // than any GPU (p95 83 ms against 18 ms on one and the same machine), so on
+  // GPU-less CI it would measure SwiftShader. The CPU-side budget is covered
+  // there by fps.spec.ts, which holds 5 000 aircraft to 16 ms of frame work.
+  if (renderer.software) {
+    test
+      .info()
+      .annotations.push({ type: 'skip-frame-timing', description: 'software WebGL, not asserted' });
+    return;
+  }
   expect(p95).toBeLessThan(34);
   expect(worst).toBeLessThan(250);
   expect(Math.max(0, ...long)).toBeLessThan(250);

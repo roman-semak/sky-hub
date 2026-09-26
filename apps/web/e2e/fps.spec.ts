@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { webglRenderer } from './webgl-renderer';
 
 /**
  * CLAUDE.md budget: 16 ms per frame with 5 000 aircraft on screen.
@@ -36,15 +37,13 @@ test('renders 5000 aircraft within the 16 ms frame budget', async ({ page }) => 
         requestAnimationFrame(tick);
       }),
   );
-  const renderer = await page.evaluate(() => {
-    const gl = document.createElement('canvas').getContext('webgl2');
-    const info = gl?.getExtension('WEBGL_debug_renderer_info');
-    return gl && info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : 'unknown';
-  });
-  test.info().annotations.push({ type: 'fps', description: `${fps.toFixed(1)} on ${renderer}` });
+  const renderer = await webglRenderer(page);
+  test
+    .info()
+    .annotations.push({ type: 'fps', description: `${fps.toFixed(1)} on ${renderer.name}` });
   // Software rasterizers (SwiftShader on GPU-less CI) measure the emulator,
   // not the app; the CPU budget above is still enforced there.
-  if (/swiftshader|llvmpipe/i.test(renderer)) {
+  if (renderer.software) {
     test
       .info()
       .annotations.push({ type: 'skip-fps', description: 'software WebGL, fps not asserted' });

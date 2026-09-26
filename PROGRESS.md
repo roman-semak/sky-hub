@@ -4,6 +4,9 @@
 
 ### Зроблено
 
+- [x] 2026-09-26 · Виливка фронту на Vercel + перший зелений деплой · `feat/9-vercel-deploy`
+- [x] 2026-09-26 · Бюджети кадру на CI без GPU (ADR-014) · `fix/9-ci-frame-timing`
+
 - [x] 2026-09-18 · pnpm workspace, Turborepo, TS strict, ESLint flat config, Prettier · `feat/0-foundation`
 - [x] 2026-09-18 · Vitest + coverage, husky + lint-staged · `feat/0-foundation`
 - [x] 2026-09-18 · GitHub Actions: lint → typecheck → test → build · `feat/0-foundation`
@@ -119,6 +122,8 @@
 - ADR-012: MCP-сервер окремим пакетом над публічним REST (без доступу до стану процесу), інструменти — прості обʼєкти, форматований текст замість сирого JSON.
 - ADR-011: `maplibre-gl` закріплено на 5.x — deck.gl 9 синхронізує камеру через `map.transform`, який MapLibre 6 прибрав із публічного API (3D-режим падав щокадру). Воркер-ассет з ADR-005 більше не потрібен.
 - ADR-003: ~1.1 запиту/с замість потрібних 20 → планувальник за попитом (viewport-кола 30× пріоритетніші), виселення 180 с.
+- ADR-013: фронт на Vercel (запит власника), API лишається на Fly.io; Cloudflare-джоба спить. Vercel не читає `_headers`/`_redirects`, тому правила продубльовані в `vercel.json`.
+- ADR-014: на CI без GPU Chromium рендерить через SwiftShader — 79.5 мс p95 проти 17.9 мс на GPU при тому самому коді. Перевірки часу кадру в `playback.spec.ts` лишилися для хостів із GPU, CPU-бюджет на CI тримає `fps.spec.ts`.
 
 ### Заблоковано
 
